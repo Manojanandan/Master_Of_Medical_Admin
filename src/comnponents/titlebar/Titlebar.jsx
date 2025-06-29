@@ -6,7 +6,7 @@ import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 
 const Titlebar = ({title,filter,onClick,addClick,back,backClick}) => {
   return (
-    <div style={{display:'flex',justifyContent:'space-between',borderBottom: 'solid 1px #f09407',padding:'3% 3% 1%'}}>
+    <div style={{display:'flex',justifyContent:'space-between',padding:'3% 3% 1%'}}>
         <Typography component='div' variant='h5' sx={{fontWeight:"bold"}} >
             {title}
         </Typography>
@@ -23,7 +23,7 @@ const Titlebar = ({title,filter,onClick,addClick,back,backClick}) => {
           }
           {back &&
           <>
-            <Button variant='text'  startIcon={<KeyboardBackspaceIcon />} sx={{color:"#9b2f7d",fontWeight:'bold',mr:2}} onClick={backClick}>
+            <Button variant='text'  startIcon={<KeyboardBackspaceIcon />} sx={{color:"#000000",fontWeight:'bold',mr:2}} onClick={backClick}>
               Back to list
             </Button>
           </>

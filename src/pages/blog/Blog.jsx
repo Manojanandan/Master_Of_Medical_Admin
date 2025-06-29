@@ -73,44 +73,17 @@ const Blog = () => {
 
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70, align: 'center', sortable: false, headerAlign: 'center' },
-    { field: 'title', headerName: 'Title', width: 200, sortable: false, },
-    { field: 'author', headerName: 'Author', width: 200, sortable: false, },
-    
+    { datakey: 'id', headerName: 'ID', size: 100, align: 'center', align: 'center' },
+    { datakey: 'title', headerName: 'Title', size: 250,  },
+    { datakey: 'author', headerName: 'Author', size: 250,  }, 
     {
-      field: 'actions',
+      datakey: 'actions',
       headerName: 'Actions',
-      sortable: false,
-      width: 160,
-      renderCell: (params) => (
-        <div>
-          <IconButton
-            onClick={() => handleView(params.row)}
-            sx={{
-              color: "#f09407",
-            }}
-          >
-            <VisibilityIcon />
-          </IconButton>
-          <IconButton color="primary" onClick={() => handleEdit(params.row)}>
-            <EditIcon />
-          </IconButton>
-          <IconButton color="error" onClick={() => handleDelete(params.row)}>
-            <DeleteIcon />
-          </IconButton>
-        </div>
-      )
+      size: 200,
     },
   ];
 
-  const rows = blogData?.map((e) => {
-    // if (e?.content) {
-    //   const parser = new DOMParser();
-    //   const doc = parser.parseFromString(e?.content, 'text/html');
-    //   setContentReceiver(doc.body.textContent || "");
-    // }
-    // console.log(contentReceiver);
-    
+  const rows = blogData?.map((e) => {   
     return (
       {
         id: e?.id,
@@ -142,8 +115,7 @@ const Blog = () => {
         </Alert>
       }
       {accordian && <Filter handleStatus={(e) => { setStatus(e.target.value) }} handleName={(e) => { setName(e.target.value) }} nameValue={name} statusValue={status} nameOptions={nameOptions} />}
-      <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} />
-
+      <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} handleView={(e)=>handleView(e)} handleEdit={(e)=>handleEdit(e)} handleDelete={(e)=>handleDelete(e)} />
     </div>
   )
 }

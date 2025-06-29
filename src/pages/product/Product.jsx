@@ -11,69 +11,30 @@ import { useNavigate } from 'react-router-dom';
 const Product = () => {
     const navigate = useNavigate()
     const [name,setName]=useState('')
-    const [status,setStatus]=useState('')
+    const [status,setStatus]=useState('All')
     const [accordian,setAccordian] = useState(false)
-
-  const nameOptions = [
-    {
-      label: "Manoj",
-      value: "Manoj"
-    },
-    {
-      label: "Sanjay",
-      value: "Sanjay"
-    },
-    {
-      label: "Dhanush",
-      value: "Dhanush"
-    },
-    {
-      label: "Naveen",
-      value: "Naveen"
-    },
-  ]
 
 
     const columns = [
-        { field: 'id', headerName: 'ID', width: 70,align:'center', sortable: false, headerAlign: 'center'},
-        { field: 'productName', headerName: 'Product Name', width: 200, sortable: false, },
-        { field: 'brand', headerName: 'Brand', width: 200, sortable: false, },
+        { datakey: 'id', headerName: 'ID', size: 100,align:'left',},
+        { datakey: 'productName', headerName: 'Product Name', size: 200, },
+        { datakey: 'brand', headerName: 'Brand', size: 200, },
         {
-          field: 'description',
+          datakey: 'description',
           headerName: 'Description',
-          sortable: false,
-          width: 250,
-          align:'left'
+          size: 200,
         },
         {
-          field: 'price',
+          datakey: 'price',
           headerName: 'Price',
-          sortable: false,
-          width: 160,
+          size: 150,
+          align:'center'
         },
         {
-          field: 'actions',
+          datakey: 'actions',
           headerName: 'Actions',
-          sortable: false,
-          width: 160,
-          renderCell: (params) => (
-            <div>
-              <IconButton
-                onClick={() => handleView(params.row)}
-                sx={{
-                  color:"#f09407",
-                }}
-              >
-                <VisibilityIcon />
-              </IconButton>
-              <IconButton color="primary" onClick={() => handleEdit(params.row)}>
-              <EditIcon />
-            </IconButton>
-            <IconButton color="error" onClick={() => handleDelete(params.row)}>
-              <DeleteIcon />
-            </IconButton>
-            </div>
-          )
+          size: 200,
+          align:'center',
         },
       ];
       
@@ -87,13 +48,12 @@ const Product = () => {
         { id: 7, productName: 'Snow', brand: 'Jon', description: 'yhigygiugi',price:'700' },
        
       ];
-      
-      const paginationModel = { page: 0, pageSize: 10 };
+      const paginationModel = { page: 0, pageSize: 7 };
   return (
-    <div style={{height:'93vh'}}>
-        <Titlebar title={"Product Management"} filter={true} onClick={()=>setAccordian(!accordian)} addClick={()=>navigate('/productmanagemententry')} />
-        {accordian && <Filter handleStatus={(e)=>{setStatus(e.target.value)}} handleName={(e)=>{setName(e.target.value)}} nameValue={name} statusValue={status} nameOptions={nameOptions}  />}
-        <CommonTable rows={rows} columns={columns} paginationModel={paginationModel} />
+    <div style={{height:'auto'}}>
+        <Titlebar title={"Products List"} filter={true} onClick={()=>setAccordian(!accordian)} addClick={()=>navigate('/productmanagemententry')} />
+        {accordian && <Filter handleStatus={(e)=>{setStatus(e.target.value)}} handleName={(e)=>{setName(e.target.value)}} nameValue={name} statusValue={status}  />}
+        <CommonTable rows={rows} columns={columns} paginationModel={paginationModel} handleView={(data)=>console.log(data)} handleEdit={(data)=>console.log(data)} handleDelete={(data)=>console.log(data)} />
     </div>
   )
 }

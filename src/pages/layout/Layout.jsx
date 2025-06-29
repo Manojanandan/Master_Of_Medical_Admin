@@ -1,35 +1,71 @@
-import React, { useState } from 'react'
-import { Box, IconButton, Toolbar } from '@mui/material'
-import MenuIcon from '@mui/icons-material/Menu';
-import Sidebar from "../../comnponents/sidebar/Sidebar"
-import Navbar from '../../comnponents/navbar/Navbar'
-import { Outlet } from 'react-router-dom'
+import {
+  AppBar,
+  Avatar,
+  Box,
+  CssBaseline,
+  Toolbar
+} from '@mui/material';
+
+import { Outlet } from 'react-router-dom';
+import logo from '../../assets/logo.png';
+import Sidebar from '../../comnponents/sidebar/Sidebar';
+
 
 const Layout = () => {
-  const [openDrawer, setOpenDrawer] = useState(true)
   return (
-    <React.Fragment>
-      <Box sx={{ display: "flex",height: '100vh'}}>
-        <Box sx={{ height: '100vh', width: openDrawer ? '22%' : '6%', border: 'solid 2px black', transition: 'width 0.3s ease', position: 'fixed', }}>
-          <Sidebar openDrawer={openDrawer} />
-        </Box>
-        <Box sx={{ height: '100vh', width: '100%',marginLeft: openDrawer ? '22%' : '6%',transition: 'margin-left 0.3s ease',}}>
-          <Toolbar elevation={3} sx={{ height: '50px', width: '100%', display: 'flex', alignItems: 'center',position:'fixed',top:0,borderBottom:'solid 1.5px #2424',backgroundColor:'#fff',zIndex:'2'}}>
-            <IconButton
-              onClick={() => setOpenDrawer(!openDrawer)}
-              edge="start"
-              sx={{margin:'0 1%'}}
-            >
-              <MenuIcon />
-            </IconButton>
-          </Toolbar>
-          <Box sx={{backgroundColor:'#f4f7fb',marginTop:'50px',}}>
-            <Outlet />
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        height: '100vh', 
+        overflow: 'hidden',
+      }}
+    >
+      <CssBaseline />
+
+      <AppBar
+        position="fixed"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: '#ffffff',
+        }}
+      >
+        <Toolbar
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Box>
+            <img height={50} src={logo} alt="logo" />
           </Box>
+          <Box>
+            <Avatar src="/broken-image.jpg" />
+          </Box>
+        </Toolbar>
+      </AppBar>
+
+      <Sidebar />
+
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+          backgroundColor: '#fafafa',
+          overflowY: 'auto',
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ flexGrow: 1, px: 3, pb: 3 }}>
+          <Outlet />
         </Box>
       </Box>
-    </React.Fragment>
-  )
-}
+    </Box>
+  );
+};
 
-export default Layout
+export default Layout;

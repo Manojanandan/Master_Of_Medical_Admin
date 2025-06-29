@@ -1,6 +1,17 @@
-import React, { useState } from 'react';
-import { Box, List, ListItemButton, ListItemIcon, ListItemText, Typography, Collapse, Toolbar, Divider } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Collapse,
+  CssBaseline,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar
+} from '@mui/material';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
 import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
@@ -11,171 +22,242 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import BiotechIcon from '@mui/icons-material/Biotech';
-import logo from '../../assets/logo.png'
-import minilogo from '../../assets/minilogo.png'
+import ExitToApp from '@mui/icons-material/ExitToApp';
+import { useLocation, useNavigate } from 'react-router-dom';
+// import {ExitToApp, BiotechIcon, KeyboardArrowDownIcon, KeyboardArrowRightIcon, ViewListIcon, SupportIcon, HomeIcon, WebIcon, ProductionQuantityLimitsIcon, DeliveryDiningIcon, SupportAgentIcon} from '@mui/icons-material'
 
-const Sidebar = ({ openDrawer }) => {
+
+const drawerWidth = 300;
+
+const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [selectedMenu, setSelectedMenu] = useState('');
   const [openMenus, setOpenMenus] = useState({});
-  // const [openDrawer,setOpenDrawer] = useState(false)
-
-  const handleMenuChange = (menuName, pageUrl) => {
-    if (pageUrl !== '') {
-      navigate(pageUrl);
-    } else {
-      setOpenMenus((prev) => ({
-        ...prev,
-        [menuName]: !prev[menuName],
-      }));
-    }
-  };
 
   const menuList = [
     {
-      menuName: 'Customer Management',
+      menuName: 'Dashboard',
       pageUrl: '/',
-      icon: <SupportAgentIcon />,
+      icon: <HomeIcon />
     },
     {
-      menuName: 'Product Management',
+      menuName: 'Customer',
+      pageUrl: '/customer',
+      icon: <SupportAgentIcon />
+    },
+    {
+      menuName: 'Products',
       pageUrl: '/productmanagement',
-      icon: <ProductionQuantityLimitsIcon />,
+      icon: <ProductionQuantityLimitsIcon />
     },
     {
-      menuName: 'Order Management',
-      pageUrl: '',
+      menuName: 'Orders',
       icon: <DeliveryDiningIcon />,
       submenu: [
         {
           menuName: 'Order List',
-          pageUrl: '/',
-          icon: <ViewListIcon />,
+          pageUrl: '/orders',
+          icon: <ViewListIcon />
         },
         {
           menuName: 'Order Tracking',
-          pageUrl: '/',
-          icon: <ProductionQuantityLimitsIcon />,
-        },
-      ],
+          pageUrl: '/orders/tracking',
+          icon: <ProductionQuantityLimitsIcon />
+        }
+      ]
     },
     {
-      menuName: 'Blog Management',
+      menuName: 'Blog',
       pageUrl: '/blog',
-      icon: <WebIcon />,
+      icon: <WebIcon />
     },
     {
-      menuName: 'Support Management',
-      pageUrl: '/',
-      icon: <SupportIcon />,
+      menuName: 'Support',
+      pageUrl: '/support',
+      icon: <SupportIcon />
     },
     {
-      menuName: 'Testimonails',
-      pageUrl: '',
+      menuName: 'Testimonials',
       icon: <BiotechIcon />,
       submenu: [
         {
           menuName: 'All Testimonials',
           pageUrl: '/testimonials',
-          icon: <ViewListIcon />,
-        },
-        
-      ],
-    },
+          icon: <ViewListIcon />
+        }
+      ]
+    }
   ];
 
+  // Determine selected menu from current URL
+  useEffect(() => {
+    for (const item of menuList) {
+      if (item.submenu) {
+        for (const subItem of item.submenu) {
+          if (location.pathname.startsWith(subItem.pageUrl)) {
+            setSelectedMenu(subItem.menuName);
+            setOpenMenus((prev) => ({ ...prev, [item.menuName]: true }));
+            return;
+          }
+        }
+      } else if (location.pathname === item.pageUrl) {
+        setSelectedMenu(item.menuName);
+        return;
+      }
+    }
+  }, [location.pathname]);
+
+  const handleMenuChange = (item) => {
+    if (item.submenu) {
+     setOpenMenus({
+      [item.menuName]: !openMenus[item.menuName] 
+    });
+    } else {
+      navigate(item.pageUrl);
+      setSelectedMenu(item.menuName);
+      setOpenMenus({});
+    }
+  };
+
+  const handleSubmenuClick = (subItem, parentMenuName) => {
+    navigate(subItem.pageUrl);
+    setSelectedMenu(subItem.menuName);
+    setOpenMenus((prev) => ({ ...prev, [parentMenuName]: true }));
+  };
+
+
+
   return (
-    <div style={{ borderRight: 'solid 1px #36363c', height: '100%', backgroundColor: '#36363c', }}>
-      <Box sx={{ margin: '0 0.7rem' }}>
-        <Toolbar sx={{ display: 'flex', justifyContent: 'center', marginBottom: '2%' }}>
-          {openDrawer ? <img width={250} src={logo} alt={logo} /> :
-            <img height={50} src={minilogo} alt={minilogo} />}
-        </Toolbar>
-        <Divider sx={{ backgroundColor: '#fff' }} />
-        <List sx={{margin:'1rem 0'}}>
-          <ListItemButton onClick={() => navigate('/')} sx={{
-            '&:hover': {
-              backgroundColor: '#1e1e1e',
-              color: '#fff',
-              borderRadius: '10px',
+    <React.Fragment>
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            backgroundColor: '#000000',
+            color: '#fff'
+          },
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ overflow: 'auto', p: 2, marginTop: '20px'}}>
+          <List>
+            {menuList.map((item, index) => {
+              const isItemSelected = selectedMenu === item.menuName;
+              const isMenuOpen = openMenus[item.menuName];
 
-            }
-          }}>
-            <ListItemIcon sx={{ color: '#fff' }}>
-              <HomeIcon />
-            </ListItemIcon>
-            {openDrawer ?
-              <>
-                <ListItemText primary="Dashboards" sx={{ color: '#fff' }} />
-                <KeyboardArrowRightIcon sx={{ color: '#fff' }} />
-              </>
-              : ""}
-          </ListItemButton>
-        </List>
+              return (
+                <div key={index}>
+                  <ListItemButton
+                    onClick={() => handleMenuChange(item)}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: '#1e1e1e',
+                        color: '#fff',
+                        borderRadius: '10px'
+                      },
+                      mb: 1,
+                      backgroundColor: isItemSelected ? '#1e1e1e' : 'transparent',
+                      borderRadius: '10px'
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: isItemSelected ? '#fff' : '#bdb9b0' }}>{item.icon}</ListItemIcon>
+                    <ListItemText
+                      primary={item.menuName}
+                      primaryTypographyProps={{
+                        sx: {
+                          color: isItemSelected ? '#fff' : '#bdb9b0',
+                          fontSize: '1.1rem',
+                          fontWeight: 500
+                        }
+                      }}
+                    />
+                    {item.submenu &&
+                      (isMenuOpen ? (
+                        <KeyboardArrowDownIcon sx={{ color: '#bdb9b0' }} />
+                      ) : (
+                        <KeyboardArrowRightIcon sx={{ color: '#bdb9b0' }} />
+                      ))}
+                  </ListItemButton>
 
-        <Typography variant="button" gutterBottom sx={{ color: '#d50b51', fontWeight: 'bold', fontSize:'16px'}} ml={openDrawer ? 3 : 1} >
-          Menu
-        </Typography>
-
-        <List sx={{margin:'1rem 0'}}>
-          {menuList.map((menu, i) => (
-            <div key={menu.menuName}>
-              <ListItemButton onClick={() => handleMenuChange(menu.menuName, menu.pageUrl)} sx={{
-                marginBottom: openDrawer ? '0.8rem' : '1.5rem',
+                  {/* Submenu Rendering */}
+                  {item.submenu && (
+                    <Collapse in={isMenuOpen} timeout="auto" unmountOnExit>
+                      <List component="div" disablePadding>
+                        {item.submenu.map((subItem, subIndex) => {
+                          const isSubItemSelected = selectedMenu === subItem.menuName;
+                          return (
+                            <ListItemButton
+                              key={subItem.menuName}
+                              onClick={() => handleSubmenuClick(subItem, item.menuName)}
+                              sx={{
+                                pl: 4,
+                                mb: 1,
+                                backgroundColor: isSubItemSelected ? '#1e1e1e' : 'transparent',
+                                borderRadius: '10px',
+                                '&:hover': {
+                                  backgroundColor: '#1e1e1e',
+                                  color: '#fff'
+                                }
+                              }}
+                            >
+                              <ListItemIcon sx={{ color: isSubItemSelected ? '#fff' : '#bdb9b0' }}>
+                                {subItem.icon}
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={subItem.menuName}
+                                primaryTypographyProps={{
+                                  sx: {
+                                    color: isSubItemSelected ? '#fff' : '#bdb9b0',
+                                    fontSize: '1.1rem',
+                                    fontWeight: 500
+                                  }
+                                }}
+                              />
+                            </ListItemButton>
+                          );
+                        })}
+                      </List>
+                    </Collapse>
+                  )}
+                </div>
+              );
+            })}
+          </List>
+        </Box>
+        <Box sx={{ overflow: 'auto', py: 1,px: 2, position:'absolute',bottom: 30,width: '100%' }}>
+          <List>
+            <ListItemButton
+              sx={{
                 '&:hover': {
                   backgroundColor: '#1e1e1e',
                   color: '#fff',
                   borderRadius: '10px'
-                }
-              }}>
-                <ListItemIcon sx={{ color: '#fff' }}>{menu.icon}</ListItemIcon>
-                {openDrawer ?
-                  <>
-                    <ListItemText primary={menu.menuName} sx={{ color: '#fff' }} />
-                    {menu.submenu ? (
-                      openMenus[menu.menuName] ? (
-                        <KeyboardArrowDownIcon sx={{ color: '#fff' }} />
-                      ) : (
-                        <KeyboardArrowRightIcon sx={{ color: '#fff' }} />
-                      )
-                    ) : <KeyboardArrowRightIcon sx={{ color: '#fff' }} />}
-                  </> : ""}
-              </ListItemButton>
+                },
+                mb: 1,
+              }}
+            >
+              <ListItemIcon sx={{ color: '#bdb9b0' }}><ExitToApp /></ListItemIcon>
+              <ListItemText
+                primary='Logout'
+                primaryTypographyProps={{
+                  sx: {
+                    color: '#bdb9b0',
+                    fontSize: '1.1rem',
+                    fontWeight: 500
+                  }
+                }}
+              />
+            </ListItemButton>
+          </List>
+        </Box>
+      </Drawer>
+    </React.Fragment>
+  )
+}
 
-              {/* Submenu */}
-              {openDrawer ?
-                <>
-                  {menu.submenu && (
-                    <Collapse in={openMenus[menu.menuName]} timeout="auto" unmountOnExit>
-                      <List component="div" disablePadding>
-                        {menu.submenu.map((subItem) => (
-                          <ListItemButton
-                            key={subItem.menuName}
-                            sx={{
-                              pl: 4, color: '#f09407',
-                              '&:hover': {
-                                backgroundColor: '#1e1e1e',
-                                color: '#fff',
-                                borderRadius: '10px'
-                              }
-                            }}
-                            onClick={() => navigate(subItem.pageUrl)}
-                          >
-                            <ListItemIcon sx={{ color: '#fff' }}>{subItem.icon}</ListItemIcon>
-                            <ListItemText primary={subItem.menuName} sx={{ color: '#fff' }} />
-                          </ListItemButton>
-                        ))}
-                      </List>
-                    </Collapse>
-                  )}
-                </>
-                : ""}
-
-            </div>
-          ))}
-        </List>
-      </Box>
-    </div>
-  );
-};
-
-export default Sidebar;
+export default Sidebar

@@ -1,33 +1,65 @@
 import React from 'react'
-import { Pagination, Paper, Stack } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
+import { Box, IconButton, Pagination, Paper, Stack, Typography } from '@mui/material'
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-
-const CommonTable = ({ rows, columns, count, page, handlePageChange }) => {
+const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView, handleEdit, handleDelete }) => {
   return (
     <React.Fragment>
-      <Paper elevation={5} sx={{ width: '95%', margin: '25px', height: "auto", }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pagination={false}
-          disableSelectionOnClick
-          disableColumnMenu
-          hideFooter
-          sx={{
-            '& .MuiDataGrid-columnHeaders': {
-              fontSize: '16px', // Adjust font size
-              fontWeight: 'bolder', // Adjust font weight
-            },
-            // '& .MuiDataGrid-cell': {
-            //   fontSize: '14px', // Adjust cell font size
-            //   fontWeight: '500', // Adjust cell font weight
-            // },
-          }}
-        />
+      <Paper elevation={5} sx={{ width: '95%', margin: '25px', height: "auto", borderRadius: '10px' }}>
+
+        <Box sx={{ borderBottom: 'solid 1px #2424', display: 'flex', alignItems: 'center', padding: '15px 20px', }}>
+          {columns?.map((col, key) => {
+            return (
+              <Box sx={{ width: col?.size }} key={key}>
+                <Typography fontWeight={600} sx={{ fontSize: '18px', textAlign: col?.align, }}>{col?.headerName}</Typography>
+              </Box>
+            )
+          })
+          }
+        </Box>
+
+        {rows?.map((item, index) => {
+          return (
+            <Box key={index} sx={{
+              borderBottom: 'solid 1px #2424', display: 'flex', alignItems: 'center', padding: '10px 20px', transition: 'background 0.2s', '&:hover': {
+                backgroundColor: '#f0f4f8', 
+              },
+            }}>
+              {columns?.map((col, idx) => {
+                return (
+                  <Box sx={{ width: col?.size }} key={idx}>
+                    {col?.datakey === "actions" ?
+                      <div style={{ textAlign: col?.align }}>
+                        <IconButton
+                          onClick={() => handleView(item)}
+                          sx={{
+                            color: "#f09407",
+                          }}
+                        >
+                          <VisibilityIcon />
+                        </IconButton>
+                        <IconButton color="primary" onClick={() => handleEdit(item)}>
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton color="error" onClick={() => handleDelete(item)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </div>
+                      :
+                      <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align, }}>{item[col?.datakey]}</Typography>
+                    }
+                  </Box>
+                )
+              })}
+            </Box>
+          )
+        })}
+
       </Paper>
       <Stack spacing={2} sx={{ alignItems: 'center', }}>
-        <Pagination count={count ?? "5"} color="secondary" size='large' page={page}  onChange={handlePageChange} />
+        <Pagination count={count ?? "5"} color="secondary" size='large' page={page} onChange={handlePageChange} />
       </Stack>
     </React.Fragment>
   )

@@ -8,6 +8,7 @@ import Blog from './pages/blog/Blog'
 import BlogEntry from './pages/blog/BlogEntry'
 import Testimonials from './pages/testimonials/Testimonials'
 import TestimonialsEntry from './pages/testimonials/TestimonialsEntry'
+import CustomerList from './pages/customer/CustomerList'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path='/blogentry' element={<BlogEntry />} />
           <Route path='/testimonials' element={<Testimonials />} />
           <Route path='/testimonialsentry' element={<TestimonialsEntry />} />
+          <Route path='/customer' element={<CustomerList />} />
         </Route>
       </Routes>
     </React.Fragment>

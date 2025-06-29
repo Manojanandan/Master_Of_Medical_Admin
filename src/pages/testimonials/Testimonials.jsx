@@ -79,40 +79,20 @@ const Testimonials = () => {
   }
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 110, align: 'center', sortable: false, headerAlign: 'center' },
-    { field: 'name', headerName: 'Name', width: 220, sortable: false, },
+    { datakey: 'id', headerName: 'ID', size: 100, align: 'center', align: 'center' },
+    { datakey: 'name', headerName: 'Name', size: 250, },
     {
-      field: 'designation',
+      datakey: 'designation',
       headerName: 'Designation',
-      sortable: false,
-      width: 200,
+      size: 250,
       align: 'left'
     },
-    { field: 'message', headerName: 'Message', width: 320, sortable: false, },
+    { datakey: 'message', headerName: 'Message', size: 350},
     {
-      field: 'actions',
+      datakey: 'actions',
       headerName: 'Actions',
-      sortable: false,
-      width: 180,
-      headerAlign: 'center',
-      renderCell: (params) => (
-        <div style={{ textAlign: 'center' }}>
-          <IconButton
-            onClick={() => handleView(params.row)}
-            sx={{
-              color: "#f09407",
-            }}
-          >
-            <VisibilityIcon />
-          </IconButton>
-          <IconButton color="primary" onClick={() => handleEdit(params.row)}>
-            <EditIcon />
-          </IconButton>
-          <IconButton color="error" onClick={() => handleDelete(params.row)}>
-            <DeleteIcon />
-          </IconButton>
-        </div>
-      )
+      size: 180,
+      align: 'center',
     },
   ];
 
@@ -145,7 +125,7 @@ const Testimonials = () => {
         </Alert>
       }
       {accordian && <Filter handleStatus={(e) => { setStatus(e.target.value) }} handleName={(e) => { setName(e.target.value) }} nameValue={name} statusValue={status} nameOptions={nameOptions} />}
-      <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} />
+      <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} handleView={(e)=>handleView(e)} handleEdit={(e)=>handleEdit(e)} handleDelete={(e)=>handleDelete(e)} />
     </div>
   )
 }
