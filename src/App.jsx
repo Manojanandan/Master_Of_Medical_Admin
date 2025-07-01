@@ -9,13 +9,17 @@ import BlogEntry from './pages/blog/BlogEntry'
 import Testimonials from './pages/testimonials/Testimonials'
 import TestimonialsEntry from './pages/testimonials/TestimonialsEntry'
 import CustomerList from './pages/customer/CustomerList'
+import AdminUserList from './pages/adminUser/AdminUserList'
+import AdminEntry from './pages/adminUser/AdminEntry'
+import Login from './pages/login/Login'
 
 function App() {
   return (
     <React.Fragment>
       <Routes>
+        <Route path='/' element={<Login />} />
         <Route exact path="" element={<Layout />}>
-          <Route path='/' element={<Dashboard />} />
+          <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/productmanagement' element={<Product />} />
           <Route path='/productmanagemententry' element={<ProductEntry />} />
           <Route path='/blog' element={<Blog />} />
@@ -23,6 +27,8 @@ function App() {
           <Route path='/testimonials' element={<Testimonials />} />
           <Route path='/testimonialsentry' element={<TestimonialsEntry />} />
           <Route path='/customer' element={<CustomerList />} />
+          <Route path='/adminUser' element={<AdminUserList />} />
+          <Route path='/adminuserentry' element={<AdminEntry />} />
         </Route>
       </Routes>
     </React.Fragment>

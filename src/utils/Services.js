@@ -1,5 +1,11 @@
 import instance from './Instance'
 
+
+//login creation
+export const userLogin = async(data,type) =>{
+    return await  instance.post(`user/login/`,data)
+}
+
 // Testimonial Api
 export const addTestimonial = (data) => {
     return instance.post('testimonial/create-testimonial', data)
@@ -50,6 +56,14 @@ export const getCustomer = (id, pageNum) => {
 export const createProduct = async (data) => {
     return await instance.post('product/create-product', data)
 }
-export const getAllProduct = async (data) => {
-    return await instance.get('product/create-product', data)
+export const getAllProduct = async () => {
+    return await instance.get('product/get-all-product')
+}
+
+//Admin User
+export const getAllAdminUser = async () => {
+    return await instance.get(`admin-user/get-all-admin`)
+}
+export const createAdminUser = async (data) => {
+    return await instance.post(`admin-user/create-admin`,data)
 }

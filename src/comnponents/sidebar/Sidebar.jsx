@@ -23,6 +23,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import BiotechIcon from '@mui/icons-material/Biotech';
 import ExitToApp from '@mui/icons-material/ExitToApp';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useLocation, useNavigate } from 'react-router-dom';
 // import {ExitToApp, BiotechIcon, KeyboardArrowDownIcon, KeyboardArrowRightIcon, ViewListIcon, SupportIcon, HomeIcon, WebIcon, ProductionQuantityLimitsIcon, DeliveryDiningIcon, SupportAgentIcon} from '@mui/icons-material'
 
@@ -38,7 +39,7 @@ const Sidebar = () => {
   const menuList = [
     {
       menuName: 'Dashboard',
-      pageUrl: '/',
+      pageUrl: '/dashboard',
       icon: <HomeIcon />
     },
     {
@@ -87,7 +88,12 @@ const Sidebar = () => {
           icon: <ViewListIcon />
         }
       ]
-    }
+    },
+    {
+      menuName: 'Admin Users',
+      pageUrl: '/adminUser',
+      icon: <AdminPanelSettingsIcon />
+    },
   ];
 
   // Determine selected menu from current URL

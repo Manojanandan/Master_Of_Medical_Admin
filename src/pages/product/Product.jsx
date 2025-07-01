@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
 import Filter from '../../comnponents/filter/Filter'
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -7,13 +7,23 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CommonTable from '../../comnponents/table/CommonTable'
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProductList } from './ProductReducer';
 
 const Product = () => {
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const [name,setName]=useState('')
     const [status,setStatus]=useState('All')
     const [accordian,setAccordian] = useState(false)
 
+    const reducer = useSelector((state)=>state.productReducer)
+    const { loader, getProduct} = reducer
+console.log(getProduct);
+
+    useEffect(()=>{
+      dispatch(getProductList())
+    },[])
 
     const columns = [
         { datakey: 'id', headerName: 'ID', size: 100,align:'left',},
