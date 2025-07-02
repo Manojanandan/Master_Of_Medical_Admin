@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { createAdminUser, getAllAdminUser } from "../../utils/Services";
 
-export const getAllUserData = createAsyncThunk("GetAllUserData", async () => {
-    return await getAllAdminUser().then((response) => response?.data)
+export const getAllUserData = createAsyncThunk("GetAllUserData", async (pgNum) => {  
+    return await getAllAdminUser("",pgNum).then((response) => response?.data)
 })
 export const addUserData = createAsyncThunk("AddUserData", async (data) => {
     return await createAdminUser(data).then((response) => response?.data)

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, IconButton, Pagination, Paper, Stack, Typography } from '@mui/material'
+import { Box, Chip, IconButton, Pagination, Paper, Stack, Typography } from '@mui/material'
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -24,7 +24,7 @@ const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView,
           return (
             <Box key={index} sx={{
               borderBottom: 'solid 1px #2424', display: 'flex', alignItems: 'center', padding: '10px 20px', transition: 'background 0.2s', '&:hover': {
-                backgroundColor: '#f0f4f8', 
+                backgroundColor: '#f0f4f8',
               },
             }}>
               {columns?.map((col, idx) => {
@@ -48,7 +48,9 @@ const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView,
                         </IconButton>
                       </div>
                       :
-                      <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align, }}>{item[col?.datakey]}</Typography>
+                      col?.datakey === "status" ? <Box sx={{display:'flex',justifyContent:col?.align,alignItems:'center',textTransform:'capitalize'}}>{item[col?.datakey] ? <Chip label={item[col?.datakey]} color={item[col?.datakey] === "active" ? "success" : "error"} sx={{fontWeight:'bold',borderRadius:'5px',padding:'3px 5px',fontSize:'15px'}} /> : '-' }</Box>
+                        :
+                        <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align, }}>{item[col?.datakey]}</Typography>
                     }
                   </Box>
                 )

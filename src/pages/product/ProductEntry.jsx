@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
 import { useNavigate } from 'react-router-dom'
 import { Alert, Backdrop, Box, Button, CircularProgress, Grid, IconButton, MenuItem, Paper, Select, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material'
@@ -6,7 +6,8 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import AddIcon from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux'
-import { addProduct } from './ProductReducer'
+import { addProduct, editProduct, getOneProductList } from './ProductReducer'
+import EditIcon from '@mui/icons-material/Edit';
 
 const SUBCATEGORY_OPTIONS = {
   medical: [
@@ -36,10 +37,30 @@ const ProductEntry = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [allData, setAllData] = useState({ category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "" })
   const [errorMsg, setErrorMsg] = useState({ categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "" })
+  const mode = sessionStorage.getItem("Mode")
 
   const reducer = useSelector((state) => state.productReducer)
-  const { loader, successMsg, success } = reducer
+  const { loader, successMsg, success, getOneData } = reducer
 
+  console.log(getOneData);
+  useEffect(() => {
+    if (getOneData?.data) {
+      const data = getOneData?.data
+      setAllData({
+        ...errorMsg,
+        category: data?.category, subCategory: data?.subCategory, productName: data?.name, price: data?.price, priceLabel: data?.priceLable, postedBy: data?.postedBy, productDescription: data?.description, shelfLife: data?.shelfLife, brandName: data?.brandName, expireAfter: data?.expiresOn, country: "", uses: "", benefits: data?.benefits, sideEffects: "", manufacturerDetails: ""
+      })
+      setProductImages(data?.galleryImage)
+    }
+  }, [getOneData])
+
+
+  useEffect(() => {
+    if (sessionStorage.getItem("productId")) {
+      dispatch(getOneProductList(sessionStorage.getItem("productId")))
+    }
+
+  }, [sessionStorage.getItem("productId")])
 
   const handleProductImagesChange = (e) => {
     const files = Array.from(e.target.files);
@@ -204,9 +225,12 @@ const ProductEntry = () => {
         }
       }
 
-      dispatch(addProduct(formData))
-      console.log(success);
-      
+      if (mode === "Add") {
+        dispatch(addProduct(formData))
+      } else {
+        dispatch(editProduct(formData))
+      }
+
       if (success) {
         setOpenSnackbar(true)
         navigate('/productmanagement')
@@ -214,6 +238,8 @@ const ProductEntry = () => {
         setErrorMsg({ ...errorMsg, categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "" })
         setThumbnail(null)
         setProductImages([])
+        sessionStorage.removeItem("productId")
+        sessionStorage.removeItem("Mode")
       }
 
     }
@@ -227,7 +253,7 @@ const ProductEntry = () => {
       >
         <CircularProgress color="secondary" />
       </Backdrop>
-      <Titlebar title={"Product Details"} filter={false} back={true} backClick={() => navigate('/productmanagement')} />
+      <Titlebar title={"Product Details"} filter={false} back={true} backClick={() => { navigate('/productmanagement'), sessionStorage.removeItem("productId"), sessionStorage.removeItem("Mode") }} />
       {successMsg && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(!openSnackbar)}>
         <Alert
           onClose={() => setOpenSnackbar(!openSnackbar)}
@@ -250,6 +276,7 @@ const ProductEntry = () => {
               onChange={handleDropDownChange}
               fullWidth
               displayEmpty
+              disabled={mode == "View" ? true : false}
             >
               <MenuItem value="" disabled>Select Category</MenuItem>
               <MenuItem value="medical">Medical</MenuItem>
@@ -267,7 +294,7 @@ const ProductEntry = () => {
               value={allData?.subCategory}
               onChange={handleDropDownChange}
               fullWidth
-              disabled={!allData?.category}
+              disabled={!allData?.category || mode == "View"}
               displayEmpty
             >
               <MenuItem value="" disabled>Select Subcategory</MenuItem>
@@ -279,23 +306,23 @@ const ProductEntry = () => {
           </Grid>
           <Grid item xs={6}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Product Name<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField onChange={handleChange} fullWidth size='small' id='productName' value={allData?.productName} placeholder='Enter your product name' />
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='productName' value={allData?.productName} placeholder='Enter your product name' />
             {errorMsg?.productNameError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.productNameError}</Typography>}
           </Grid>
           <Grid item xs={6}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Posted By <span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField onChange={handleChange} fullWidth size='small' id='postedBy' value={allData?.postedBy} placeholder='Enter your vendor id' />
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='postedBy' value={allData?.postedBy} placeholder='Enter your vendor id' />
             {errorMsg?.postedByError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.postedByError}</Typography>}
           </Grid>
           <Grid item xs={6}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Price<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField onChange={handleChange} fullWidth size='small' id='price' value={allData?.price} placeholder='Enter your price' />
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='price' value={allData?.price} placeholder='Enter your price' />
             {errorMsg?.priceError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.priceError}</Typography>}
 
           </Grid>
           <Grid item xs={6}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Price Label<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField onChange={handleChange} fullWidth size='small' id='priceLabel' value={allData?.priceLabel} placeholder='Enter your price label' />
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='priceLabel' value={allData?.priceLabel} placeholder='Enter your price label' />
             {errorMsg?.priceLabelError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.priceLabelError}</Typography>}
 
           </Grid>
@@ -308,29 +335,30 @@ const ProductEntry = () => {
               maxRows={4}
               minRows={3}
               onChange={handleChange}
+              disabled={mode == "View" ? true : false}
             />
           </Grid>
           <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Shelf Life<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField onChange={handleChange} fullWidth size='small' id='shelfLife' value={allData?.shelfLife} placeholder='Shelf Life' />
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='shelfLife' value={allData?.shelfLife} placeholder='Shelf Life' />
             {errorMsg?.shelfLifeError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.shelfLifeError}</Typography>}
 
           </Grid>
           <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Brand Name<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField onChange={handleChange} fullWidth size='small' id='brandName' value={allData?.brandName} placeholder='Brand Nmae' />
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='brandName' value={allData?.brandName} placeholder='Brand Nmae' />
             {errorMsg?.brandNameError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.brandNameError}</Typography>}
 
           </Grid>
           <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Expires On or After<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField onChange={handleChange} fullWidth size='small' id='expireAfter' value={allData?.expireAfter} placeholder='Expire On or After' />
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='expireAfter' value={allData?.expireAfter} placeholder='Expire On or After' />
             {errorMsg?.expireAfterError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.expireAfterError}</Typography>}
 
           </Grid>
           <Grid item xs={12}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Country of Origin<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField onChange={handleChange} fullWidth size='small' id='country' value={allData?.country} placeholder='Country of Origin' />
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='country' value={allData?.country} placeholder='Country of Origin' />
             {errorMsg?.countryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.countryError}</Typography>}
 
           </Grid>
@@ -343,6 +371,7 @@ const ProductEntry = () => {
               maxRows={4}
               minRows={3}
               onChange={handleChange}
+              disabled={mode == "View" ? true : false}
             />
           </Grid>
           <Grid item xs={12}>
@@ -354,6 +383,7 @@ const ProductEntry = () => {
               maxRows={4}
               minRows={3}
               onChange={handleChange}
+              disabled={mode == "View" ? true : false}
             />
           </Grid>
           <Grid item xs={12}>
@@ -364,7 +394,7 @@ const ProductEntry = () => {
               style={{ width: '100%', fontSize: '16px', padding: '15px 20px 0', backgroundColor: '#f8fafc' }}
               maxRows={4}
               minRows={3}
-              onChange={handleChange}
+              onChange={handleChange} disabled={mode == "View" ? true : false}
             />
           </Grid>
           <Grid item xs={12}>
@@ -376,6 +406,7 @@ const ProductEntry = () => {
               maxRows={4}
               minRows={3}
               onChange={handleChange}
+              disabled={mode == "View" ? true : false}
             />
             {errorMsg?.manufacturerDetailsError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.manufacturerDetailsError}</Typography>}
           </Grid>
@@ -392,9 +423,10 @@ const ProductEntry = () => {
                 cursor: thumbnail ? 'default' : 'pointer',
                 minHeight: 120,
               }}
-              onClick={() => {
-                if (!thumbnail) fileInputRef.current.click()
-              }}
+            // onClick={() => {
+            //   if (!thumbnail) fileInputRef.current.click()
+            // }}
+
             >
               {!thumbnail && (
                 <>
@@ -409,6 +441,7 @@ const ProductEntry = () => {
                       e.stopPropagation()
                       fileInputRef.current.click()
                     }}
+                    disabled={mode == "View" ? true : false}
                   >
                     BROWSE
                   </Button>
@@ -463,9 +496,9 @@ const ProductEntry = () => {
                 position: 'relative',
                 minHeight: 120,
               }}
-              onClick={() => {
-                if (productImages.length < 5) productImagesInputRef.current.click();
-              }}
+              // onClick={() => {
+              //   if (productImages.length < 5) productImagesInputRef.current.click();
+              // }}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
@@ -482,6 +515,7 @@ const ProductEntry = () => {
                       e.stopPropagation();
                       productImagesInputRef.current.click();
                     }}
+                    disabled={mode == "View" ? true : false}
                   >
                     BROWSE
                   </Button>
@@ -504,9 +538,9 @@ const ProductEntry = () => {
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
                   {productImages.map((file, idx) => (
                     <Box key={idx} sx={{ position: 'relative', display: 'inline-block', m: 1, width: 100 }}>
-                      {file.type.startsWith('image/') ? (
+                      {file ? (
                         <img
-                          src={URL.createObjectURL(file)}
+                          src={file}
                           alt={`Product ${idx + 1}`}
                           style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }}
                         />
@@ -560,6 +594,7 @@ const ProductEntry = () => {
                         e.stopPropagation();
                         productImagesInputRef.current.click();
                       }}
+                      disabled={mode == "View" ? true : false}
                     >
                       +
                     </Button>
@@ -570,7 +605,9 @@ const ProductEntry = () => {
           </Grid>
         </Grid>
         <Box sx={{ margin: '2% 0', padding: '10px 0', textAlign: 'right' }}>
-          <Button onClick={handleSubmit} size='large' startIcon={<AddIcon />} variant='contained' sx={{ fontWeight: 'bold', backgroundColor: "#00bfae" }}>Add Product</Button>
+          {mode !== "View" &&
+            <Button onClick={handleSubmit} size='large' startIcon={mode === "Edit" ? <EditIcon /> : <AddIcon />} variant='contained' sx={{ fontWeight: 'bold', backgroundColor: "#00bfae" }}>{mode === "Edit" ? "Update Product" : "Add Product"}</Button>
+          }
         </Box>
       </Paper>
     </div>
