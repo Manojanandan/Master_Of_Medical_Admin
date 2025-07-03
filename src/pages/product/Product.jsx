@@ -23,7 +23,7 @@ const Product = () => {
   console.log(getProduct);
 
   useEffect(() => {
-    dispatch(getProductList())
+    dispatch(getProductList(page))
   }, [])
 
   const columns = [
