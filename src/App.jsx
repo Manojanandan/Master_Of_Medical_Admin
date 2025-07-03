@@ -12,6 +12,7 @@ import CustomerList from './pages/customer/CustomerList'
 import AdminUserList from './pages/adminUser/AdminUserList'
 import AdminEntry from './pages/adminUser/AdminEntry'
 import Login from './pages/login/Login'
+import VendorList from './pages/vendor/VendorList'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path='/customer' element={<CustomerList />} />
           <Route path='/adminUser' element={<AdminUserList />} />
           <Route path='/adminuserentry' element={<AdminEntry />} />
+          <Route path='/vendor' element={<VendorList />} />
         </Route>
       </Routes>
     </React.Fragment>

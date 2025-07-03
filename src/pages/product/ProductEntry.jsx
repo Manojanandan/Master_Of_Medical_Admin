@@ -44,12 +44,16 @@ const ProductEntry = () => {
 
   console.log(getOneData);
   useEffect(() => {
-    if (getOneData?.data) {
+    if (getOneData?.data && mode !== "Add") {
       const data = getOneData?.data
+      const additional = JSON.parse(getOneData?.data?.additionalInformation)
+      console.log(additional);
+
       setAllData({
         ...errorMsg,
-        category: data?.category, subCategory: data?.subCategory, productName: data?.name, price: data?.price, priceLabel: data?.priceLable, postedBy: data?.postedBy, productDescription: data?.description, shelfLife: data?.shelfLife, brandName: data?.brandName, expireAfter: data?.expiresOn, country: "", uses: "", benefits: data?.benefits, sideEffects: "", manufacturerDetails: ""
+        category: data?.category, subCategory: data?.subCategory, productName: data?.name, price: data?.price, priceLabel: data?.priceLable, postedBy: data?.postedBy, productDescription: data?.description, shelfLife: additional?.shelfLife, brandName: data?.brandName, expireAfter: data?.expiresOn, country: additional?.country, uses: additional?.howToUse, benefits: data?.benefits, sideEffects: additional?.sideEffects, manufacturerDetails: additional?.manufacturer
       })
+      setThumbnail(data?.thumbnailImage)
       setProductImages(data?.galleryImage)
     }
   }, [getOneData])
@@ -67,15 +71,20 @@ const ProductEntry = () => {
     setProductImages((prev) => {
       // Combine previous and new, filter images and pdfs, max 5, max 5MB each
       const all = [...prev, ...files];
-      const valid = all.filter(
-        (file, idx, arr) =>
-          (file.type.startsWith('image/') || file.type === 'application/pdf') &&
+      const valid = all.filter((file, idx, arr) => {
+        // If file is a string (URL from API), keep it
+        if (typeof file === 'string') return arr.findIndex(f => f === file) === idx;
+        // If file is a File object, check type and size
+        return (
+          file &&
+          ((file.type && file.type.startsWith('image/')) || file.type === 'application/pdf') &&
           file.size <= 5 * 1024 * 1024 &&
-          arr.findIndex(f => f.name === file.name && f.size === file.size) === idx // prevent duplicates
-      ).slice(0, 5);
+          arr.findIndex(f => f.name === file.name && f.size === file.size) === idx
+        );
+      }).slice(0, 5);
       return valid;
     });
-    setErrorMsg({ ...errorMsg, productImageErrorMsg: "" })
+    setErrorMsg({ ...errorMsg, productImageErrorMsg: "" });
   };
 
   const handleRemoveProductImage = (index) => {
@@ -461,25 +470,34 @@ const ProductEntry = () => {
               {thumbnail && (
                 <Box sx={{ mt: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
                   <img
-                    src={URL.createObjectURL(thumbnail)}
+                    src={
+                      typeof thumbnail === 'string'
+                        ? (thumbnail.startsWith('http') ? thumbnail : `http://luxcycs.com:5500/${thumbnail}`)
+                        : URL.createObjectURL(thumbnail)
+                    }
                     alt="Thumbnail Preview"
                     style={{ maxWidth: 120, maxHeight: 120, borderRadius: 8, marginTop: 8 }}
                   />
-                  <Typography sx={{ fontSize: 13, mt: 1 }}>{thumbnail.name}</Typography>
-                  <IconButton
-                    size="small"
-                    sx={{
-                      position: 'absolute',
-                      top: 0,
-                      right: 0,
-                      background: '#fff',
-                      border: '1px solid #ccc',
-                      '&:hover': { background: '#f8fafc' }
-                    }}
-                    onClick={handleRemoveThumbnail}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
+                  <Typography sx={{ fontSize: 13, mt: 1 }}>
+                    {typeof thumbnail === 'string' ? thumbnail.split('/').pop() : thumbnail.name}
+                  </Typography>
+                  {mode !== "View" &&
+                    <IconButton
+                      size="small"
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        background: '#fff',
+                        border: '1px solid #ccc',
+                        '&:hover': { background: '#f8fafc' }
+                      }}
+                      onClick={handleRemoveThumbnail}
+                    >
+
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  }
                 </Box>
               )}
             </Box>
@@ -536,56 +554,64 @@ const ProductEntry = () => {
               />
               {productImages.length > 0 && (
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  {productImages.map((file, idx) => (
-                    <Box key={idx} sx={{ position: 'relative', display: 'inline-block', m: 1, width: 100 }}>
-                      {file ? (
-                        <img
-                          src={file}
-                          alt={`Product ${idx + 1}`}
-                          style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }}
-                        />
-                      ) : (
-                        <Box
-                          sx={{
-                            width: 100,
-                            height: 100,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: 8,
-                            border: '1px solid #ccc',
-                            background: '#fff'
-                          }}
-                        >
+                  {productImages.map((file, idx) => {
+                    // file can be a string (URL) or a File object
+                    const isUrl = typeof file === 'string';
+                    const url = isUrl ? file : URL.createObjectURL(file);
+                    const isPdf = url.toLowerCase().endsWith('.pdf') || (file.type && file.type === 'application/pdf');
+                    return (
+                      <Box key={idx} sx={{ position: 'relative', display: 'inline-block', m: 1, width: 100 }}>
+                        {isPdf ? (
+                          <Box
+                            sx={{
+                              width: 100,
+                              height: 100,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: 8,
+                              border: '1px solid #ccc',
+                              background: '#fff'
+                            }}
+                          >
+                            <img
+                              src="https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/pdf.svg"
+                              alt="PDF"
+                              style={{ width: 40, height: 40 }}
+                            />
+                          </Box>
+                        ) : (
                           <img
-                            src="https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/pdf.svg"
-                            alt="PDF"
-                            style={{ width: 40, height: 40 }}
+                            src={url}
+                            alt={`Product ${idx + 1}`}
+                            style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }}
                           />
-                        </Box>
-                      )}
-                      <IconButton
-                        size="small"
-                        sx={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                          background: '#fff',
-                          border: '1px solid #ccc',
-                          '&:hover': { background: '#f8fafc' }
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveProductImage(idx);
-                        }}
-                      >
-                        <CloseIcon fontSize="small" />
-                      </IconButton>
-                      <Typography sx={{ fontSize: 12, mt: 1, textAlign: 'center', maxWidth: 100, wordBreak: 'break-all' }}>
-                        {file.name}
-                      </Typography>
-                    </Box>
-                  ))}
+                        )}
+                        {mode !== "View" &&
+                          <IconButton
+                            size="small"
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              right: 0,
+                              background: '#fff',
+                              border: '1px solid #ccc',
+                              '&:hover': { background: '#f8fafc' }
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveProductImage(idx);
+                            }}
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        }
+                        <Typography sx={{ fontSize: 12, mt: 1, textAlign: 'center', maxWidth: 100, wordBreak: 'break-all' }}>
+                          {isUrl ? url.split('/').pop() : file.name}
+                        </Typography>
+                      </Box>
+                    );
+                  })}
                   {productImages.length < 5 && (
                     <Button
                       variant="outlined"

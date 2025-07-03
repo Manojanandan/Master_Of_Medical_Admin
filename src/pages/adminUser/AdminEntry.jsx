@@ -211,7 +211,7 @@ const AdminEntry = () => {
                         >
                             <MenuItem value="" disabled>Select Status</MenuItem>
                             <MenuItem value="active">Active</MenuItem>
-                            <MenuItem value="inActive">In-Active</MenuItem>
+                            <MenuItem value="in-active">In-Active</MenuItem>
                         </Select>
                         {errorMsg?.statusError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.statusError}</Typography>}
                     </Grid>

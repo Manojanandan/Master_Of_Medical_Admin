@@ -7,7 +7,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView, handleEdit, handleDelete }) => {
   return (
     <React.Fragment>
-      <Paper elevation={5} sx={{ width: '95%', margin: '25px', height: "auto", borderRadius: '10px' }}>
+      <Paper elevation={5} sx={{ width: '95%', margin: '25px', height: "auto", borderRadius: '5px' }}>
 
         <Box sx={{ borderBottom: 'solid 1px #2424', display: 'flex', alignItems: 'center', padding: '15px 20px', }}>
           {columns?.map((col, key) => {
@@ -48,9 +48,16 @@ const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView,
                         </IconButton>
                       </div>
                       :
-                      col?.datakey === "status" ? <Box sx={{display:'flex',justifyContent:col?.align,alignItems:'center',textTransform:'capitalize'}}>{item[col?.datakey] ? <Chip label={item[col?.datakey]} color={item[col?.datakey] === "active" ? "success" : "error"} sx={{fontWeight:'bold',borderRadius:'5px',padding:'3px 5px',fontSize:'15px'}} /> : '-' }</Box>
+                      col?.datakey === "status" ? 
+                      <Box sx={{display:'flex',justifyContent:col?.align,alignItems:'center',textTransform:'capitalize'}}>
+                        {item[col?.datakey] ? 
+                        <>
+                          <Box sx={{height:'12px',width:'12px',border:`solid 1px ${item[col?.datakey] === "active" ? "green" : "red"}`,borderRadius:'50%',marginRight:'10px',backgroundColor: `${item[col?.datakey] === "active" ? "green" : "red"}`}}></Box>
+                          <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align,color:`${item[col?.datakey] === "active" ? "green" : "red"}`,fontWeight:'bold' }}>{item[col?.datakey]}</Typography>
+                        </> : '-' }
+                      </Box>
                         :
-                        <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align, }}>{item[col?.datakey]}</Typography>
+                        <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align,}}>{item[col?.datakey]}</Typography>
                     }
                   </Box>
                 )

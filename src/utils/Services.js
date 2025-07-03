@@ -77,3 +77,10 @@ export const getAllAdminUser = async (id, pgNum) => {
 export const createAdminUser = async (data) => {
     return await instance.post(`admin-user/create-admin`, data)
 }
+
+// Vendor
+export const getAllVendor = (id, pageNum) => {
+    if (pageNum !== "") {
+        return instance.get(`vendor/get-all-vendor?page=${pageNum}&limit=7`)
+    }
+}

@@ -25,8 +25,7 @@ import BiotechIcon from '@mui/icons-material/Biotech';
 import ExitToApp from '@mui/icons-material/ExitToApp';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useLocation, useNavigate } from 'react-router-dom';
-// import {ExitToApp, BiotechIcon, KeyboardArrowDownIcon, KeyboardArrowRightIcon, ViewListIcon, SupportIcon, HomeIcon, WebIcon, ProductionQuantityLimitsIcon, DeliveryDiningIcon, SupportAgentIcon} from '@mui/icons-material'
-
+import StorefrontIcon from '@mui/icons-material/Storefront';
 
 const drawerWidth = 300;
 
@@ -46,6 +45,11 @@ const Sidebar = () => {
       menuName: 'Customer',
       pageUrl: '/customer',
       icon: <SupportAgentIcon />
+    },
+    {
+      menuName: 'Vendors',
+      pageUrl: '/vendor',
+      icon: <StorefrontIcon />
     },
     {
       menuName: 'Products',
@@ -150,7 +154,7 @@ const Sidebar = () => {
         }}
       >
         <Toolbar />
-        <Box sx={{ overflow: 'auto', p: 2, marginTop: '20px'}}>
+        <Box sx={{ overflow: 'auto', p: 2, marginTop: '0px'}}>
           <List>
             {menuList.map((item, index) => {
               const isItemSelected = selectedMenu === item.menuName;
@@ -235,7 +239,7 @@ const Sidebar = () => {
             })}
           </List>
         </Box>
-        <Box sx={{ overflow: 'auto', py: 1,px: 2, position:'absolute',bottom: 30,width: '100%' }}>
+        {/* <Box sx={{ overflow: 'auto', py: 1,px: 2, position:'absolute',width: '100%',bottom:0 }}>
           <List>
             <ListItemButton
               sx={{
@@ -260,7 +264,7 @@ const Sidebar = () => {
               />
             </ListItemButton>
           </List>
-        </Box>
+        </Box> */}
       </Drawer>
     </React.Fragment>
   )
