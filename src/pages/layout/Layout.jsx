@@ -9,15 +9,19 @@ import {
 import { Outlet } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import Sidebar from '../../comnponents/sidebar/Sidebar';
+import { jwtDecode } from "jwt-decode";
 
 
 const Layout = () => {
+  const tokenDecode = jwtDecode(sessionStorage.getItem("jwt"))
+  console.log(tokenDecode)
+
   return (
     <Box
       sx={{
         display: 'flex',
         flexDirection: 'row',
-        height: '100vh', 
+        height: '100vh',
         overflow: 'hidden',
       }}
     >
@@ -41,7 +45,7 @@ const Layout = () => {
             <img height={50} src={logo} alt="logo" />
           </Box>
           <Box>
-            <Avatar src="/broken-image.jpg" />
+            <Avatar sx={{textTransform:'uppercase'}} src={tokenDecode?.profile} alt={tokenDecode?.name.charAt(0)} />
           </Box>
         </Toolbar>
       </AppBar>

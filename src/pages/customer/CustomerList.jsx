@@ -33,7 +33,7 @@ const CustomerList = () => {
             datakey: 'status',
             headerName: 'Status',
             size: 150,
-            align: 'center'
+            align: 'left'
         },
         {
             datakey: 'actions',

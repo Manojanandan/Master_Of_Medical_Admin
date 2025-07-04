@@ -12,7 +12,7 @@ const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView,
         <Box sx={{ borderBottom: 'solid 1px #2424', display: 'flex', alignItems: 'center', padding: '15px 20px', }}>
           {columns?.map((col, key) => {
             return (
-              <Box sx={{ width: col?.size }} key={key}>
+              <Box sx={{ width: `${col?.size}px` }} key={key}>
                 <Typography fontWeight={600} sx={{ fontSize: '18px', textAlign: col?.align, }}>{col?.headerName}</Typography>
               </Box>
             )
@@ -29,9 +29,13 @@ const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView,
             }}>
               {columns?.map((col, idx) => {
                 return (
-                  <Box sx={{ width: col?.size }} key={idx}>
+                  <Box sx={{
+                    width: `${col?.size}px`, display: 'flex', justifyContent: col?.align, alignItems: col?.align, flexWrap: 'wrap', overflowWrap: 'break-word',
+                    wordBreak: 'break-word',
+                    whiteSpace: 'normal',
+                  }} key={idx}>
                     {col?.datakey === "actions" ?
-                      <div style={{ textAlign: col?.align }}>
+                      <div>
                         <IconButton
                           onClick={() => handleView(item)}
                           sx={{
@@ -48,16 +52,16 @@ const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView,
                         </IconButton>
                       </div>
                       :
-                      col?.datakey === "status" ? 
-                      <Box sx={{display:'flex',justifyContent:col?.align,alignItems:'center',textTransform:'capitalize'}}>
-                        {item[col?.datakey] ? 
-                        <>
-                          <Box sx={{height:'12px',width:'12px',border:`solid 1px ${item[col?.datakey] === "active" ? "green" : "red"}`,borderRadius:'50%',marginRight:'10px',backgroundColor: `${item[col?.datakey] === "active" ? "green" : "red"}`}}></Box>
-                          <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align,color:`${item[col?.datakey] === "active" ? "green" : "red"}`,fontWeight:'bold' }}>{item[col?.datakey]}</Typography>
-                        </> : '-' }
-                      </Box>
+                      col?.datakey === "status" ?
+                        <Box sx={{ display: 'flex', justifyContent: col?.align, alignItems: 'center', textTransform: 'capitalize' }}>
+                          {item[col?.datakey] ?
+                            <>
+                              <Box sx={{ height: '12px', width: '12px', border: `solid 1px ${item[col?.datakey] === "active" || item[col?.datakey] === "approved" ? "green" : item[col?.datakey] === "pending" ? "orange"  : "red"}`, borderRadius: '50%', marginRight: '10px', backgroundColor: `${item[col?.datakey] === "active" || item[col?.datakey] === "approved" ? "green" : item[col?.datakey] === "pending" ? "orange" : "red"}` }}></Box>
+                              <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align, color: `${item[col?.datakey] === "active" || item[col?.datakey] === "approved" ? "green" : item[col?.datakey] === "pending" ? "orange" : "red"}`, fontWeight: 'bold', paddingRight: '12px' }}>{item[col?.datakey]}</Typography>
+                            </> : '-'}
+                        </Box>
                         :
-                        <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align,}}>{item[col?.datakey]}</Typography>
+                        <Typography variant='p' component='div' sx={{ fontSize: '16px', textAlign: col?.align, paddingRight: '12px' }}>{item[col?.datakey]}</Typography>
                     }
                   </Box>
                 )

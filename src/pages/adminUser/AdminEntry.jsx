@@ -7,6 +7,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { useDispatch, useSelector } from 'react-redux'
 import { addUserData } from './AdminReducer'
 
+
 // Email: basic pattern for most emails
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -18,7 +19,7 @@ const AdminEntry = () => {
     const dispatch = useDispatch()
     const fileInputRef = useRef()
     const [profileImg, setProfileImg] = useState(null)
-      const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [openSnackbar, setOpenSnackbar] = useState(false);
     const [allData, setAllData] = useState({ name: "", mobile: "", email: "", password: "", address: "", city: "", state: "", pincode: "", adminRole: "", status: "", country: "" })
     const [errorMsg, setErrorMsg] = useState({ nameError: "", mobileError: "", emailError: "", passwordError: "", addressError: "", cityError: "", stateError: "", pincodeError: "", adminRoleError: "", statusError: "", profileImgError: "", countryError: "" })
 
@@ -110,7 +111,7 @@ const AdminEntry = () => {
             formData.append("profile ", profileImg)
 
             dispatch(addUserData(formData))
-            if(success){
+            if (success) {
                 setOpenSnackbar(true)
                 navigate('/adminUser')
                 setAllData({ name: "", mobile: "", email: "", password: "", address: "", city: "", state: "", pincode: "", adminRole: "", status: "", country: "" })

@@ -132,7 +132,7 @@ const Login = () => {
                     </Grid>
 
                 </Grid>
-                <Button onClick={createLogin} variant='contained' sx={{ textTransform: 'capitalize', fontSize: '16px', fontWeight: 'bold', padding: '1% 8%', margin: '7% 37% 10%' }}>Login</Button>
+                <Button onClick={createLogin} variant='contained' sx={{ textTransform: 'capitalize', fontSize: '16px', fontWeight: 'bold', padding: '1% 8%', margin: '7% 37% 10%',backgroundColor:'#069e92' }}>Login</Button>
 
             </Box>
         </Box>

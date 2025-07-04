@@ -3,7 +3,7 @@ import instance from './Instance'
 
 //login creation
 export const userLogin = async (data, type) => {
-    return await instance.post(`user/login/`, data)
+    return await instance.post(`admin-user/login-admin`, data)
 }
 
 // Testimonial Api
@@ -27,7 +27,7 @@ export const deleteTestimonial = (id) => {
 
 // Blog Api
 export const getBlog = (id, pageNum) => {
-    if (id) {
+    if (id !=="") {
         return instance.get(`blog/get-blog/${id}`)
     }
     if (pageNum !== "") {

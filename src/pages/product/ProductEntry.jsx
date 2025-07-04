@@ -35,7 +35,7 @@ const ProductEntry = () => {
   const fileInputRef = useRef()
   const productImagesInputRef = useRef()
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [allData, setAllData] = useState({ category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "" })
+  const [allData, setAllData] = useState({ category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "",status: "pending" })
   const [errorMsg, setErrorMsg] = useState({ categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "" })
   const mode = sessionStorage.getItem("Mode")
 
@@ -51,7 +51,7 @@ const ProductEntry = () => {
 
       setAllData({
         ...errorMsg,
-        category: data?.category, subCategory: data?.subCategory, productName: data?.name, price: data?.price, priceLabel: data?.priceLable, postedBy: data?.postedBy, productDescription: data?.description, shelfLife: additional?.shelfLife, brandName: data?.brandName, expireAfter: data?.expiresOn, country: additional?.country, uses: additional?.howToUse, benefits: data?.benefits, sideEffects: additional?.sideEffects, manufacturerDetails: additional?.manufacturer
+        category: data?.category, subCategory: data?.subCategory, productName: data?.name, price: data?.price, priceLabel: data?.priceLable, postedBy: data?.postedBy, productDescription: data?.description, shelfLife: additional?.shelfLife, brandName: data?.brandName, expireAfter: data?.expiresOn, country: additional?.country, uses: additional?.howToUse, benefits: data?.benefits, sideEffects: additional?.sideEffects, manufacturerDetails: additional?.manufacturer,status: allData?.status
       })
       setThumbnail(data?.thumbnailImage)
       setProductImages(data?.galleryImage)
@@ -220,7 +220,7 @@ const ProductEntry = () => {
       formData.append('brandName', allData.brandName);
       formData.append('benefits', allData.benefits);
       formData.append('expiresOn', allData.expireAfter);
-      formData.append('status', 'active');
+      formData.append('status', allData.status);
 
       formData.append('additionalInformation', JSON.stringify(productData));
       // Handle files
@@ -243,7 +243,7 @@ const ProductEntry = () => {
       if (success) {
         setOpenSnackbar(true)
         navigate('/productmanagement')
-        setAllData({ ...allData, category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "" })
+        setAllData({ ...allData, category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "",status: "pending" })
         setErrorMsg({ ...errorMsg, categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "" })
         setThumbnail(null)
         setProductImages([])
@@ -365,11 +365,28 @@ const ProductEntry = () => {
             {errorMsg?.expireAfterError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.expireAfterError}</Typography>}
 
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={6}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Country of Origin<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
             <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='country' value={allData?.country} placeholder='Country of Origin' />
             {errorMsg?.countryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.countryError}</Typography>}
 
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Status</Typography>
+            <Select
+              id="status"
+              size='small'
+              name='status'
+              value={allData?.status}
+              onChange={handleDropDownChange}
+              fullWidth
+              disabled={mode == "View"}
+              displayEmpty
+            >
+              <MenuItem value="" disabled>Select Status</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="approved">Approved</MenuItem>
+            </Select>
           </Grid>
           <Grid item xs={12}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>How to Use<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
@@ -432,9 +449,9 @@ const ProductEntry = () => {
                 cursor: thumbnail ? 'default' : 'pointer',
                 minHeight: 120,
               }}
-            // onClick={() => {
-            //   if (!thumbnail) fileInputRef.current.click()
-            // }}
+            onClick={() => {
+              if (!thumbnail) fileInputRef.current.click()
+            }}
 
             >
               {!thumbnail && (

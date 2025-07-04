@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import Filter from '../../comnponents/filter/Filter'
 import CommonTable from '../../comnponents/table/CommonTable'
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Alert, Backdrop, CircularProgress, IconButton } from '@mui/material';
+import { Alert, Backdrop, CircularProgress, IconButton, Snackbar } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { deleteTestimonialData, getDataTestimonial, resetMessage } from './TestimonialReducer'
@@ -18,6 +18,7 @@ const Testimonials = () => {
   const [status, setStatus] = useState('')
   const [accordian, setAccordian] = useState(false)
   const [page, setPage] = useState(1)
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const nameOptions = [
     {
@@ -49,6 +50,7 @@ const Testimonials = () => {
   const pagination = reducerResponse?.getTestimonialData?.pagination
   const Load = reducerResponse?.loader
   const successMsg = reducerResponse?.message
+  const success = reducerResponse?.success
 
 
   useEffect(() => {
@@ -69,13 +71,18 @@ const Testimonials = () => {
   }, [successMsg, navigate]);
 
   const handleView = (e) => {
-    navigate(`/testimonialsentry?testimonialId=${e.id}&&Mode=View`)
+    navigate(`/testimonialsentry`)
+    sessionStorage.setItem("testimonialId", e.id)
+    sessionStorage.setItem("Mode", "View")
   }
   const handleEdit = (e) => {
-    navigate(`/testimonialsentry?testimonialId=${e.id}&&Mode=Edit`)
+    navigate(`/testimonialsentry`)
+    sessionStorage.setItem("testimonialId", e.id)
+    sessionStorage.setItem("Mode", "Edit")
   }
   const handleDelete = (e) => {
     dispatch(deleteTestimonialData(e.id))
+    setOpenSnackbar(true)
   }
 
   const columns = [
@@ -87,7 +94,7 @@ const Testimonials = () => {
       size: 250,
       align: 'left'
     },
-    { datakey: 'message', headerName: 'Message', size: 350},
+    { datakey: 'message', headerName: 'Message', size: 350 },
     {
       datakey: 'actions',
       headerName: 'Actions',
@@ -105,10 +112,10 @@ const Testimonials = () => {
     })
   })
 
-   const handlePageChange = (event, value) => {
-      setPage(value);
-      dispatch(getDataTestimonial(value))
-    };
+  const handlePageChange = (event, value) => {
+    setPage(value);
+    dispatch(getDataTestimonial(value))
+  };
 
   return (
     <div style={{ height: '93vh' }}>
@@ -118,14 +125,19 @@ const Testimonials = () => {
       >
         <CircularProgress color="secondary" />
       </Backdrop>
-      <Titlebar title={"Testimonials"} filter={true} onClick={() => setAccordian(!accordian)} addClick={() => navigate('/testimonialsentry?Mode=Add')} />
-      {successMsg &&
-        <Alert variant="filled" severity="success" sx={{ margin: '15px auto', width: '95%', fontSize: '16px' }}>
+      <Titlebar title={"Testimonials"} filter={true} onClick={() => setAccordian(!accordian)} addClick={() => { navigate('/testimonialsentry'), sessionStorage.setItem("Mode", "Add") }} />
+      {successMsg && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(!openSnackbar)}>
+        <Alert
+          onClose={() => setOpenSnackbar(!openSnackbar)}
+          severity={success ? "success" : "error"}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
           {successMsg}
         </Alert>
-      }
+      </Snackbar>}
       {accordian && <Filter handleStatus={(e) => { setStatus(e.target.value) }} handleName={(e) => { setName(e.target.value) }} nameValue={name} statusValue={status} nameOptions={nameOptions} />}
-      <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} handleView={(e)=>handleView(e)} handleEdit={(e)=>handleEdit(e)} handleDelete={(e)=>handleDelete(e)} />
+      <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} handleView={(e) => handleView(e)} handleEdit={(e) => handleEdit(e)} handleDelete={(e) => handleDelete(e)} />
     </div>
   )
 }

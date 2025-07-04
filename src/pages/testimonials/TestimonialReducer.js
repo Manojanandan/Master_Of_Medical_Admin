@@ -28,7 +28,8 @@ export const testimonialReducer = createSlice({
         },
         loader: false,
         message: "",
-        getOneData: []
+        getOneData: [],
+        success: false
     },
     reducers: {
         resetMessage: (state) => {
@@ -50,6 +51,7 @@ export const testimonialReducer = createSlice({
             state.addTestimonial.message = action.payload.message;
             state.addTestimonial.designation = action.payload.designation;
             state.addTestimonial.image = action.payload.image;
+            state.success = action.payload?.success
             state.message = action.payload.message
         })
         builder.addCase(getDataTestimonial.pending, (state, action) => {
@@ -77,6 +79,7 @@ export const testimonialReducer = createSlice({
             state.addTestimonial.message = action.payload.message
             state.addTestimonial.designation = action.payload.designation
             state.addTestimonial.image = action.payload.image
+            state.success = action.payload?.success
             state.message = action.payload.message
         })
         builder.addCase(deleteTestimonialData.pending, (state, action) => {
@@ -87,6 +90,7 @@ export const testimonialReducer = createSlice({
             state.getTestimonialData = state.getTestimonialData?.data.filter(
                 testimonial => testimonial.id !== action.payload.data.id
             );
+            state.success = action.payload?.success
             state.message = action.payload.message
         })
     }

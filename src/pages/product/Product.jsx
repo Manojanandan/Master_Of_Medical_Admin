@@ -29,18 +29,18 @@ const Product = () => {
   const columns = [
     { datakey: 'id', headerName: 'ID', size: 100, align: 'left', },
     { datakey: 'name', headerName: 'Product Name', size: 200, },
-    { datakey: 'brandName', headerName: 'Brand', size: 200, align: 'center' },
+    { datakey: 'brandName', headerName: 'Brand', size: 200, align: 'left' },
     {
       datakey: 'category',
       headerName: 'Category',
       size: 200,
-      align: 'center'
+      align: 'left'
     },
     {
       datakey: 'status',
       headerName: 'Status',
       size: 150,
-      align: 'center'
+      align: 'left'
     },
     {
       datakey: 'actions',

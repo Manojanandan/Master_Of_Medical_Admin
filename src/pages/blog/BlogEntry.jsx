@@ -1,40 +1,28 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
-import { Alert, Backdrop, Box, Button, CircularProgress, Grid2, TextField, Typography } from '@mui/material'
+import { Alert, Backdrop, Box, Button, CircularProgress, Grid2, IconButton, Paper, TextField, Typography } from '@mui/material'
 import { Editor } from 'react-draft-wysiwyg';
 import { ContentState, convertToRaw, EditorState } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { styled } from '@mui/material/styles';
-
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close'
 import { getOneBlogData, postBlogData, putBlogData } from './BlogReducer';
 import draftToHtml from 'draftjs-to-html';
 import { useDispatch, useSelector } from 'react-redux';
 import htmlToDraft from 'html-to-draftjs';
 
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-});
-
-
 const BlogEntry = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
+    const fileInputRef = useRef()
+    const bannerInputRef = useRef()
     const useQuery = new URLSearchParams(useLocation().search)
     const blogId = useQuery.get("blogId")
     const mode = useQuery.get("Mode")
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
-    const [featureImage, setFeatureImage] = useState(null);
-    const [featureImageFile, setFeatureImageFile] = useState(null);
+    const [featureImage, setFeatureImage] = useState(null)
     const [bannerImage, setBannerImage] = useState(null);
     const [title, setTitle] = useState("")
     const [metaTitle, setMetaTitle] = useState("")
@@ -48,29 +36,26 @@ const BlogEntry = () => {
     const successMsg = reducerResponse?.message
     const getOneData = reducerResponse?.getOneData?.data
 
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
-            const previewUrl = URL.createObjectURL(file);
-            setFeatureImage(previewUrl);
-            setFeatureImageFile(file);
-        } else {
-            alert('Please select a PNG or JPEG image.');
-            setFeatureImage(null);
-            setFeatureImageFile(null);
+    const handleFeatureImgChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setFeatureImage(e.target.files[0])
+            // setErrorMsg({ ...errorMsg, profileImgError: "" })
         }
-    };
-    const handleBannerFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
-            const previewUrl = URL.createObjectURL(file);
-            setBannerImage(previewUrl);
-        } else {
-            alert('Please select a PNG or JPEG image.');
-            setBannerImage(null);
+    }
+    const handleRemoveProfileImg = (e) => {
+        e.stopPropagation()
+        setFeatureImage(null)
+    }
+    const handleBannerImgChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setBannerImage(e.target.files[0])
+            // setErrorMsg({ ...errorMsg, profileImgError: "" })
         }
-    };
+    }
+    const handleRemoveBannerImg = (e) => {
+        e.stopPropagation()
+        setBannerImage(null)
+    }
 
     useEffect(() => {
         if (mode !== "Add") {
@@ -91,21 +76,36 @@ const BlogEntry = () => {
     }, [successMsg, navigate]);
 
     useMemo(() => {
-        setFeatureImage(getOneData?.image)
-        setFeatureImageFile(getOneData?.image)
-        setBannerImage(null)
-        setTitle(getOneData?.title)
-        setMetaTitle(getOneData?.metaTitle)
-        setMetaDescription(getOneData?.metaDescription)
-        if (getOneData?.content) {
-            const contentBlock = htmlToDraft(getOneData?.content);
-            if (contentBlock) {
-                const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
-                const newEditorState = EditorState.createWithContent(contentState);
-                setEditorState(newEditorState);
+        if (getOneData) {
+            const resolveImagePath = () => {
+                if (!getOneData?.image) return null;
+
+                let imagePath = getOneData.image;
+
+                if (typeof imagePath === 'object' && imagePath?.path) {
+                    imagePath = imagePath.path;
+                } else if (Array.isArray(imagePath)) {
+                    imagePath = imagePath[0];
+                }
+
+                return typeof imagePath === 'string'
+                    ? (imagePath.startsWith('http') ? imagePath : `http://luxcycs.com:5500/${imagePath}`)
+                    : null;
+            };
+            setFeatureImage(resolveImagePath);
+            setBannerImage(bannerImage)
+            setTitle(getOneData?.title)
+            setMetaTitle(getOneData?.metaTitle)
+            setMetaDescription(getOneData?.metaDescription)
+            if (getOneData?.content) {
+                const contentBlock = htmlToDraft(getOneData?.content);
+                if (contentBlock) {
+                    const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
+                    const newEditorState = EditorState.createWithContent(contentState);
+                    setEditorState(newEditorState);
+                }
             }
         }
-
     }, [getOneData])
 
     const handleSubmit = () => {
@@ -119,7 +119,8 @@ const BlogEntry = () => {
         formData.append("metaTitle", metaTitle)
         formData.append("metaDescription", metaDescription)
         formData.append("author", "abcd")
-        formData.append("image", featureImageFile)
+        formData.append("featureImage", featureImage)
+        formData.append("bannerImage", bannerImage)
         formData.append("content", editorContent)
 
         if (mode === "Add") {
@@ -129,15 +130,14 @@ const BlogEntry = () => {
         }
     }
 
-    const handleClear = () => {
-        setTitle("")
-        setBannerImage(null)
-        setFeatureImage(null)
-        setFeatureImageFile(null)
-        setMetaDescription("")
-        setMetaTitle("")
-        setEditorState(EditorState.createEmpty());
-    }
+    // const handleClear = () => {
+    //     setTitle("")
+    //     setBannerImage(null)
+    //     setFeatureImage(null)
+    //     setMetaDescription("")
+    //     setMetaTitle("")
+    //     setEditorState(EditorState.createEmpty());
+    // }
 
     return (
         <React.Fragment>
@@ -153,9 +153,9 @@ const BlogEntry = () => {
                     {successMsg}
                 </Alert>
             }
-            <Box sx={{ height: '100%', width: '92%', margin: '2% auto', }}>
-                <Grid2 container>
-                    <Grid2 size={{ xs: 2, sm: 4, md: 8 }} sx={{ marginBottom: '10px' }}>
+            <Paper elevation={5} sx={{ width: '95%', margin: '2% auto', height: 'auto', borderRadius: '10px', padding: '2% 3%' }}>
+                <Grid2 container columnSpacing={4} rowSpacing={3}>
+                    <Grid2 size={6} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Blog Title <span style={{ color: 'red' }}>*</span></Typography><br />
                         <TextField
                             id="title"
@@ -169,9 +169,9 @@ const BlogEntry = () => {
                             disabled={mode === "View" ? true : ""}
                         />
                     </Grid2>
-                    <Grid2 size={{ xs: 2, sm: 4, md: 12 }} sx={{ marginBottom: '10px' }}>
+                    <Grid2 size={12} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Blog Content <span style={{ color: 'red' }}>*</span></Typography><br />
-                        <Box sx={{ height: '400px', width: '800px', border: 'solid 1.5px #2424', margin: '10px 0', padding: '5px', backgroundColor: '#fff' }}>
+                        <Box sx={{ height: '400px', width: '8%0px', border: 'solid 1.5px #2424', margin: '10px 0', padding: '5px', backgroundColor: '#fff' }}>
                             <Editor
                                 editorState={editorState}
                                 onEditorStateChange={setEditorState}
@@ -192,73 +192,243 @@ const BlogEntry = () => {
                             />
                         </Box>
                     </Grid2>
-                    <Grid2 size={{ xs: 2, sm: 4, md: 8 }} sx={{ marginBottom: '10px' }}>
+                    <Grid2 size={6} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Feature Image <span style={{ color: 'red' }}>*</span></Typography><br />
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Button
-                                sx={{ margin: '10px 0', textTransform: 'capitalize', fontSize: '16px', backgroundColor: '#02998e' }}
-                                component="label"
-                                variant="contained"
-                                tabIndex={-1}
-                                startIcon={<CloudUploadIcon />}
-                                disabled={mode === "View" ? true : ""}
-                            >
-                                Upload
-                                <VisuallyHiddenInput
-                                    type="file"
-                                    accept="image/png, image/jpeg" // Restrict file types to PNG and JPEG
-                                    onChange={handleFileChange}
-                                />
-                            </Button>
+                        <Box
+                            sx={{
+                                border: '2px dashed #00bfae',
+                                borderRadius: '10px',
+                                padding: '32px',
+                                textAlign: 'center',
+                                backgroundColor: '#f8fafc',
+                                position: 'relative',
+                                cursor: featureImage ? 'default' : 'pointer',
+                                minHeight: 120,
+                                marginTop: 1,
+                            }}
+                            onClick={() => {
+                                if (!featureImage) fileInputRef.current.click();
+                            }}
+                        >
+                            {/* Upload Box */}
+                            {!featureImage && (
+                                <>
+                                    <CloudUploadIcon sx={{ fontSize: 48, color: '#00bfae' }} />
+                                    <Typography sx={{ mt: 1, mb: 1, fontWeight: 600, color: '#00bfae', fontSize: '20px' }}>
+                                        Upload Profile
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        sx={{ backgroundColor: '#00bfae', color: '#fff', mt: 1, fontWeight: 'bold' }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            fileInputRef.current.click();
+                                        }}
+                                    >
+                                        BROWSE
+                                    </Button>
+                                    <Typography sx={{ mt: 2, color: '#888', fontSize: 13 }}>
+                                        Note: Only image files allowed. Max 5MB.
+                                    </Typography>
+                                </>
+                            )}
+
+                            {/* File Input */}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={handleFeatureImgChange}
+                            />
+
+                            {/* Preview Box */}
                             {featureImage && (
-                                <div style={{ marginLeft: '10%' }}>
-                                    <img
-                                        src={featureImage}
-                                        alt={featureImage}
-                                        style={{
-                                            width: '200px',
-                                            height: 'auto',
-                                        }}
-                                    />
-                                </div>
+                                <Box
+                                    sx={{
+                                        mt: 0,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        position: 'relative',
+                                    }}
+                                >
+                                    {/* Image Source Logic */}
+                                    {(() => {
+                                        let imageSrc = null;
+
+                                        if (typeof featureImage === 'string' && featureImage !== '') {
+                                            imageSrc = featureImage.startsWith('http')
+                                                ? featureImage
+                                                : `http://luxcycs.com:5500/${featureImage}`;
+                                        } else if (featureImage instanceof File) {
+                                            imageSrc = URL.createObjectURL(featureImage);
+                                        }
+
+                                        return (
+                                            imageSrc && (
+                                                <img
+                                                    src={imageSrc}
+                                                    alt="Thumbnail Preview"
+                                                    style={{
+                                                        maxWidth: 120,
+                                                        maxHeight: 120,
+                                                        borderRadius: 8,
+                                                        marginTop: 8,
+                                                        objectFit: 'cover',
+                                                    }}
+                                                />
+                                            )
+                                        );
+                                    })()}
+
+                                    {/* File Name */}
+                                    <Typography sx={{ fontSize: 13, mt: 1 }}>
+                                        {typeof featureImage === 'string'
+                                            ? featureImage.split('/').pop()
+                                            : featureImage?.name}
+                                    </Typography>
+
+                                    {/* Remove Button */}
+                                    {mode !== 'View' && (
+                                        <IconButton
+                                            size="small"
+                                            sx={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                right: 0,
+                                                background: '#fff',
+                                                border: '1px solid #ccc',
+                                                '&:hover': { background: '#f8fafc' },
+                                            }}
+                                            onClick={handleRemoveProfileImg}
+                                        >
+                                            <CloseIcon fontSize="small" />
+                                        </IconButton>
+                                    )}
+                                </Box>
                             )}
                         </Box>
                     </Grid2>
-                    <Grid2 size={{ xs: 2, sm: 4, md: 8 }} sx={{ marginBottom: '10px' }}>
+                    <Grid2 size={6} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Banner Image <span style={{ color: 'red' }}>*</span></Typography><br />
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Button
-                                sx={{ margin: '10px 0', textTransform: 'capitalize', fontSize: '16px', backgroundColor: '#9b2f7d' }}
-                                component="label"
-                                variant="contained"
-                                tabIndex={-1}
-                                startIcon={<CloudUploadIcon />}
-                                disabled={mode === "View" ? true : ""}
-                            >
-                                Upload
-                                <VisuallyHiddenInput
-                                    type="file"
-                                    accept="image/png, image/jpeg" // Restrict file types to PNG and JPEG
-                                    onChange={handleBannerFileChange}
-
-
-                                />
-                            </Button>
-                            {bannerImage && (
-                                <div style={{ marginLeft: '10%' }}>
-                                    <img
-                                        src={bannerImage}
-                                        alt={bannerImage}
-                                        style={{
-                                            width: '400px',
-                                            height: 'auto',
+                        <Box
+                            sx={{
+                                border: '2px dashed #00bfae',
+                                borderRadius: '10px',
+                                padding: '32px',
+                                textAlign: 'center',
+                                backgroundColor: '#f8fafc',
+                                position: 'relative',
+                                cursor: featureImage ? 'default' : 'pointer',
+                                minHeight: 120,
+                                marginTop: 1,
+                            }}
+                            onClick={() => {
+                                if (!bannerImage) bannerInputRef.current.click();
+                            }}
+                        >
+                            {/* Upload Box */}
+                            {!bannerImage && (
+                                <>
+                                    <CloudUploadIcon sx={{ fontSize: 48, color: '#00bfae' }} />
+                                    <Typography sx={{ mt: 1, mb: 1, fontWeight: 600, color: '#00bfae', fontSize: '20px' }}>
+                                        Upload Profile
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        sx={{ backgroundColor: '#00bfae', color: '#fff', mt: 1, fontWeight: 'bold' }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            bannerInputRef.current.click();
                                         }}
-                                    />
-                                </div>
+                                    >
+                                        BROWSE
+                                    </Button>
+                                    <Typography sx={{ mt: 2, color: '#888', fontSize: 13 }}>
+                                        Note: Only image files allowed. Max 5MB.
+                                    </Typography>
+                                </>
+                            )}
+
+                            {/* File Input */}
+                            <input
+                                ref={bannerInputRef}
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={handleBannerImgChange}
+                            />
+
+                            {/* Preview Box */}
+                            {bannerImage && (
+                                <Box
+                                    sx={{
+                                        mt: 0,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        position: 'relative',
+                                    }}
+                                >
+                                    {/* Image Source Logic */}
+                                    {(() => {
+                                        let imageSrc = null;
+
+                                        if (typeof bannerImage === 'string' && bannerImage !== '') {
+                                            imageSrc = bannerImage.startsWith('http')
+                                                ? bannerImage
+                                                : `http://luxcycs.com:5500/${bannerImage}`;
+                                        } else if (bannerImage instanceof File) {
+                                            imageSrc = URL.createObjectURL(bannerImage);
+                                        }
+
+                                        return (
+                                            imageSrc && (
+                                                <img
+                                                    src={imageSrc}
+                                                    alt="Thumbnail Preview"
+                                                    style={{
+                                                        maxWidth: 120,
+                                                        maxHeight: 120,
+                                                        borderRadius: 8,
+                                                        marginTop: 8,
+                                                        objectFit: 'cover',
+                                                    }}
+                                                />
+                                            )
+                                        );
+                                    })()}
+
+                                    {/* File Name */}
+                                    <Typography sx={{ fontSize: 13, mt: 1 }}>
+                                        {typeof bannerImage === 'string'
+                                            ? bannerImage.split('/').pop()
+                                            : bannerImage?.name}
+                                    </Typography>
+
+                                    {/* Remove Button */}
+                                    {mode !== 'View' && (
+                                        <IconButton
+                                            size="small"
+                                            sx={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                right: 0,
+                                                background: '#fff',
+                                                border: '1px solid #ccc',
+                                                '&:hover': { background: '#f8fafc' },
+                                            }}
+                                            onClick={handleRemoveBannerImg}
+                                        >
+                                            <CloseIcon fontSize="small" />
+                                        </IconButton>
+                                    )}
+                                </Box>
                             )}
                         </Box>
                     </Grid2>
-                    <Grid2 size={{ xs: 2, sm: 4, md: 8 }} sx={{ marginBottom: '10px' }}>
+                    <Grid2 size={6} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Meta Title <span style={{ color: 'red' }}>*</span></Typography><br />
                         <TextField
                             id="name"
@@ -272,7 +442,7 @@ const BlogEntry = () => {
                             disabled={mode === "View" ? true : ""}
                         />
                     </Grid2>
-                    <Grid2 size={{ xs: 2, sm: 4, md: 8 }} sx={{ marginBottom: '10px' }}>
+                    <Grid2 size={6} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Meta Description <span style={{ color: 'red' }}>*</span></Typography><br />
                         <TextField
                             id="name"
@@ -287,14 +457,14 @@ const BlogEntry = () => {
                         />
                     </Grid2>
                     {mode !== "View" &&
-                        <Grid2 size={{ xs: 2, sm: 4, md: 6 }} sx={{ marginBottom: '10px', }}>
-                            <Button variant='contained' sx={{ textTransform: 'capitalize', padding: '5px 20px', fontSize: '16px', backgroundColor: '#9b2f7d', fontWeight: 'bold' }} onClick={handleSubmit}>Submit</Button>
-                            <Button variant='contained' sx={{ marginLeft: '20px', textTransform: 'capitalize', backgroundColor: '#868787', padding: '5px 20px', fontWeight: 'bold', fontSize: '16px', }} onClick={handleClear}>Clear</Button>
+                        <Grid2 size={12} sx={{ marginBottom: '10px',textAlign:'right' }}>
+                            <Button variant='contained' sx={{ padding: '5px 20px', fontSize: '16px', backgroundColor: '#00bfae', fontWeight: 'bold' }} onClick={handleSubmit}>Add Blog</Button>
+                            {/* <Button variant='contained' sx={{ marginLeft: '20px', textTransform: 'capitalize', backgroundColor: '#868787', padding: '5px 20px', fontWeight: 'bold', fontSize: '16px', }} onClick={handleClear}>Clear</Button> */}
                         </Grid2>
                     }
 
                 </Grid2>
-            </Box>
+            </Paper>
         </React.Fragment>
     )
 }

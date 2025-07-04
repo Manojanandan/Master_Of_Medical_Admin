@@ -59,18 +59,19 @@ const Sidebar = () => {
     {
       menuName: 'Orders',
       icon: <DeliveryDiningIcon />,
-      submenu: [
-        {
-          menuName: 'Order List',
-          pageUrl: '/orders',
-          icon: <ViewListIcon />
-        },
-        {
-          menuName: 'Order Tracking',
-          pageUrl: '/orders/tracking',
-          icon: <ProductionQuantityLimitsIcon />
-        }
-      ]
+      pageUrl: '/orders',
+      // submenu: [
+      //   {
+      //     menuName: 'Order List',
+      //     pageUrl: '/orders',
+      //     icon: <ViewListIcon />
+      //   },
+      //   {
+      //     menuName: 'Order Tracking',
+      //     pageUrl: '/orders/tracking',
+      //     icon: <ProductionQuantityLimitsIcon />
+      //   }
+      // ]
     },
     {
       menuName: 'Blog',
@@ -85,13 +86,14 @@ const Sidebar = () => {
     {
       menuName: 'Testimonials',
       icon: <BiotechIcon />,
-      submenu: [
-        {
-          menuName: 'All Testimonials',
-          pageUrl: '/testimonials',
-          icon: <ViewListIcon />
-        }
-      ]
+      pageUrl: '/testimonials',
+      // submenu: [
+      //   {
+      //     menuName: 'All Testimonials',
+      //     pageUrl: '/testimonials',
+      //     icon: <ViewListIcon />
+      //   }
+      // ]
     },
     {
       menuName: 'Admin Users',
@@ -120,9 +122,9 @@ const Sidebar = () => {
 
   const handleMenuChange = (item) => {
     if (item.submenu) {
-     setOpenMenus({
-      [item.menuName]: !openMenus[item.menuName] 
-    });
+      setOpenMenus({
+        [item.menuName]: !openMenus[item.menuName]
+      });
     } else {
       navigate(item.pageUrl);
       setSelectedMenu(item.menuName);
@@ -154,7 +156,7 @@ const Sidebar = () => {
         }}
       >
         <Toolbar />
-        <Box sx={{ overflow: 'auto', p: 2, marginTop: '0px'}}>
+        <Box sx={{ overflow: 'auto', p: 2, marginTop: '0px' }}>
           <List>
             {menuList.map((item, index) => {
               const isItemSelected = selectedMenu === item.menuName;
@@ -239,7 +241,7 @@ const Sidebar = () => {
             })}
           </List>
         </Box>
-        {/* <Box sx={{ overflow: 'auto', py: 1,px: 2, position:'absolute',width: '100%',bottom:0 }}>
+        <Box sx={{ overflow: 'auto', py: 1, px: 2, position: 'absolute', width: '100%', bottom: 15 }} onClick={() => { sessionStorage.removeItem("jwt"), navigate('/') }}>
           <List>
             <ListItemButton
               sx={{
@@ -264,7 +266,7 @@ const Sidebar = () => {
               />
             </ListItemButton>
           </List>
-        </Box> */}
+        </Box>
       </Drawer>
     </React.Fragment>
   )

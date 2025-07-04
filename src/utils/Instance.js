@@ -8,7 +8,7 @@ export const instance = axios.create({
 // Add request interceptor to dynamically set authorization header
 instance.interceptors.request.use(
     (config) => {
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6Ik1hbm9qIiwiZW1haWwiOiJtYW5vanJhZ2F2MjNAZ21haWwuY29tIiwicGhvbmUiOiI5ODY1MDczNDEyIiwiaWF0IjoxNzUxNTU5MDA3LCJleHAiOjE3NTQxNTEwMDd9.b8NCKtlp6WD0mnUQAX1R5PtCYSoww0Zh3shsZ3OmWCs";
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6Ik1hbm9qIiwiZW1haWwiOiJtYW5vanJhZ2F2MjNAZ21haWwuY29tIiwicGhvbmUiOiI5ODY1MDczNDEyIiwiaWF0IjoxNzUxNjQyNjg3LCJleHAiOjE3NTQyMzQ2ODd9.zMdkRENDqvnXBGjo_es7p45mLsw7wM195xxPJsS3i5s";
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
