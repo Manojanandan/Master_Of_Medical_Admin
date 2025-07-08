@@ -1,11 +1,12 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
 import { useNavigate } from 'react-router-dom'
-import { Alert, Backdrop, Box, Button, CircularProgress, Grid, IconButton, MenuItem, Paper, Select, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material'
+import { Alert, Autocomplete, Backdrop, Box, Button, CircularProgress, Grid, IconButton, MenuItem, Paper, Select, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import { useDispatch, useSelector } from 'react-redux'
-import { addUserData } from './AdminReducer'
+import { addUserData, getOneUserData, putUserData } from './AdminReducer'
+import { stateList } from '../../utils/helpers'
 
 
 // Email: basic pattern for most emails
@@ -20,11 +21,41 @@ const AdminEntry = () => {
     const fileInputRef = useRef()
     const [profileImg, setProfileImg] = useState(null)
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [allData, setAllData] = useState({ name: "", mobile: "", email: "", password: "", address: "", city: "", state: "", pincode: "", adminRole: "", status: "", country: "" })
+    const [allData, setAllData] = useState({ name: "", mobile: "", email: "", password: "", address: "", city: "", state: "", pincode: "", adminRole: "", status: "", country: "India" })
     const [errorMsg, setErrorMsg] = useState({ nameError: "", mobileError: "", emailError: "", passwordError: "", addressError: "", cityError: "", stateError: "", pincodeError: "", adminRoleError: "", statusError: "", profileImgError: "", countryError: "" })
 
+    const mode = sessionStorage.getItem("Mode")
+
     const reducer = useSelector((state) => state.adminReducer)
-    const { success, message, loader } = reducer
+    const { success, message, loader, adminOneData } = reducer
+
+    useEffect(() => {
+        if (sessionStorage.getItem("adminId")) {
+            dispatch(getOneUserData(sessionStorage.getItem("adminId")))
+        }
+    }, [sessionStorage.getItem("adminId")])
+
+    useEffect(() => {
+        if (adminOneData?.data) {
+            const getData = adminOneData?.data
+            setAllData({
+                ...allData,
+                name: getData?.name,
+                mobile: getData?.phone,
+                email: getData?.email,
+                password: getData?.password,
+                address: getData?.address,
+                country: getData?.country,
+                state: getData?.state,
+                city: getData?.city,
+                pincode: getData?.postalCode,
+                adminRole: getData?.role,
+                status: getData?.status,
+            })
+
+            setProfileImg(Array.isArray(getData?.profile) ? getData?.profile[0] : getData?.profile)
+        }
+    }, [adminOneData?.data])
 
     const handleProfileImgChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -65,6 +96,12 @@ const AdminEntry = () => {
         }
         if (e.target.id === "adminRole") {
             setErrorMsg({ ...errorMsg, adminRoleError: "" })
+        }
+    }
+    const handleStateChange = (fieldName, value) => {
+        setAllData({ ...allData, [fieldName]: value })
+        if (fieldName === "state") {
+            setErrorMsg({ ...errorMsg, stateError: "" })
         }
     }
 
@@ -110,7 +147,11 @@ const AdminEntry = () => {
             formData.append("status ", allData?.status)
             formData.append("profile ", profileImg)
 
-            dispatch(addUserData(formData))
+            if (mode === "Add") {
+                dispatch(addUserData(formData))
+            } else {
+                dispatch(putUserData(formData))
+            }
             if (success) {
                 setOpenSnackbar(true)
                 navigate('/adminUser')
@@ -175,14 +216,52 @@ const AdminEntry = () => {
                         {errorMsg?.addressError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.addressError}</Typography>}
                     </Grid>
                     <Grid item xs={6}>
-                        <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>City<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-                        <TextField onChange={handleChange} fullWidth size='small' id='city' value={allData?.city} placeholder='Enter your city' />
-                        {errorMsg?.cityError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.cityError}</Typography>}
+                        <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Country<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+                        <TextField onChange={handleChange} fullWidth size='small' id='country' value={allData?.country} placeholder='Enter your country' disabled />
+                        {errorMsg?.countryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.countryError}</Typography>}
                     </Grid>
                     <Grid item xs={6}>
                         <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>State<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-                        <TextField onChange={handleChange} fullWidth size='small' id='state' value={allData?.state} placeholder='Enter your state' />
+                        {/* <TextField onChange={handleChange} fullWidth size='small' id='state' value={allData?.state} placeholder='Enter your state' /> */}
+                        <Autocomplete
+                            id="state"
+                            fullWidth
+                            size="small"
+                            options={stateList}
+                            autoHighlight
+                            value={allData?.state}
+                            getOptionLabel={(option) => option}
+                            onChange={(event, value) => {
+                                handleStateChange("state", value)
+                            }}
+                            renderOption={(props, option) => {
+                                const { key, ...optionProps } = props;
+                                return (
+                                    <Box
+                                        key={key}
+                                        component="li"
+                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                        {...optionProps}
+                                    >
+                                        {option}
+                                    </Box>
+                                );
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    size="small"
+                                    autoComplete="off"
+                                    placeholder="Select State"
+                                />
+                            )}
+                        />
                         {errorMsg?.stateError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.statusError}</Typography>}
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>City<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+                        <TextField onChange={handleChange} fullWidth size='small' id='city' value={allData?.city} placeholder='Enter your city' />
+                        {errorMsg?.cityError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.cityError}</Typography>}
                     </Grid>
                     <Grid item xs={6}>
                         <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Postal Code<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
@@ -190,13 +269,20 @@ const AdminEntry = () => {
                         {errorMsg?.pincodeError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.pincodeError}</Typography>}
                     </Grid>
                     <Grid item xs={6}>
-                        <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Country<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-                        <TextField onChange={handleChange} fullWidth size='small' id='country' value={allData?.country} placeholder='Enter your country' />
-                        {errorMsg?.countryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.countryError}</Typography>}
-                    </Grid>
-                    <Grid item xs={6}>
                         <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Admin Role<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-                        <TextField onChange={handleChange} fullWidth size='small' id='adminRole' value={allData?.adminRole} placeholder='Enter your admin role' />
+                        <Select
+                            id="adminRole"
+                            size='small'
+                            name="adminRole"
+                            value={allData?.adminRole}
+                            onChange={(e) => { setAllData({ ...allData, adminRole: e.target.value }), setErrorMsg({ ...errorMsg, addressError: "" }) }}
+                            fullWidth
+                            displayEmpty
+                        >
+                            <MenuItem value="" disabled>Select Role</MenuItem>
+                            <MenuItem value="admin">Admin</MenuItem>
+                            <MenuItem value="support">Support</MenuItem>
+                        </Select>
                         {errorMsg?.adminRoleError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.adminRoleError}</Typography>}
                     </Grid>
                     <Grid item xs={6}>
@@ -246,6 +332,7 @@ const AdminEntry = () => {
                                             e.stopPropagation()
                                             fileInputRef.current.click()
                                         }}
+
                                     >
                                         BROWSE
                                     </Button>
@@ -265,11 +352,13 @@ const AdminEntry = () => {
                             {profileImg && (
                                 <Box sx={{ mt: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
                                     <img
-                                        src={URL.createObjectURL(profileImg)}
+                                        src={typeof profileImg === 'string'
+                                            ? (profileImg.startsWith('http') ? profileImg : `http://luxcycs.com:5500/${profileImg}`)
+                                            : URL.createObjectURL(profileImg)}
                                         alt="profile Preview"
                                         style={{ maxWidth: 120, maxHeight: 120, borderRadius: 8, marginTop: 8 }}
                                     />
-                                    <Typography sx={{ fontSize: 13, mt: 1 }}>{profileImg.name}</Typography>
+                                    <Typography sx={{ fontSize: 13, mt: 1 }}>{typeof profileImg === 'string' ? profileImg.split('/').pop() : profileImg.name}</Typography>
                                     <IconButton
                                         size="small"
                                         sx={{
@@ -290,7 +379,7 @@ const AdminEntry = () => {
                     </Grid>
                 </Grid>
                 <Box sx={{ margin: '2% 0', padding: '10px 0', textAlign: 'right' }}>
-                    <Button onClick={handleSubmit} size='large' variant='contained' sx={{ fontWeight: 'bold', backgroundColor: "#00bfae" }}>Create Admin</Button>
+                    <Button onClick={handleSubmit} size='large' variant='contained' sx={{ fontWeight: 'bold', backgroundColor: "#00bfae" }}>{mode==="Add" ? "Create Admin" : "update Admin"}</Button>
                 </Box>
             </Paper>
         </div>

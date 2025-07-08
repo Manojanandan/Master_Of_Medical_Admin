@@ -4,14 +4,16 @@ import Filter from '../../comnponents/filter/Filter'
 import CommonTable from '../../comnponents/table/CommonTable'
 import { useDispatch, useSelector } from 'react-redux'
 import { getVendor } from './VendorReducer'
-import { Backdrop, CircularProgress } from '@mui/material'
+import { Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material'
+import SearchIcon from '@mui/icons-material/Search';
+import { stateList } from '../../utils/helpers'
 
 const VendorList = () => {
     const dispatch = useDispatch()
     const [name, setName] = useState('')
-    const [status, setStatus] = useState('All')
-    const [accordian, setAccordian] = useState(false)
+    const [status, setStatus] = useState('all')
     const [page, setPage] = useState(1)
+    const [state, setState] = useState(null)
 
     const reducer = useSelector((state) => state.vendorReducer)
     const { listOfVendor, loader } = reducer
@@ -21,14 +23,24 @@ const VendorList = () => {
     }, [])
 
     const columns = [
-        { datakey: 'id', headerName: 'ID', size: 100, align: 'left', },
+        // { datakey: 'id', headerName: 'ID', size: 100, align: 'left', },
         { datakey: 'name', headerName: 'Name', size: 200, },
-        { datakey: 'email', headerName: 'Email', size: 200, align:'left'},
+        { datakey: 'email', headerName: 'Email', size: 220, align: 'left' },
         {
             datakey: 'phone',
             headerName: 'Mobile No',
+            size: 180,
+            align: 'left'
+        },
+        {
+            datakey: 'type',
+            headerName: 'Vendor Type',
             size: 200,
-            align:'center'
+        },
+        {
+            datakey: 'state',
+            headerName: 'State',
+            size: 200,
         },
         {
             datakey: 'status',
@@ -50,6 +62,8 @@ const VendorList = () => {
             name: e?.name,
             email: e?.email,
             phone: e?.phone,
+            type: e?.type,
+            state: e?.state,
             status: e?.status
         })
     })
@@ -67,8 +81,88 @@ const VendorList = () => {
             >
                 <CircularProgress color="secondary" />
             </Backdrop>
-            <Titlebar title={"Vendors"} filter={true} onClick={() => setAccordian(!accordian)} addClick={() => navigate('/vendorentry?Mode=Add')} />
-            {accordian && <Filter handleStatus={(e) => { setStatus(e.target.value) }} handleName={(e) => { setName(e.target.value) }} nameValue={name} statusValue={status} />}
+            <Titlebar title={"Vendor Management"} addBtn={false} />
+            <Filter>
+                <Grid2 container columnSpacing={2} rowSpacing={3}>
+                    <Grid2 item size={4}>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search for (Name,Email and Mobile No)</Typography>
+                        <TextField
+                            sx={{ marginTop: '10px' }}
+                            id="search"
+                            fullWidth
+                            size="small"
+                            placeholder="Search by anything"
+                            variant="outlined"
+                            value={name}
+                            onChange={(e) => { setName(e.target.value) }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    </Grid2>
+                    <Grid2 item size={3}>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Vendor Type</Typography>
+                        <TextField id='vendorType' placeholder='Vendor type' name='vendorType' fullWidth size='small' sx={{ marginTop: '10px' }} />
+                    </Grid2>
+                    <Grid2 item size={3}>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
+                        <Autocomplete
+                            id="state"
+                            fullWidth
+                            size="small"
+                            sx={{ marginTop: '10px' }}
+                            options={stateList}
+                            autoHighlight
+                            getOptionLabel={(option) => option}
+                            onChange={(event, value) => {
+                                setState(value); // This gives you "Tamil Nadu" if selected
+                            }}
+                            renderOption={(props, option) => {
+                                const { key, ...optionProps } = props;
+                                return (
+                                    <Box
+                                        key={key}
+                                        component="li"
+                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                        {...optionProps}
+                                    >
+                                        {option}
+                                    </Box>
+                                );
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    size="small"
+                                    autoComplete="off"
+                                    placeholder="Select State"
+                                />
+                            )}
+                        />
+                    </Grid2>
+                    <Grid2 item size={2}>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Status</Typography>
+                        <Select
+                            fullWidth
+                            size="small"
+                            id="status"
+                            value={status}
+                            onChange={(e) => { setStatus(e.target.value) }}
+                            sx={{ marginTop: '10px' }}
+                        >
+
+                            <MenuItem value={"all"}>All</MenuItem>
+                            <MenuItem value={"pending"}>Pending</MenuItem>
+                            <MenuItem value={"approved"}>Approved</MenuItem>
+                            <MenuItem value={"rejected"}>Rejected</MenuItem>
+                        </Select>
+                    </Grid2>
+                </Grid2>
+            </Filter>
             <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={listOfVendor?.pagination?.totalPages} handleView={(data) => console.log(data)} handleEdit={(data) => console.log(data)} handleDelete={(data) => console.log(data)} />
         </div>
     )

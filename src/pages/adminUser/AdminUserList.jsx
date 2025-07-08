@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
 import Filter from '../../comnponents/filter/Filter'
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Backdrop, CircularProgress, IconButton } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material';
 import CommonTable from '../../comnponents/table/CommonTable'
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllUserData } from './AdminReducer';
+import SearchIcon from '@mui/icons-material/Search';
+import { stateList } from '../../utils/helpers'
 
 const AdminUserList = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [name, setName] = useState('')
-    const [status, setStatus] = useState('All')
-    const [accordian, setAccordian] = useState(false)
+    const [status, setStatus] = useState('all')
+    const [role, setRole] = useState('role')
+    const [state, setState] = useState(null)
     const [page, setPage] = useState(1)
+    const [allUsers, setAllUsers] = useState([]); 
+    const [filteredUsers, setFilteredUsers] = useState([]); 
 
     useEffect(() => {
         dispatch(getAllUserData())
@@ -25,23 +27,67 @@ const AdminUserList = () => {
     const reducer = useSelector((state) => state.adminReducer)
     const { adminData, loader } = reducer
 
-    console.log(adminData);
+    useEffect(() => {
+        if (adminData?.data) {
+            setAllUsers(adminData.data);
+            setFilteredUsers(adminData.data); // initially show all
+        }
+    }, [adminData]);
 
+    useEffect(() => {
+        let result = allUsers;
+
+        // Search filter
+        if (name.trim() !== "") {
+            result = result.filter(user =>
+                user.name?.toLowerCase().includes(name.toLowerCase()) ||
+                user.email?.toLowerCase().includes(name.toLowerCase()) ||
+                user.phone?.toLowerCase().includes(name.toLowerCase())
+            );
+        }
+
+        // Role filter
+        if (role !== "role") {
+            result = result.filter(user => user.role === role);
+        }
+
+        // State filter
+        if (state) {
+            result = result.filter(user => user.state === state);
+        }
+
+        // Status filter
+        if (status !== "all") {
+            result = result.filter(user => user.status === status);
+        }
+
+        setFilteredUsers(result);
+    }, [name, role, state, status, allUsers]);
 
     const columns = [
-        { datakey: 'id', headerName: 'ID', size: 100, align: 'left', },
+        // { datakey: 'id', headerName: 'ID', size: 50, align: 'left', },
         { datakey: 'name', headerName: 'Name', size: 200, },
-        { datakey: 'email', headerName: 'Email', size: 200, },
+        { datakey: 'email', headerName: 'Email', size: 220, },
         {
             datakey: 'phone',
             headerName: 'Mobile No',
+            size: 180,
+        },
+        {
+            datakey: 'role',
+            headerName: 'Role',
+            size: 200,
+        },
+        {
+            datakey: 'state',
+            headerName: 'State',
             size: 200,
         },
         {
             datakey: 'status',
             headerName: 'Status',
             size: 150,
-            align: 'center'
+            align: 'left'
         },
         {
             datakey: 'actions',
@@ -51,13 +97,15 @@ const AdminUserList = () => {
         },
     ];
 
-    const rows = adminData?.data?.map((item) => {
+    const rows = filteredUsers?.map((item) => {
         return (
             {
                 id: item?.id,
                 name: item?.name,
                 email: item?.email,
                 phone: item?.phone,
+                role: item?.role,
+                state: item?.state,
                 status: item?.status
             }
         )
@@ -67,6 +115,18 @@ const AdminUserList = () => {
         setPage(value);
         dispatch(getAllUserData(value))
     };
+
+    const handleView = (e) => {
+        sessionStorage.setItem("adminId", e?.id)
+        sessionStorage.setItem("Mode", "View")
+        navigate('/viewAdmin')
+    }
+    const handleEdit = (e) => {
+        sessionStorage.setItem("adminId", e?.id)
+        sessionStorage.setItem("Mode", "Edit")
+        navigate('/adminuserentry')
+    }
+
     return (
         <div style={{ height: 'auto' }}>
             <Backdrop
@@ -75,9 +135,101 @@ const AdminUserList = () => {
             >
                 <CircularProgress color="secondary" />
             </Backdrop>
-            <Titlebar title={"Admin Users"} filter={true} onClick={() => setAccordian(!accordian)} addClick={() => navigate('/adminuserentry')} />
-            {accordian && <Filter handleStatus={(e) => { setStatus(e.target.value) }} handleName={(e) => { setName(e.target.value) }} nameValue={name} statusValue={status} />}
-            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={adminData?.pagination?.totalPages} handleView={(data) => console.log(data)} handleEdit={(data) => console.log(data)} handleDelete={(data) => console.log(data)} />
+            <Titlebar title={"Admin Users"} addBtn={true} addClick={() => navigate('/adminuserentry')} />
+            <Filter>
+                <Grid2 container columnSpacing={2} rowSpacing={3}>
+                    <Grid2 item size={4}>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search for (Name,Email and Mobile No)</Typography>
+                        <TextField
+                            sx={{ marginTop: '10px' }}
+                            id="search"
+                            fullWidth
+                            size="small"
+                            placeholder="Search by anything"
+                            variant="outlined"
+                            value={name}
+                            onChange={(e) => { setName(e.target.value) }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    </Grid2>
+                    <Grid2 item size={3}>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>User Type</Typography>
+                        <Select
+                            fullWidth
+                            size="small"
+                            id="role"
+                            name="role"
+                            value={role}
+                            onChange={(e) => { setRole(e.target.value) }}
+                            sx={{ marginTop: '10px' }}
+                        >
+
+                            <MenuItem value="role">Select Role</MenuItem>
+                            <MenuItem value={"admin"}>Admin</MenuItem>
+                            <MenuItem value={"support"}>Support</MenuItem>
+                        </Select>
+                    </Grid2>
+                    <Grid2 item size={3}>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
+                        <Autocomplete
+                            id="state"
+                            fullWidth
+                            size="small"
+                            sx={{ marginTop: '10px' }}
+                            options={stateList}
+                            autoHighlight
+                            getOptionLabel={(option) => option}
+                            onChange={(event, value) => {
+                                setState(value); // This gives you "Tamil Nadu" if selected
+                            }}
+                            renderOption={(props, option) => {
+                                const { key, ...optionProps } = props;
+                                return (
+                                    <Box
+                                        key={key}
+                                        component="li"
+                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                        {...optionProps}
+                                    >
+                                        {option}
+                                    </Box>
+                                );
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    size="small"
+                                    autoComplete="off"
+                                    placeholder="Select State"
+                                />
+                            )}
+                        />
+                    </Grid2>
+                    <Grid2 item size={2}>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Status</Typography>
+                        <Select
+                            fullWidth
+                            size="small"
+                            id="status"
+                            value={status}
+                            onChange={(e) => { setStatus(e.target.value) }}
+                            sx={{ marginTop: '10px' }}
+                        >
+
+                            <MenuItem value={"all"}>All</MenuItem>
+                            <MenuItem value={"active"}>Active</MenuItem>
+                            <MenuItem value={"in-active"}>In-Active</MenuItem>
+                        </Select>
+                    </Grid2>
+                </Grid2>
+            </Filter>
+            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={adminData?.pagination?.totalPages} handleView={(data) => handleView(data)} handleEdit={(data) => handleEdit(data)} handleDelete={(data) => console.log(data)} />
         </div>
     )
 }

@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
 import { useNavigate } from 'react-router-dom'
-import { Alert, Backdrop, Box, Button, CircularProgress, Grid, IconButton, MenuItem, Paper, Select, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material'
+import { Alert, Autocomplete, Backdrop, Box, Button, CircularProgress, Grid, IconButton, MenuItem, Paper, Select, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import AddIcon from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux'
 import { addProduct, editProduct, getOneProductList } from './ProductReducer'
 import EditIcon from '@mui/icons-material/Edit';
+import { getVendor } from '../vendor/VendorReducer'
 
 const SUBCATEGORY_OPTIONS = {
   medical: [
@@ -35,14 +36,30 @@ const ProductEntry = () => {
   const fileInputRef = useRef()
   const productImagesInputRef = useRef()
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [allData, setAllData] = useState({ category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "",status: "pending" })
+  const [vendors, setVendors] = useState([]);
+  const [allData, setAllData] = useState({ category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "India", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "", status: "pending", bulkDiscount: "", rejectedReason: "" })
   const [errorMsg, setErrorMsg] = useState({ categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "" })
   const mode = sessionStorage.getItem("Mode")
 
   const reducer = useSelector((state) => state.productReducer)
+  const vendorReducer = useSelector((state) => state.vendorReducer)
+  const { listOfVendor } = vendorReducer
   const { loader, successMsg, success, getOneData } = reducer
 
-  console.log(getOneData);
+  useEffect(() => {
+    // Simulate fetching and attaching unique tempId
+    const processedVendors = listOfVendor?.data?.map((vendor, index) => ({
+      ...vendor,
+      tempId: `${vendor.name}_${index}` // Create unique temp ID
+    }));
+    setVendors(processedVendors);
+  }, [listOfVendor]);
+
+
+  useEffect(() => {
+    dispatch(getVendor())
+  }, [])
+
   useEffect(() => {
     if (getOneData?.data && mode !== "Add") {
       const data = getOneData?.data
@@ -51,7 +68,7 @@ const ProductEntry = () => {
 
       setAllData({
         ...errorMsg,
-        category: data?.category, subCategory: data?.subCategory, productName: data?.name, price: data?.price, priceLabel: data?.priceLable, postedBy: data?.postedBy, productDescription: data?.description, shelfLife: additional?.shelfLife, brandName: data?.brandName, expireAfter: data?.expiresOn, country: additional?.country, uses: additional?.howToUse, benefits: data?.benefits, sideEffects: additional?.sideEffects, manufacturerDetails: additional?.manufacturer,status: allData?.status
+        category: data?.category, subCategory: data?.subCategory, productName: data?.name, price: data?.price, priceLabel: data?.priceLable, postedBy: data?.postedBy, productDescription: data?.description, shelfLife: additional?.shelfLife, brandName: data?.brandName, expireAfter: data?.expiresOn, country: additional?.country, uses: additional?.howToUse, benefits: data?.benefits, sideEffects: additional?.sideEffects, manufacturerDetails: additional?.manufacturer, status: allData?.status
       })
       setThumbnail(data?.thumbnailImage)
       setProductImages(data?.galleryImage)
@@ -171,6 +188,15 @@ const ProductEntry = () => {
     if (e.target.name === "subCategory") {
       setErrorMsg({ ...errorMsg, subCategoryError: "" })
     }
+    if (e.target.name === "postedBy") {
+      setErrorMsg({ ...errorMsg, postedByError: "" })
+    }
+  }
+  const handlePostedByChange = (fieldName, value) => {
+    setAllData({ ...allData, [fieldName]: value?.name })
+    if (fieldName === "postedBy") {
+      setErrorMsg({ ...errorMsg, postedByError: "" })
+    }
   }
 
   const handleSubmit = () => {
@@ -243,7 +269,7 @@ const ProductEntry = () => {
       if (success) {
         setOpenSnackbar(true)
         navigate('/productmanagement')
-        setAllData({ ...allData, category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "",status: "pending" })
+        setAllData({ ...allData, category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "", status: "pending" })
         setErrorMsg({ ...errorMsg, categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "" })
         setThumbnail(null)
         setProductImages([])
@@ -253,6 +279,7 @@ const ProductEntry = () => {
 
     }
   }
+  console.log(allData.postedBy);
 
   return (
     <div>
@@ -262,7 +289,7 @@ const ProductEntry = () => {
       >
         <CircularProgress color="secondary" />
       </Backdrop>
-      <Titlebar title={"Product Details"} filter={false} back={true} backClick={() => { navigate('/productmanagement'), sessionStorage.removeItem("productId"), sessionStorage.removeItem("Mode") }} />
+      <Titlebar title={"Product Details"} back={true} backClick={() => { navigate('/productmanagement'), sessionStorage.removeItem("productId"), sessionStorage.removeItem("Mode") }} />
       {successMsg && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(!openSnackbar)}>
         <Alert
           onClose={() => setOpenSnackbar(!openSnackbar)}
@@ -320,7 +347,37 @@ const ProductEntry = () => {
           </Grid>
           <Grid item xs={6}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Posted By <span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='postedBy' value={allData?.postedBy} placeholder='Enter your vendor id' />
+            {/* <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='postedBy' value={allData?.postedBy} placeholder='Enter your vendo' /> */}
+            <Autocomplete
+              id="postedBy"
+              fullWidth
+              size="small"
+              sx={{ marginTop: '10px' }}
+              options={vendors}
+              autoHighlight
+              getOptionLabel={(option) => option?.name || ''}
+              onChange={(event, value) => {
+                handlePostedByChange("postedBy", value);
+              }}
+              renderOption={(props, option) => (
+                <Box
+                  key={option.tempId}
+                  component="li"
+                  sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                  {...props}
+                >
+                  {option?.name}
+                </Box>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  size="small"
+                  autoComplete="off"
+                  placeholder="Select Vendor Name"
+                />
+              )}
+            />
             {errorMsg?.postedByError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.postedByError}</Typography>}
           </Grid>
           <Grid item xs={6}>
@@ -365,13 +422,12 @@ const ProductEntry = () => {
             {errorMsg?.expireAfterError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.expireAfterError}</Typography>}
 
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Country of Origin<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='country' value={allData?.country} placeholder='Country of Origin' />
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='country' value={allData?.country} placeholder='Country of Origin' disabled />
             {errorMsg?.countryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.countryError}</Typography>}
-
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Status</Typography>
             <Select
               id="status"
@@ -386,8 +442,27 @@ const ProductEntry = () => {
               <MenuItem value="" disabled>Select Status</MenuItem>
               <MenuItem value="pending">Pending</MenuItem>
               <MenuItem value="approved">Approved</MenuItem>
+              <MenuItem value="rejected">Rejected</MenuItem>
             </Select>
           </Grid>
+          <Grid item xs={4}>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Bulk Discount<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='bulkDiscount' value={allData?.bulkDiscount} placeholder='Discount Offers' />
+          </Grid>
+          {allData?.status === "rejected" &&
+            <Grid item xs={12}>
+              <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Rejected Reason<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+              <TextareaAutosize
+                id='rejectedReason'
+                value={allData?.rejectedReason}
+                style={{ width: '100%', fontSize: '16px', padding: '15px 20px 0', backgroundColor: '#f8fafc' }}
+                maxRows={4}
+                minRows={3}
+                onChange={handleChange}
+                disabled={mode == "View" ? true : false}
+              />
+            </Grid>
+          }
           <Grid item xs={12}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>How to Use<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
             <TextareaAutosize
@@ -449,9 +524,9 @@ const ProductEntry = () => {
                 cursor: thumbnail ? 'default' : 'pointer',
                 minHeight: 120,
               }}
-            onClick={() => {
-              if (!thumbnail) fileInputRef.current.click()
-            }}
+              onClick={() => {
+                if (!thumbnail) fileInputRef.current.click()
+              }}
 
             >
               {!thumbnail && (

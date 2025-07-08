@@ -26,6 +26,7 @@ import ExitToApp from '@mui/icons-material/ExitToApp';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useLocation, useNavigate } from 'react-router-dom';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import { useAuth } from '../../pages/routes/AuthContext';
 
 const drawerWidth = 300;
 
@@ -34,6 +35,7 @@ const Sidebar = () => {
   const location = useLocation();
   const [selectedMenu, setSelectedMenu] = useState('');
   const [openMenus, setOpenMenus] = useState({});
+   const { logout } = useAuth();
 
   const menuList = [
     {
@@ -241,7 +243,7 @@ const Sidebar = () => {
             })}
           </List>
         </Box>
-        <Box sx={{ overflow: 'auto', py: 1, px: 2, position: 'absolute', width: '100%', bottom: 15 }} onClick={() => { sessionStorage.removeItem("jwt"), navigate('/') }}>
+        <Box sx={{ overflow: 'auto', py: 1, px: 2, position: 'absolute', width: '100%', bottom: 15 }} onClick={logout}>
           <List>
             <ListItemButton
               sx={{

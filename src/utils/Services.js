@@ -2,7 +2,7 @@ import instance from './Instance'
 
 
 //login creation
-export const userLogin = async (data, type) => {
+export const userLogin = async (data) => {
     return await instance.post(`admin-user/login-admin`, data)
 }
 
@@ -27,7 +27,7 @@ export const deleteTestimonial = (id) => {
 
 // Blog Api
 export const getBlog = (id, pageNum) => {
-    if (id !=="") {
+    if (id !== "") {
         return instance.get(`blog/get-blog/${id}`)
     }
     if (pageNum !== "") {
@@ -56,15 +56,15 @@ export const getCustomer = (id, pageNum) => {
 export const createProduct = async (data) => {
     return await instance.post('product/create-product', data)
 }
-export const getAllProduct = async (id,pgNum) => {
+export const getAllProduct = async (id, pgNum) => {
     if (id !== "") {
         return await instance.get(`product/get-product/${id}`)
     }
-    if (pgNum !== "") {
-        return await instance.get(`product/get-all-product?page=${pgNum}&limit=7`)
-    }
+
+    return await instance.get(`product/get-all-product`)
+
 }
-export const updateProduct = async(data) =>{
+export const updateProduct = async (data) => {
     return await instance.put(`product/update-product/${sessionStorage.getItem("productId")}`, data)
 }
 
@@ -73,10 +73,17 @@ export const getAllAdminUser = async (id, pgNum) => {
     if (pgNum !== "") {
         return await instance.get(`admin-user/get-all-admin?page=${pgNum}&limit=7`)
     }
+    if (id !== "") {
+        return await instance.get(`admin-user/get-admin/${id}`)
+    }
 }
 export const createAdminUser = async (data) => {
     return await instance.post(`admin-user/create-admin`, data)
 }
+export const updateAdminUser = async (data) => {
+    return await instance.put(`admin-user/update-admin`, data)
+}
+
 
 // Vendor
 export const getAllVendor = (id, pageNum) => {
