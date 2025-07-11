@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Chip, IconButton, Pagination, Paper, Stack, Typography } from '@mui/material'
+import { Avatar, Box, Chip, IconButton, Pagination, Paper, Stack, Typography } from '@mui/material'
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -7,14 +7,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView, handleEdit, handleDelete }) => {
   return (
     <React.Fragment>
-      <Paper elevation={5} sx={{ width: '95%', margin: '25px', height: "auto", borderRadius: '5px' }}>
+      <Paper elevation={5} sx={{ width: '95%', margin: '6px 25px 25px', height: "auto", borderRadius: '5px' }}>
         {rows?.length > 0 ?
           <>
-            <Box sx={{ borderBottom: 'solid 1px #2424', display: 'flex', alignItems: 'center', padding: '15px 20px', }}>
+            <Box sx={{ borderBottom: 'solid 1px #2424', display: 'flex', alignItems: 'center', padding: '15px 20px',backgroundColor:'#06a094',color:'#fff'  }}>
               {columns?.map((col, key) => {
                 return (
-                  <Box sx={{ width: `${col?.size}px` }} key={key}>
-                    <Typography fontWeight={600} sx={{ fontSize: '18px', textAlign: col?.align, }}>{col?.headerName}</Typography>
+                  <Box sx={{ width: `${col?.size}px`,}} key={key}>
+                    <Typography fontWeight={600} sx={{ fontSize: '18px', textAlign: col?.align, }}>{col?.headerName === "Img" ? "" : col?.headerName}</Typography>
                   </Box>
                 )
               })
@@ -35,22 +35,31 @@ const CommonTable = ({ rows, columns, count, page, handlePageChange, handleView,
                         wordBreak: 'break-word',
                         whiteSpace: 'normal',
                       }} key={idx}>
-                        {col?.datakey === "actions" ?
+                        {col?.headerName === "Img" ? 
+                        <Avatar src={item[col?.datakey]} alt={item[col?.datakey]} />
+                        :
+                        col?.datakey === "actions" ?
                           <div>
-                            <IconButton
-                              onClick={() => handleView(item)}
-                              sx={{
-                                color: "#f09407",
-                              }}
-                            >
-                              <VisibilityIcon />
-                            </IconButton>
-                            <IconButton color="primary" onClick={() => handleEdit(item)}>
-                              <EditIcon />
-                            </IconButton>
-                            <IconButton color="error" onClick={() => handleDelete(item)}>
-                              <DeleteIcon />
-                            </IconButton>
+                            {(col?.view ?? true) &&
+                              <IconButton
+                                onClick={() => handleView(item)}
+                                sx={{
+                                  color: "#f09407",
+                                }}
+                              >
+                                <VisibilityIcon />
+                              </IconButton>
+                            }
+                            {(col?.edit ?? true) &&
+                              <IconButton color="primary" onClick={() => handleEdit(item)}>
+                                <EditIcon />
+                              </IconButton>
+                            }
+                            {(col?.delete ?? true) &&
+                              <IconButton color="error" onClick={() => handleDelete(item)}>
+                                <DeleteIcon />
+                              </IconButton>
+                            }
                           </div>
                           :
                           col?.datakey === "status" ?

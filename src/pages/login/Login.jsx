@@ -41,7 +41,15 @@ const Login = () => {
         if (id === "password") setErrorMsg(prev => ({ ...prev, passwordError: "" }));
     };
 
-    const handleClose = () => setOpenModal(false);
+    const handleClose = () => {
+        setOpenModal(false);
+        dispatch(resetLoginState());
+
+        if (success) {
+            login(sessionStorage.getItem("jwt")); // token-based login
+            navigate("/dashboard");
+        }
+    };
 
     const validateAndLogin = () => {
         const { email, password } = allData;
@@ -60,17 +68,11 @@ const Login = () => {
     };
 
     useEffect(() => {
-        if (success && message?.accessToken) {
-            login(message.accessToken)
+        if (message) {
             setOpenModal(true);
-
-            setTimeout(() => {
-                setOpenModal(false);
-                dispatch(resetLoginState());
-                navigate("/dashboard");
-            }, 3000);
         }
-    }, [success, message, navigate, dispatch]);
+    }, [message]);
+
 
     return (
         <Box sx={{ height: '100vh', backgroundColor: '#f2f3f5', padding: '4% 0' }}>
@@ -78,13 +80,16 @@ const Login = () => {
                 <CircularProgress color="secondary" />
             </Backdrop>
 
-            {message && (
-                <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openModal} autoHideDuration={3000} onClose={handleClose}>
-                    <Alert onClose={handleClose} severity={success ? "success" : "error"} variant="filled" sx={{ width: '100%' }}>
-                        {message}
-                    </Alert>
-                </Snackbar>
-            )}
+            {message && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openModal} autoHideDuration={2000} onClose={handleClose}>
+                <Alert
+                    onClose={handleClose}
+                    severity={success ? "success" : "error"}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {message}
+                </Alert>
+            </Snackbar>}
 
             <Box sx={{ backgroundColor: '#fff', borderRadius: '15px', width: '35%', margin: '4% auto', padding: '2rem' }}>
                 <Typography align="center" fontSize="1.8rem" gutterBottom>Welcome to Admin Portal</Typography>

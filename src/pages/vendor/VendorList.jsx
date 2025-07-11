@@ -12,6 +12,7 @@ const VendorList = () => {
     const dispatch = useDispatch()
     const [name, setName] = useState('')
     const [status, setStatus] = useState('all')
+    const [vendorType, setVendorType] = useState('')
     const [page, setPage] = useState(1)
     const [state, setState] = useState(null)
 
@@ -19,8 +20,21 @@ const VendorList = () => {
     const { listOfVendor, loader } = reducer
 
     useEffect(() => {
-        dispatch(getVendor(page))
-    }, [])
+        setPage(1)
+    }, [name,status,state,vendorType])
+
+    // Load data on filter change or page change
+      useEffect(() => {
+        const debounceTimer = setTimeout(() => {
+          let query = `?page=${page}&limit=7`;
+          if (name) query += `&name=${name}`;
+          if (vendorType) query += `&type=${vendorType}`; 
+          if (state) query += `&state=${state}`; 
+          if (status && status !== 'all') query += `&status=${status}`;
+          dispatch(getVendor(query));
+        }, 500);
+        return () => clearTimeout(debounceTimer);
+      }, [name, vendorType, state, status, page, dispatch]);
 
     const columns = [
         // { datakey: 'id', headerName: 'ID', size: 100, align: 'left', },
@@ -53,6 +67,7 @@ const VendorList = () => {
             headerName: 'Actions',
             size: 200,
             align: 'center',
+            edit: false
         },
     ];
 
@@ -66,11 +81,10 @@ const VendorList = () => {
             state: e?.state,
             status: e?.status
         })
-    })
+    }) || []
 
     const handlePageChange = (event, value) => {
         setPage(value);
-        dispatch(getVendor(value))
     };
 
     return (
@@ -85,13 +99,13 @@ const VendorList = () => {
             <Filter>
                 <Grid2 container columnSpacing={2} rowSpacing={3}>
                     <Grid2 item size={4}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search for (Name,Email and Mobile No)</Typography>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search with Name</Typography>
                         <TextField
                             sx={{ marginTop: '10px' }}
                             id="search"
                             fullWidth
                             size="small"
-                            placeholder="Search by anything"
+                            placeholder="Search with name"
                             variant="outlined"
                             value={name}
                             onChange={(e) => { setName(e.target.value) }}
@@ -106,7 +120,7 @@ const VendorList = () => {
                     </Grid2>
                     <Grid2 item size={3}>
                         <Typography variant='p' sx={{ fontWeight: 'bold' }}>Vendor Type</Typography>
-                        <TextField id='vendorType' placeholder='Vendor type' name='vendorType' fullWidth size='small' sx={{ marginTop: '10px' }} />
+                        <TextField id='vendorType' onChange={(e)=>setVendorType(e.target.value)} placeholder='Vendor type' name='vendorType' fullWidth size='small' sx={{ marginTop: '10px' }} />
                     </Grid2>
                     <Grid2 item size={3}>
                         <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>

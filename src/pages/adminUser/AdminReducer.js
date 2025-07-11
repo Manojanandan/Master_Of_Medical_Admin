@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { createAdminUser, getAllAdminUser, updateAdminUser } from "../../utils/Services";
 
-export const getAllUserData = createAsyncThunk("GetAllUserData", async (pgNum) => {  
-    return await getAllAdminUser("",pgNum).then((response) => response?.data)
+export const getAllUserData = createAsyncThunk("GetAllUserData", async (data) => {
+    return await getAllAdminUser("", data).then((response) => response?.data)
 })
-export const getOneUserData = createAsyncThunk("GetOneUserData", async (id) => {  
-    return await getAllAdminUser(id,"").then((response) => response?.data)
+export const getOneUserData = createAsyncThunk("GetOneUserData", async (id) => {
+    return await getAllAdminUser(id, "").then((response) => response?.data)
 })
 export const addUserData = createAsyncThunk("AddUserData", async (data) => {
     return await createAdminUser(data).then((response) => response?.data)
@@ -20,11 +20,17 @@ export const adminUser = createSlice({
         adminData: [],
         adminOneData: [],
         loader: false,
-        createAdmin:[],
-        message:"",
+        createAdmin: [],
+        message: "",
         success: false
     },
-    reducers: {},
+    reducers: {
+        resetMessages: (state) => {
+            state.loader = false
+            state.message = ""
+            state.success = false
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(getAllUserData.pending, (state) => {
             state.loader = true
@@ -46,30 +52,30 @@ export const adminUser = createSlice({
         builder.addCase(getOneUserData.rejected, (state) => {
             state.loader = false
         })
-        builder.addCase(addUserData.pending,(state)=>{
+        builder.addCase(addUserData.pending, (state) => {
             state.loader = true
         })
-        builder.addCase(addUserData.fulfilled,(state,action)=>{
+        builder.addCase(addUserData.fulfilled, (state, action) => {
             state.loader = false
             state.createAdmin.push(action.payload)
             state.success = action.payload?.success
             state.message = action.payload?.message
         })
-        builder.addCase(addUserData.rejected,(state,action)=>{
+        builder.addCase(addUserData.rejected, (state, action) => {
             state.loader = false
             state.success = action.payload?.success
             state.message = action.payload?.message
         })
-        builder.addCase(putUserData.pending,(state)=>{
+        builder.addCase(putUserData.pending, (state) => {
             state.loader = true
         })
-        builder.addCase(putUserData.fulfilled,(state,action)=>{
+        builder.addCase(putUserData.fulfilled, (state, action) => {
             state.loader = false
             state.createAdmin.push(action.payload)
             state.success = action.payload?.success
             state.message = action.payload?.message
         })
-        builder.addCase(putUserData.rejected,(state,action)=>{
+        builder.addCase(putUserData.rejected, (state, action) => {
             state.loader = false
             state.success = action.payload?.success
             state.message = action.payload?.message
@@ -77,5 +83,5 @@ export const adminUser = createSlice({
     }
 })
 
-
+export const { resetMessages } = adminUser.actions;
 export default adminUser.reducer;

@@ -36,7 +36,8 @@ export const loginReducer = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loader = false;
         state.success = action.payload?.success ?? true;
-        state.message = action.payload;
+        // state.message = action.payload;
+        state.message = action.payload?.message
 
         if (action.payload?.accessToken) {
           sessionStorage.setItem("jwt", action.payload.accessToken);

@@ -1,94 +1,86 @@
-import React, { useEffect, useState } from 'react'
-import Titlebar from '../../comnponents/titlebar/Titlebar'
-import Filter from '../../comnponents/filter/Filter'
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Autocomplete, Backdrop, Box, CircularProgress, Grid2, IconButton, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete'
-import SearchIcon from '@mui/icons-material/Search';;
-import CommonTable from '../../comnponents/table/CommonTable'
+import React, { useEffect, useState } from 'react';
+import Titlebar from '../../comnponents/titlebar/Titlebar';
+import Filter from '../../comnponents/filter/Filter';
+import { Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import CommonTable from '../../comnponents/table/CommonTable';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProductList } from './ProductReducer';
-import { stateList } from '../../utils/helpers'
+import { categoryList, subCategoryList } from '../../utils/helpers';
 
 const Product = () => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const [name, setName] = useState('')
-  const [userType, setUserType] = useState('')
-  const [status, setStatus] = useState('all')
-  const [page, setPage] = useState(1)
-  const [state, setState] = useState(null)
- 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const reducer = useSelector((state) => state.productReducer)
-  const { loader, getProduct } = reducer
-   const [filteredData,setFilteredData]=useState(getProduct?.data)
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState([]);
+  const [subCategory, setSubCategory] = useState([]);
+  const [status, setStatus] = useState('all');
+  const [page, setPage] = useState(1);
 
+  const reducer = useSelector((state) => state.productReducer);
+  const { loader, getProduct } = reducer;
+
+  // Reset page when filters change
   useEffect(() => {
-    dispatch(getProductList(`?page=1&limit=7`))
-  }, [])
+    setPage(1);
+  }, [name, subCategory, status]);
 
-  useEffect(()=>{
-    const query = ''
-    if(status || status==="all"){
-      query += `&status=${status}`
-    }
-    setFilteredData(query)
-  },[state,status])
+  // Load data on filter change or page change
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      let query = `?page=${page}&limit=7`;
+      if (name) query += `&name=${name}`;
+      if (subCategory?.length > 0) query += `&subCategory=${subCategory}`;
+      if (status && status !== 'all') query += `&status=${status}`;
+      dispatch(getProductList(query));
+    }, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [name, subCategory, status, page, dispatch]);
+
 
   const columns = [
-    { datakey: 'id', headerName: 'ID', size: 100, align: 'left', },
-    { datakey: 'name', headerName: 'Product Name', size: 200, },
-    { datakey: 'brandName', headerName: 'Brand', size: 200, align: 'left' },
-    {
-      datakey: 'category',
-      headerName: 'Category',
-      size: 200,
-      align: 'left'
-    },
-    {
-      datakey: 'status',
-      headerName: 'Status',
-      size: 150,
-      align: 'left'
-    },
-    {
-      datakey: 'actions',
-      headerName: 'Actions',
-      size: 200,
-      align: 'center',
-    },
+    { datakey: 'thumbnailImage', headerName: 'Img', size: 100, align: 'left' },
+    { datakey: 'name', headerName: 'Product Name', size: 200 },
+    { datakey: 'price', headerName: 'Price', size: 200, align: 'left' },
+    { datakey: 'category', headerName: 'Category', size: 200, align: 'left' },
+    { datakey: 'status', headerName: 'Status', size: 150, align: 'left' },
+    { datakey: 'actions', headerName: 'Actions', size: 200, align: 'center' },
   ];
 
 
-  const rows = getProduct?.data?.map((e) => {
-    return (
-      {
-        id: e?.id,
-        name: e?.name,
-        category: e?.category,
-        brandName: e?.brandName,
-        status: e?.status
-      }
-    )
-  })
+  const rows = getProduct?.data?.map((e) => ({
+    thumbnailImage: e?.thumbnailImage,
+    name: e?.name,
+    category: e?.category,
+    price: e?.price,
+    status: e?.status,
+  })) || [];
 
   const handlePageChange = (event, value) => {
     setPage(value);
-    dispatch(getProductList(`?page=${value}&limit=7${filteredData}`))
   };
 
   const handleView = (e) => {
-    sessionStorage.setItem("productId", e?.id)
-    sessionStorage.setItem("Mode", "View")
-    navigate('/productmanagemententry')
-  }
+    sessionStorage.setItem("productId", e?.id);
+    sessionStorage.setItem("Mode", "View");
+    navigate('/productmanagemententry');
+  };
+
   const handleEdit = (e) => {
-    sessionStorage.setItem("productId", e?.id)
-    sessionStorage.setItem("Mode", "Edit")
-    navigate('/productmanagemententry')
+    sessionStorage.setItem("productId", e?.id);
+    sessionStorage.setItem("Mode", "Edit");
+    navigate('/productmanagemententry');
+  };
+
+  const handleDropDownChange = (e) => {
+    setCategory(e.target.value)
+    setSubCategory([])
+    if (e.target.value === "") {
+      setSubCategory([])
+    }
+
   }
 
   return (
@@ -99,20 +91,31 @@ const Product = () => {
       >
         <CircularProgress color="secondary" />
       </Backdrop>
-      <Titlebar title={"Products List"} addBtn={true} addClick={() => { navigate('/productmanagemententry'), sessionStorage.setItem("Mode", "Add") }} />
+
+      <Titlebar
+        title={"Products List"}
+        addBtn={true}
+        addClick={() => {
+          sessionStorage.setItem("Mode", "Add");
+          navigate('/productmanagemententry');
+        }}
+      />
+
       <Filter>
         <Grid2 container columnSpacing={2} rowSpacing={3}>
           <Grid2 item size={4}>
-            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search for (Name,Email and Mobile No)</Typography>
+            <Typography variant='p' sx={{ fontWeight: 'bold' }}>
+              Search with Name
+            </Typography>
             <TextField
               sx={{ marginTop: '10px' }}
               id="search"
               fullWidth
               size="small"
-              placeholder="Search by anything"
+              placeholder="Search with name"
               variant="outlined"
               value={name}
-              onChange={(e) => { setName(e.target.value) }}
+              onChange={(e) => setName(e.target.value)}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -122,46 +125,55 @@ const Product = () => {
               }}
             />
           </Grid2>
+
           <Grid2 item size={3}>
-            <Typography variant='p' sx={{ fontWeight: 'bold' }}>User Type</Typography>
-            <TextField id='userType' value={userType} onChange={(e) => setUserType(e.target.value)} placeholder='User type' name='userType' fullWidth size='small' sx={{ marginTop: '10px' }} />
-          </Grid2>
-          <Grid2 item size={3}>
-            <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
-            <Autocomplete
-              id="state"
-              fullWidth
-              size="small"
+            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Category</Typography>
+            <Select
               sx={{ marginTop: '10px' }}
-              options={stateList}
-              autoHighlight
-              getOptionLabel={(option) => option}
-              onChange={(event, value) => {
-                setState(value); // This gives you "Tamil Nadu" if selected
-              }}
-              renderOption={(props, option) => {
-                const { key, ...optionProps } = props;
-                return (
-                  <Box
-                    key={key}
-                    component="li"
-                    sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-                    {...optionProps}
-                  >
-                    {option}
-                  </Box>
-                );
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  size="small"
-                  autoComplete="off"
-                  placeholder="Select State"
-                />
-              )}
-            />
+              id="category"
+              size='small'
+              name="category"
+              value={category}
+              onChange={handleDropDownChange}
+              fullWidth
+              displayEmpty
+            >
+              <MenuItem value="">Select Category</MenuItem>
+              {categoryList?.map((e, key) => {
+                return (<MenuItem key={key} value={e?.value}>{e?.label}</MenuItem>)
+              })}
+            </Select>
           </Grid2>
+
+          <Grid2 item size={3}>
+            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Sub Category</Typography>
+            <Select
+              sx={{ marginTop: '10px' }}
+              id="subCategory"
+              size='small'
+              name='subCategory'
+              value={subCategory}
+              onChange={(e) => setSubCategory(e.target.value)}
+              fullWidth
+              disabled={category === "" || category?.length == 0 ? true : false}
+              displayEmpty
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 300,
+                    overflowY: 'auto',
+                    maxWidth: 200
+                  },
+                },
+              }}
+            >
+              <MenuItem value="" disabled>Select Subcategory</MenuItem>
+              {category && subCategoryList[category]?.map((opt, key) => {
+                return (<MenuItem key={key} value={opt.value} >{opt.label}</MenuItem>)
+              })}
+            </Select>
+          </Grid2>
+
           <Grid2 item size={2}>
             <Typography variant='p' sx={{ fontWeight: 'bold' }}>Status</Typography>
             <Select
@@ -169,10 +181,9 @@ const Product = () => {
               size="small"
               id="status"
               value={status}
-              onChange={(e) => { setStatus(e.target.value) }}
+              onChange={(e) => setStatus(e.target.value)}
               sx={{ marginTop: '10px' }}
             >
-
               <MenuItem value={"all"}>All</MenuItem>
               <MenuItem value={"pending"}>Pending</MenuItem>
               <MenuItem value={"approved"}>Approved</MenuItem>
@@ -181,9 +192,19 @@ const Product = () => {
           </Grid2>
         </Grid2>
       </Filter>
-      <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={getProduct?.pagination?.totalPages} handleView={(data) => handleView(data)} handleEdit={(data) => handleEdit(data)} handleDelete={(data) => console.log(data)} />
-    </div>
-  )
-}
 
-export default Product
+      <CommonTable
+        rows={rows}
+        columns={columns}
+        handlePageChange={handlePageChange}
+        page={page}
+        count={getProduct?.pagination?.totalPages || 1}
+        handleView={handleView}
+        handleEdit={handleEdit}
+        handleDelete={(data) => console.log(data)}
+      />
+    </div>
+  );
+};
+
+export default Product;

@@ -512,6 +512,19 @@ const ProductEntry = () => {
             {errorMsg?.manufacturerDetailsError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.manufacturerDetailsError}</Typography>}
           </Grid>
           <Grid item xs={12}>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Mediguard Essentials<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <TextareaAutosize
+              id='manufacturerDetails'
+              value={allData?.manufacturerDetails}
+              style={{ width: '100%', fontSize: '16px', padding: '15px 20px 0', backgroundColor: '#f8fafc' }}
+              maxRows={4}
+              minRows={3}
+              onChange={handleChange}
+              disabled={mode == "View" ? true : false}
+            />
+            {errorMsg?.manufacturerDetailsError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.manufacturerDetailsError}</Typography>}
+          </Grid>
+          <Grid item xs={12}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Product Thumbnail<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
             <Box
               sx={{

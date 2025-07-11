@@ -17,52 +17,28 @@ const AdminUserList = () => {
     const [role, setRole] = useState('role')
     const [state, setState] = useState(null)
     const [page, setPage] = useState(1)
-    const [allUsers, setAllUsers] = useState([]); 
-    const [filteredUsers, setFilteredUsers] = useState([]); 
 
-    useEffect(() => {
-        dispatch(getAllUserData())
-    }, [])
 
     const reducer = useSelector((state) => state.adminReducer)
     const { adminData, loader } = reducer
 
     useEffect(() => {
-        if (adminData?.data) {
-            setAllUsers(adminData.data);
-            setFilteredUsers(adminData.data); // initially show all
-        }
-    }, [adminData]);
+        setPage(1);
+    }, [name, role, state, status]);
 
     useEffect(() => {
-        let result = allUsers;
+        const debounceTimer = setTimeout(() => {
+            let query = `?page=${page}&limit=7`;
+            if (name) query += `&name=${name}`;
+            if (role && role !== "role") query += `&role=${role}`;
+            if (state) query += `&state=${state}`;
+            if (status && status !== 'all') query += `&status=${status}`;
+            dispatch(getAllUserData(query))
+        }, 500);
 
-        // Search filter
-        if (name.trim() !== "") {
-            result = result.filter(user =>
-                user.name?.toLowerCase().includes(name.toLowerCase()) ||
-                user.email?.toLowerCase().includes(name.toLowerCase()) ||
-                user.phone?.toLowerCase().includes(name.toLowerCase())
-            );
-        }
+        return () => clearTimeout(debounceTimer);
 
-        // Role filter
-        if (role !== "role") {
-            result = result.filter(user => user.role === role);
-        }
-
-        // State filter
-        if (state) {
-            result = result.filter(user => user.state === state);
-        }
-
-        // Status filter
-        if (status !== "all") {
-            result = result.filter(user => user.status === status);
-        }
-
-        setFilteredUsers(result);
-    }, [name, role, state, status, allUsers]);
+    }, [name, role, state, status, dispatch]);
 
     const columns = [
         // { datakey: 'id', headerName: 'ID', size: 50, align: 'left', },
@@ -97,7 +73,7 @@ const AdminUserList = () => {
         },
     ];
 
-    const rows = filteredUsers?.map((item) => {
+    const rows = adminData?.data?.map((item) => {
         return (
             {
                 id: item?.id,
@@ -109,11 +85,10 @@ const AdminUserList = () => {
                 status: item?.status
             }
         )
-    })
+    }) || []
 
     const handlePageChange = (event, value) => {
         setPage(value);
-        dispatch(getAllUserData(value))
     };
 
     const handleView = (e) => {
@@ -135,17 +110,17 @@ const AdminUserList = () => {
             >
                 <CircularProgress color="secondary" />
             </Backdrop>
-            <Titlebar title={"Admin Users"} addBtn={true} addClick={() => navigate('/adminuserentry')} />
+            <Titlebar title={"Admin Users"} addBtn={true} addClick={() => { navigate('/adminuserentry'), sessionStorage.setItem("Mode", "Add") }} />
             <Filter>
                 <Grid2 container columnSpacing={2} rowSpacing={3}>
                     <Grid2 item size={4}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search for (Name,Email and Mobile No)</Typography>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search with Name</Typography>
                         <TextField
                             sx={{ marginTop: '10px' }}
                             id="search"
                             fullWidth
                             size="small"
-                            placeholder="Search by anything"
+                            placeholder="Search with Name"
                             variant="outlined"
                             value={name}
                             onChange={(e) => { setName(e.target.value) }}
@@ -159,7 +134,7 @@ const AdminUserList = () => {
                         />
                     </Grid2>
                     <Grid2 item size={3}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>User Type</Typography>
+                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>User Role</Typography>
                         <Select
                             fullWidth
                             size="small"

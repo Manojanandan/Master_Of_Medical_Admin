@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getAllVendor } from "../../utils/Services";
 
-export const getVendor = createAsyncThunk("Get Vendor",async(pgNum)=>{
-    return await getAllVendor("",pgNum).then((response)=>response.data)
+export const getVendor = createAsyncThunk("Get Vendor",async(data)=>{
+    return await getAllVendor("",data).then((response)=>response.data)
 })
 
 export const vendorReducer = createSlice({

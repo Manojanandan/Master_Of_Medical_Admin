@@ -5,7 +5,7 @@ import { Alert, Autocomplete, Backdrop, Box, Button, CircularProgress, Grid, Ico
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import { useDispatch, useSelector } from 'react-redux'
-import { addUserData, getOneUserData, putUserData } from './AdminReducer'
+import { addUserData, getOneUserData, putUserData, resetMessages } from './AdminReducer'
 import { stateList } from '../../utils/helpers'
 
 
@@ -21,9 +21,9 @@ const AdminEntry = () => {
     const fileInputRef = useRef()
     const [profileImg, setProfileImg] = useState(null)
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [allData, setAllData] = useState({ name: "", mobile: "", email: "", password: "", address: "", city: "", state: "", pincode: "", adminRole: "", status: "", country: "India" })
+    const [allData, setAllData] = useState({ id: "", name: "", mobile: "", email: "", password: "", address: "", city: "", state: "", pincode: "", adminRole: "", status: "", country: "India" })
     const [errorMsg, setErrorMsg] = useState({ nameError: "", mobileError: "", emailError: "", passwordError: "", addressError: "", cityError: "", stateError: "", pincodeError: "", adminRoleError: "", statusError: "", profileImgError: "", countryError: "" })
-
+    const [fileChange, setFileChange] = useState(false)
     const mode = sessionStorage.getItem("Mode")
 
     const reducer = useSelector((state) => state.adminReducer)
@@ -32,14 +32,16 @@ const AdminEntry = () => {
     useEffect(() => {
         if (sessionStorage.getItem("adminId")) {
             dispatch(getOneUserData(sessionStorage.getItem("adminId")))
+            dispatch(resetMessages())
         }
     }, [sessionStorage.getItem("adminId")])
 
     useEffect(() => {
-        if (adminOneData?.data) {
+        if (adminOneData?.data && mode !== "Add") {
             const getData = adminOneData?.data
             setAllData({
                 ...allData,
+                id: getData?.id,
                 name: getData?.name,
                 mobile: getData?.phone,
                 email: getData?.email,
@@ -54,6 +56,7 @@ const AdminEntry = () => {
             })
 
             setProfileImg(Array.isArray(getData?.profile) ? getData?.profile[0] : getData?.profile)
+
         }
     }, [adminOneData?.data])
 
@@ -61,6 +64,7 @@ const AdminEntry = () => {
         if (e.target.files && e.target.files[0]) {
             setProfileImg(e.target.files[0])
             setErrorMsg({ ...errorMsg, profileImgError: "" })
+            setFileChange(true)
         }
     }
     const handleRemoveProfileImg = (e) => {
@@ -106,6 +110,7 @@ const AdminEntry = () => {
     }
 
     const handleSubmit = () => {
+
         if (allData.name === '') {
             setErrorMsg({ ...errorMsg, nameError: "User Name is required" })
         } else if (allData.mobile === '') {
@@ -114,11 +119,14 @@ const AdminEntry = () => {
             setErrorMsg({ ...errorMsg, emailError: "Email is required" })
         } else if (!emailRegex.test(allData.email)) {
             setErrorMsg({ ...errorMsg, emailError: "Invalid email format" })
-        } else if (allData.password === '') {
-            setErrorMsg({ ...errorMsg, passwordError: "Password is required" })
-        } else if (!passwordRegex.test(allData.password)) {
-            setErrorMsg({ ...errorMsg, passwordError: "Password must be at least 8 characters long and include at least one letter, one number, and one special character" })
-        } else if (allData.address === '') {
+        }
+        // else if (allData.password === '') {
+        //     setErrorMsg({ ...errorMsg, passwordError: "Password is required" })
+        // }
+        //  else if (!passwordRegex.test(allData.password)) {
+        //     setErrorMsg({ ...errorMsg, passwordError: "Password must be at least 8 characters long and include at least one letter, one number, and one special character" })
+        // } 
+        else if (allData.address === '') {
             setErrorMsg({ ...errorMsg, addressError: "Address is required" })
         } else if (allData.city === '') {
             setErrorMsg({ ...errorMsg, cityError: "City is required" })
@@ -133,34 +141,47 @@ const AdminEntry = () => {
         } else if (allData.status === '') {
             setErrorMsg({ ...errorMsg, statusError: "Status is required" })
         } else {
+            alert()
             const formData = new FormData()
             formData.append("name", allData?.name)
             formData.append("email", allData?.email)
             formData.append("phone", allData?.mobile)
-            formData.append("password", allData?.password)
             formData.append("address", allData?.address)
             formData.append("city", allData?.city)
             formData.append("state", allData?.state)
             formData.append("country", allData?.country)
             formData.append("postalCode", allData?.pincode)
             formData.append("role", allData?.adminRole)
-            formData.append("status ", allData?.status)
-            formData.append("profile ", profileImg)
+            formData.append("status", allData?.status)
+            if (fileChange) {
+                formData.append("files", profileImg)
+            }
+            if (mode === "Add") {
+                formData.append("password", allData?.password)
+            } else {
+                formData.append("id", allData?.id)
+            }
 
             if (mode === "Add") {
                 dispatch(addUserData(formData))
             } else {
                 dispatch(putUserData(formData))
             }
-            if (success) {
-                setOpenSnackbar(true)
-                navigate('/adminUser')
-                setAllData({ name: "", mobile: "", email: "", password: "", address: "", city: "", state: "", pincode: "", adminRole: "", status: "", country: "" })
-                setErrorMsg({ nameError: "", mobileError: "", emailError: "", passwordError: "", addressError: "", cityError: "", stateError: "", pincodeError: "", adminRoleError: "", statusError: "", profileImgError: "", countryError: "" })
-                setProfileImg(null)
-            }
+
         }
     }
+
+    useEffect(() => {
+        if (success) {
+            setOpenSnackbar(true)
+            navigate('/adminUser')
+            setAllData({ name: "", mobile: "", email: "", password: "", address: "", city: "", state: "", pincode: "", adminRole: "", status: "", country: "" })
+            setErrorMsg({ nameError: "", mobileError: "", emailError: "", passwordError: "", addressError: "", cityError: "", stateError: "", pincodeError: "", adminRoleError: "", statusError: "", profileImgError: "", countryError: "" })
+            setProfileImg(null)
+        } else {
+            setOpenSnackbar(true)
+        }
+    }, [message])
 
     return (
         <div>
@@ -198,11 +219,13 @@ const AdminEntry = () => {
                         <TextField onChange={handleChange} fullWidth size='small' id='email' value={allData?.email} placeholder='Enter your email' />
                         {errorMsg?.emailError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.emailError}</Typography>}
                     </Grid>
-                    <Grid item xs={6}>
-                        <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Password<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-                        <TextField onChange={handleChange} fullWidth size='small' id='password' value={allData?.password} placeholder='Enter your password' />
-                        {errorMsg?.passwordError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.passwordError}</Typography>}
-                    </Grid>
+                    {mode === "Add" &&
+                        <Grid item xs={6}>
+                            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Password<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+                            <TextField onChange={handleChange} fullWidth size='small' id='password' value={allData?.password} placeholder='Enter your password' />
+                            {errorMsg?.passwordError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.passwordError}</Typography>}
+                        </Grid>
+                    }
                     <Grid item xs={12}>
                         <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Address<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
                         <TextareaAutosize
@@ -379,7 +402,7 @@ const AdminEntry = () => {
                     </Grid>
                 </Grid>
                 <Box sx={{ margin: '2% 0', padding: '10px 0', textAlign: 'right' }}>
-                    <Button onClick={handleSubmit} size='large' variant='contained' sx={{ fontWeight: 'bold', backgroundColor: "#00bfae" }}>{mode==="Add" ? "Create Admin" : "update Admin"}</Button>
+                    <Button onClick={handleSubmit} size='large' variant='contained' sx={{ fontWeight: 'bold', backgroundColor: "#00bfae" }}>{mode === "Add" ? "Create Admin" : "update Admin"}</Button>
                 </Box>
             </Paper>
         </div>

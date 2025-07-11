@@ -46,22 +46,22 @@ export const deleteBlog = (id) => {
 }
 
 // Customer
-export const getCustomer = (id, pageNum) => {
-    if (pageNum !== "") {
-        return instance.get(`customer/get-all-customer?page=${pageNum}&limit=7`)
-    }
+export const getCustomer = (id, data) => {
+    return instance.get(`customer/get-all-customer${data}`)
+
 }
 
 // Product
 export const createProduct = async (data) => {
     return await instance.post('product/create-product', data)
 }
-export const getAllProduct = async (id, pgNum) => {
+export const getAllProduct = async (id, data) => {
     if (id !== "") {
         return await instance.get(`product/get-product/${id}`)
+    } else {
+        return await instance.get(`product/get-all-product${data}`)
     }
 
-    return await instance.get(`product/get-all-product`)
 
 }
 export const updateProduct = async (data) => {
@@ -69,12 +69,11 @@ export const updateProduct = async (data) => {
 }
 
 //Admin User
-export const getAllAdminUser = async (id, pgNum) => {
-    if (pgNum !== "") {
-        return await instance.get(`admin-user/get-all-admin?page=${pgNum}&limit=7`)
-    }
+export const getAllAdminUser = async (id, data) => {
     if (id !== "") {
         return await instance.get(`admin-user/get-admin/${id}`)
+    } else {
+        return await instance.get(`admin-user/get-all-admin${data}`)
     }
 }
 export const createAdminUser = async (data) => {
@@ -86,8 +85,8 @@ export const updateAdminUser = async (data) => {
 
 
 // Vendor
-export const getAllVendor = (id, pageNum) => {
-    if (pageNum !== "") {
-        return instance.get(`vendor/get-all-vendor?page=${pageNum}&limit=7`)
-    }
+export const getAllVendor = (id, data) => {
+
+    return instance.get(`vendor/get-all-vendor${data}`)
+
 }

@@ -13,15 +13,27 @@ const CustomerList = () => {
     const [name, setName] = useState('')
     const [status, setStatus] = useState('all')
     const [state, setState] = useState(null)
-    // const [accordian, setAccordian] = useState(true)
+    const [userType, setUserType] = useState("")
     const [page, setPage] = useState(1)
 
     const reducer = useSelector((state) => state.customerReducer)
     const { listOfCustomer, loader } = reducer
 
     useEffect(() => {
-        dispatch(getAllCustomer(page))
-    }, [])
+        setPage(1)
+    }, [userType,name,status,state])
+
+    useEffect(() => {
+            const debounceTimer = setTimeout(() => {
+              let query = `?page=${page}&limit=7`;
+              if (name) query += `&name=${name}`;
+              if (userType) query += `&type=${userType}`; 
+              if (state) query += `&state=${state}`; 
+              if (status && status !== 'all') query += `&status=${status}`;
+              dispatch(getAllCustomer(query));
+            }, 500);
+            return () => clearTimeout(debounceTimer);
+          }, [name, userType, state, status, page, dispatch]);
 
     const columns = [
         // { datakey: 'id', headerName: 'ID', size: 50, align: 'left', },
@@ -53,6 +65,7 @@ const CustomerList = () => {
             headerName: 'Actions',
             size: 200,
             align: 'center',
+            edit: false
         },
     ];
 
@@ -70,10 +83,7 @@ const CustomerList = () => {
 
     const handlePageChange = (event, value) => {
         setPage(value);
-        dispatch(getAllCustomer(value))
     };
-    console.log(state);
-
 
     return (
         <div style={{ height: '100vh' }}>
@@ -108,7 +118,7 @@ const CustomerList = () => {
                     </Grid2>
                     <Grid2 item size={3}>
                         <Typography variant='p' sx={{ fontWeight: 'bold' }}>User Type</Typography>
-                        <TextField id='userType' placeholder='User type' name='userType' fullWidth size='small' sx={{ marginTop: '10px' }} />
+                        <TextField onChange={(e)=>setUserType(e.target.value)} id='userType' placeholder='User type' name='userType' fullWidth size='small' sx={{ marginTop: '10px' }} />
                     </Grid2>
                     <Grid2 item size={3}>
                         <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
