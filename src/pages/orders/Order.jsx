@@ -3,28 +3,26 @@ import Titlebar from '../../comnponents/titlebar/Titlebar'
 import Filter from '../../comnponents/filter/Filter'
 import CommonTable from '../../comnponents/table/CommonTable'
 import { useDispatch, useSelector } from 'react-redux'
-import { getAllCustomer, removeCustomer, resetMessage } from './CustomerReducer'
 import { Backdrop, CircularProgress, Grid2, MenuItem, Select, TextField, Typography, InputAdornment, Box, Autocomplete, Alert, Snackbar } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import { stateList } from '../../utils/helpers'
 import { useNavigate } from 'react-router-dom'
+import { listOfAllOrders, removeOrders, resetMessage } from './OrderReducer'
 
-const CustomerList = () => {
+const Orders = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [name, setName] = useState('')
     const [status, setStatus] = useState('all')
-    const [state, setState] = useState(null)
-    const [userType, setUserType] = useState("")
     const [page, setPage] = useState(1)
 
-    const reducer = useSelector((state) => state.customerReducer)
-    const { listOfCustomer, loader, message, success } = reducer
+    const reducer = useSelector((state) => state.orderReducer)
+    const { getAllOrders, loader, message, success } = reducer
+    console.log(getAllOrders);
 
-    useEffect(()=>{
+    useEffect(() => {
         dispatch(resetMessage())
-    },[])
+    }, [])
 
     useEffect(() => {
         if (success) {
@@ -34,38 +32,25 @@ const CustomerList = () => {
 
     useEffect(() => {
         setPage(1)
-    }, [userType, name, status, state])
+    }, [status])
 
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
             let query = `?page=${page}&limit=6`;
-            if (name) query += `&name=${name}`;
-            if (userType) query += `&type=${userType}`;
-            if (state) query += `&state=${state}`;
             if (status && status !== 'all') query += `&status=${status}`;
-            dispatch(getAllCustomer(query));
+            dispatch(listOfAllOrders(query));
         }, 500);
         return () => clearTimeout(debounceTimer);
-    }, [name, userType, state, status, page, dispatch]);
+    }, [status, page, dispatch]);
 
     const columns = [
-        // { datakey: 'id', headerName: 'ID', size: 50, align: 'left', },
-        { datakey: 'name', headerName: 'Name', size: 200, },
+        { datakey: 'id', headerName: 'Order ID', size: 50, align: 'left', },
+        { datakey: 'name', headerName: 'Customer Name', size: 200, },
         { datakey: 'email', headerName: 'Email', size: 200, },
         {
-            datakey: 'phone',
-            headerName: 'Mobile No',
+            datakey: 'price',
+            headerName: 'Price',
             size: 170,
-        },
-        {
-            datakey: 'type',
-            headerName: 'User Type',
-            size: 200,
-        },
-        {
-            datakey: 'state',
-            headerName: 'State',
-            size: 200,
         },
         {
             datakey: 'status',
@@ -82,7 +67,7 @@ const CustomerList = () => {
         },
     ];
 
-    const rows = listOfCustomer?.data?.map((e) => {
+    const rows = getAllOrders?.data?.map((e) => {
         return ({
             id: e?.id,
             name: e?.name,
@@ -99,17 +84,17 @@ const CustomerList = () => {
     };
 
     const handlView = (e) => {
-        sessionStorage.setItem("customerId", e?.id)
-        navigate(`/customerview`)
+        sessionStorage.setItem("orderId", e?.id)
+        navigate(`/orderview`)
     }
 
     const handleDelete = (e) => {
-        dispatch(removeCustomer(e?.id))
+        dispatch(removeOrders(e?.id))
     }
 
     const handleClose = () => {
         setOpenSnackbar(!openSnackbar)
-        dispatch(getAllCustomer(`?page=${page}&limit=6`))
+        dispatch(listOfAllOrders(`?page=${page}&limit=6`))
         setPage(1)
     }
 
@@ -131,7 +116,7 @@ const CustomerList = () => {
                     {message}
                 </Alert>
             </Snackbar>}
-            <Titlebar title={"Customer Management"} addBtn={false} />
+            <Titlebar title={"Order Management"} addBtn={false} />
             <Filter>
                 <Grid2 container columnSpacing={2} rowSpacing={3}>
                     <Grid2 item size={4}>
@@ -144,7 +129,7 @@ const CustomerList = () => {
                             placeholder="Search with name"
                             variant="outlined"
                             value={name}
-                            onChange={(e) => { setName(e.target.value) }}
+                            // onChange={(e) => { setName(e.target.value) }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -152,46 +137,6 @@ const CustomerList = () => {
                                     </InputAdornment>
                                 ),
                             }}
-                        />
-                    </Grid2>
-                    <Grid2 item size={3}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>User Type</Typography>
-                        <TextField onChange={(e) => setUserType(e.target.value)} id='userType' placeholder='User type' name='userType' fullWidth size='small' sx={{ marginTop: '10px' }} />
-                    </Grid2>
-                    <Grid2 item size={3}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
-                        <Autocomplete
-                            id="state"
-                            fullWidth
-                            size="small"
-                            sx={{ marginTop: '10px' }}
-                            options={stateList}
-                            autoHighlight
-                            getOptionLabel={(option) => option}
-                            onChange={(event, value) => {
-                                setState(value); // This gives you "Tamil Nadu" if selected
-                            }}
-                            renderOption={(props, option) => {
-                                const { key, ...optionProps } = props;
-                                return (
-                                    <Box
-                                        key={key}
-                                        component="li"
-                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-                                        {...optionProps}
-                                    >
-                                        {option}
-                                    </Box>
-                                );
-                            }}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    size="small"
-                                    autoComplete="off"
-                                    placeholder="Select State"
-                                />
-                            )}
                         />
                     </Grid2>
                     <Grid2 item size={2}>
@@ -212,9 +157,9 @@ const CustomerList = () => {
                     </Grid2>
                 </Grid2>
             </Filter>
-            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={listOfCustomer?.pagination?.totalPages} handleView={(data) => handlView(data)} handleDelete={(data) => handleDelete(data)} />
+            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={getAllOrders?.pagination?.totalPages} handleView={(data) => handlView(data)} handleDelete={(data) => handleDelete(data)} />
         </div>
     )
 }
 
-export default CustomerList
+export default Orders

@@ -80,7 +80,6 @@ const Product = () => {
     if (e.target.value === "") {
       setSubCategory([])
     }
-
   }
 
   return (
@@ -201,7 +200,7 @@ const Product = () => {
         count={getProduct?.pagination?.totalPages || 1}
         handleView={handleView}
         handleEdit={handleEdit}
-        handleDelete={(data) => console.log(data)}
+        handleDelete={(data) => handleDelete(data)}
       />
     </div>
   );

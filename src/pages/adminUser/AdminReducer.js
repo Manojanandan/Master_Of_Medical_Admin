@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { createAdminUser, getAllAdminUser, updateAdminUser } from "../../utils/Services";
+import { createAdminUser, deleteAdminUser, getAllAdminUser, updateAdminUser } from "../../utils/Services";
 
 export const getAllUserData = createAsyncThunk("GetAllUserData", async (data) => {
     return await getAllAdminUser("", data).then((response) => response?.data)
@@ -12,6 +12,9 @@ export const addUserData = createAsyncThunk("AddUserData", async (data) => {
 })
 export const putUserData = createAsyncThunk("UpdateUserData", async (data) => {
     return await updateAdminUser(data).then((response) => response?.data)
+})
+export const removeAdminUser = createAsyncThunk("Delete Admin User", async (id) => {
+    return await deleteAdminUser(id).then((response) => response.data)
 })
 
 export const adminUser = createSlice({
@@ -77,6 +80,15 @@ export const adminUser = createSlice({
         })
         builder.addCase(putUserData.rejected, (state, action) => {
             state.loader = false
+            state.success = action.payload?.success
+            state.message = action.payload?.message
+        })
+        builder.addCase(removeAdminUser.pending, (state) => {
+            state.loader = true
+        })
+        builder.addCase(removeAdminUser.fulfilled, (state, action) => {
+            state.loader = false
+            state.adminData = state.adminData?.data?.filter((item) => item?.id !== action.payload?.id)
             state.success = action.payload?.success
             state.message = action.payload?.message
         })

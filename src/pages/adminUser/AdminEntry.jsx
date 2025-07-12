@@ -211,7 +211,7 @@ const AdminEntry = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Mobile Number<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-                        <TextField onChange={handleChange} fullWidth size='small' id='mobile' value={allData?.mobile} placeholder='Enter your mobile number' />
+                        <TextField inputProps={{ maxLength: 10 }} onChange={handleChange} fullWidth size='small' id='mobile' value={allData?.mobile} placeholder='Enter your mobile number' />
                         {errorMsg?.mobileError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.mobileError}</Typography>}
                     </Grid>
                     <Grid item xs={6}>

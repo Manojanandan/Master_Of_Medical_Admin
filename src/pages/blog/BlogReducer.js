@@ -2,13 +2,13 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { addBlog, deleteBlog, editBlog, getBlog } from "../../utils/Services";
 
 export const getBlogData = createAsyncThunk("GetBlogData", async (pgNum) => {
-    return await getBlog("",pgNum).then((response) => response.data)
+    return await getBlog("", pgNum).then((response) => response.data)
 })
 export const postBlogData = createAsyncThunk("postBlogData", async (data) => {
     return await addBlog(data).then((response) => response?.data)
 })
 export const getOneBlogData = createAsyncThunk("GetOneBlogData", async (id) => {
-    return await getBlog(id,"").then((response) => response?.data)
+    return await getBlog(id, "").then((response) => response?.data)
 })
 export const putBlogData = createAsyncThunk("PutBlogData", async (data) => {
     return await editBlog(data).then((response) => response?.data)
@@ -27,7 +27,8 @@ export const blogReducer = createSlice({
         },
         getOneData: [],
         load: false,
-        message: ''
+        message: '',
+        success: false
     },
     reducers: {
         resetMessage: (state) => {
@@ -43,6 +44,7 @@ export const blogReducer = createSlice({
         builder.addCase(getBlogData.fulfilled, (state, action) => {
             state.load = false;
             state.getAllBog = action.payload;
+            state.success = action.payload?.success
             state.message = action.payload.message;
         })
         builder.addCase(postBlogData.pending, (state, action) => {
@@ -57,6 +59,7 @@ export const blogReducer = createSlice({
             state.addBlog.image = action.payload.image;
             state.addBlog.metaTitle = action.payload.metaTitle;
             state.addBlog.metaDescription = action.payload.metaDescription;
+            state.success = action.payload?.success
             state.message = action.payload.message;
         })
         builder.addCase(getOneBlogData.pending, (state, action) => {
@@ -79,6 +82,8 @@ export const blogReducer = createSlice({
             state.addBlog.image = action.payload.image;
             state.addBlog.metaTitle = action.payload.metaTitle;
             state.addBlog.metaDescription = action.payload.metaDescription;
+            state.success = action.payload?.success
+
             state.message = action.payload.message;
         })
         builder.addCase(deleteBlogData.pending, (state, action) => {
@@ -88,6 +93,7 @@ export const blogReducer = createSlice({
         builder.addCase(deleteBlogData.fulfilled, (state, action) => {
             state.load = false;
             state.getAllBog = state?.getAllBog?.data?.filter((rows) => rows?.id !== action.payload.id);
+            state.success = action.payload?.success
             state.message = action.payload.message;
         })
     }

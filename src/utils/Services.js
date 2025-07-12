@@ -10,12 +10,12 @@ export const userLogin = async (data) => {
 export const addTestimonial = (data) => {
     return instance.post('testimonial/create-testimonial', data)
 }
-export const getTestimonial = (id, pgNum) => {
-    if (id) {
+export const getTestimonial = (id, data) => {
+    if (id !== "") {
         return instance.get(`testimonial/get-testimonial/${id}`)
     }
-    if (pgNum !== "") {
-        return instance.get(`testimonial/get-all-testimonial?page=${pgNum}&limit=6`)
+    if (data !== "") {
+        return instance.get(`testimonial/get-all-testimonial${data}`)
     }
 }
 export const editTestimonial = (data) => {
@@ -26,12 +26,12 @@ export const deleteTestimonial = (id) => {
 }
 
 // Blog Api
-export const getBlog = (id, pageNum) => {
+export const getBlog = (id, data) => {
     if (id !== "") {
         return instance.get(`blog/get-blog/${id}`)
     }
-    if (pageNum !== "") {
-        return instance.get(`blog/get-all-blog?page=${pageNum}&limit=7`)
+    if (data !== "") {
+        return instance.get(`blog/get-all-blog${data}`)
     }
 }
 
@@ -47,8 +47,16 @@ export const deleteBlog = (id) => {
 
 // Customer
 export const getCustomer = (id, data) => {
-    return instance.get(`customer/get-all-customer${data}`)
+    if (id !== '') {
+        return instance.get(`customer/get-customer/${id}`)
+    } else {
+        return instance.get(`customer/get-all-customer${data}`)
+    }
 
+}
+
+export const deleteCustomer = (id) => {
+    return instance.delete(`customer/delete-customer/${id}`)
 }
 
 // Product
@@ -82,11 +90,35 @@ export const createAdminUser = async (data) => {
 export const updateAdminUser = async (data) => {
     return await instance.put(`admin-user/update-admin`, data)
 }
+export const deleteAdminUser = async (id) => {
+    return await instance.delete(`admin-user/delete-admin/${id}`)
+}
 
 
 // Vendor
 export const getAllVendor = (id, data) => {
+    if (id !== "") {
+        return instance.get(`vendor/get-vendor/${id}`)
+    } else {
+        return instance.get(`vendor/get-all-vendor`, data)
+    }
+}
 
-    return instance.get(`vendor/get-all-vendor${data}`)
+export const updateVendor = (data) => {
+    return instance.put(`vendor/update-vendor`, data)
+}
+export const deleteVendor = async (id) => {
+    return await instance.delete(`vendor/delete-vendor/${id}`)
+}
 
+// Orders
+export const getAllOrders = async (id,data)=>{
+    if(id!==""){
+        return await instance.get("order/get-order/${id")
+    }else{
+        return await instance.get(`order/get-all-orders${data}`)
+    }
+}
+export const deleteOrders = (id) =>{
+    return instance.delete(`order/delete-order/${id}`)
 }

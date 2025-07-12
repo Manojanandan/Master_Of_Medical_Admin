@@ -6,6 +6,7 @@ import productReducer from '../pages/product/ProductReducer'
 import adminReducer from '../pages/adminUser/AdminReducer'
 import  loginReducer  from "../pages/login/LoginReducer";
 import  vendorReducer from "../pages/vendor/VendorReducer";
+import  orderReducer from "../pages/orders/OrderReducer";
 
  const rootReducer = combineReducers({
     testimonial: testimonial,
@@ -14,7 +15,8 @@ import  vendorReducer from "../pages/vendor/VendorReducer";
     productReducer: productReducer,
     adminReducer: adminReducer,
     loginReducer: loginReducer,
-    vendorReducer: vendorReducer
+    vendorReducer: vendorReducer,
+    orderReducer: orderReducer
 })
 
 export default rootReducer  

@@ -3,38 +3,45 @@ import Titlebar from '../../comnponents/titlebar/Titlebar'
 import Filter from '../../comnponents/filter/Filter'
 import CommonTable from '../../comnponents/table/CommonTable'
 import { useDispatch, useSelector } from 'react-redux'
-import { getVendor } from './VendorReducer'
-import { Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material'
+import { getVendor, removeVendor, resetMessage } from './VendorReducer'
+import { Alert, Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdornment, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import { stateList } from '../../utils/helpers'
+import { useNavigate } from 'react-router-dom'
 
 const VendorList = () => {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
     const [name, setName] = useState('')
     const [status, setStatus] = useState('all')
     const [vendorType, setVendorType] = useState('')
     const [page, setPage] = useState(1)
     const [state, setState] = useState(null)
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     const reducer = useSelector((state) => state.vendorReducer)
-    const { listOfVendor, loader } = reducer
+    const { listOfVendor, loader, success, message } = reducer
+
+    useEffect(() => {
+        dispatch(resetMessage())
+    }, [])
 
     useEffect(() => {
         setPage(1)
-    }, [name,status,state,vendorType])
+    }, [name, status, state, vendorType])
 
     // Load data on filter change or page change
-      useEffect(() => {
+    useEffect(() => {
         const debounceTimer = setTimeout(() => {
-          let query = `?page=${page}&limit=7`;
-          if (name) query += `&name=${name}`;
-          if (vendorType) query += `&type=${vendorType}`; 
-          if (state) query += `&state=${state}`; 
-          if (status && status !== 'all') query += `&status=${status}`;
-          dispatch(getVendor(query));
+            let query = `?page=${page}&limit=7`;
+            if (name) query += `&name=${name}`;
+            if (vendorType) query += `&type=${vendorType}`;
+            if (state) query += `&state=${state}`;
+            if (status && status !== 'all') query += `&status=${status}`;
+            dispatch(getVendor(query));
         }, 500);
         return () => clearTimeout(debounceTimer);
-      }, [name, vendorType, state, status, page, dispatch]);
+    }, [name, vendorType, state, status, page, dispatch]);
 
     const columns = [
         // { datakey: 'id', headerName: 'ID', size: 100, align: 'left', },
@@ -87,6 +94,20 @@ const VendorList = () => {
         setPage(value);
     };
 
+    const handleView = (e) => {
+        navigate('/vendorview')
+        sessionStorage.setItem("vendorId", e?.id)
+        sessionStorage.setItem("Mode", "View")
+    }
+
+    const handleDelete = (e) => {
+        dispatch(removeVendor(e?.id))
+    }
+
+     const handleClose = () => {
+        setOpenSnackbar(!openSnackbar)
+    }
+
     return (
         <div style={{ height: '100vh' }}>
             <Backdrop
@@ -95,6 +116,16 @@ const VendorList = () => {
             >
                 <CircularProgress color="secondary" />
             </Backdrop>
+            {message && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={1000} onClose={handleClose}>
+                <Alert
+                    onClose={handleClose}
+                    severity={success ? "success" : "error"}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {message}
+                </Alert>
+            </Snackbar>}
             <Titlebar title={"Vendor Management"} addBtn={false} />
             <Filter>
                 <Grid2 container columnSpacing={2} rowSpacing={3}>
@@ -120,7 +151,7 @@ const VendorList = () => {
                     </Grid2>
                     <Grid2 item size={3}>
                         <Typography variant='p' sx={{ fontWeight: 'bold' }}>Vendor Type</Typography>
-                        <TextField id='vendorType' onChange={(e)=>setVendorType(e.target.value)} placeholder='Vendor type' name='vendorType' fullWidth size='small' sx={{ marginTop: '10px' }} />
+                        <TextField id='vendorType' onChange={(e) => setVendorType(e.target.value)} placeholder='Vendor type' name='vendorType' fullWidth size='small' sx={{ marginTop: '10px' }} />
                     </Grid2>
                     <Grid2 item size={3}>
                         <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
@@ -177,7 +208,7 @@ const VendorList = () => {
                     </Grid2>
                 </Grid2>
             </Filter>
-            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={listOfVendor?.pagination?.totalPages} handleView={(data) => console.log(data)} handleEdit={(data) => console.log(data)} handleDelete={(data) => console.log(data)} />
+            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={listOfVendor?.pagination?.totalPages} handleView={(data) => handleView(data)} handleDelete={(data) => handleDelete(data)} />
         </div>
     )
 }

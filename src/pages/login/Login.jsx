@@ -80,7 +80,7 @@ const Login = () => {
                 <CircularProgress color="secondary" />
             </Backdrop>
 
-            {message && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openModal} autoHideDuration={2000} onClose={handleClose}>
+            {message && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openModal} autoHideDuration={1000} onClose={handleClose}>
                 <Alert
                     onClose={handleClose}
                     severity={success ? "success" : "error"}

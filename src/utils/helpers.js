@@ -1,67 +1,67 @@
 export const stateList = [
-    "Andhra Pradesh",
-    "Arunachal Pradesh",
-    "Assam",
-    "Bihar",
-    "Chhattisgarh",
-    "Goa",
-    "Gujarat",
-    "Haryana",
-    "Himachal Pradesh",
-    "Jharkhand",
-    "Karnataka",
-    "Kerala",
-    "Madhya Pradesh",
-    "Maharashtra",
-    "Manipur",
-    "Meghalaya",
-    "Mizoram",
-    "Nagaland",
-    "Odisha",
-    "Punjab",
-    "Rajasthan",
-    "Sikkim",
-    "Tamil Nadu",
-    "Telangana",
-    "Tripura",
-    "Uttar Pradesh",
-    "Uttarakhand",
-    "West Bengal"
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal"
 ];
 
 export const categoryList = [
-    {
-        label: "Consumable",
-        value: "Consumable",
-    },
-    {
-        label: "Diagnostic",
-        value: "Diagnostic",
-    },
-    {
-        label: "Dental",
-        value: "Dental",
-    },
-    {
-        label: "Equipment",
-        value: "Equipment",
-    },
-    {
-        label: "Ophthalmology",
-        value: "Ophthalmology",
-    },
-    {
-        label: "Ortho Surgery",
-        value: "Ortho Surgery",
-    },
-    {
-        label: "Veterinary",
-        value: "Veterinary",
-    },
-    {
-        label: "Furniture",
-        value: "Furniture",
-    },
+  {
+    label: "Consumable",
+    value: "Consumable",
+  },
+  {
+    label: "Diagnostic",
+    value: "Diagnostic",
+  },
+  {
+    label: "Dental",
+    value: "Dental",
+  },
+  {
+    label: "Equipment",
+    value: "Equipment",
+  },
+  {
+    label: "Ophthalmology",
+    value: "Ophthalmology",
+  },
+  {
+    label: "Ortho Surgery",
+    value: "Ortho Surgery",
+  },
+  {
+    label: "Veterinary",
+    value: "Veterinary",
+  },
+  {
+    label: "Furniture",
+    value: "Furniture",
+  },
 ]
 
 export const subCategoryList = {
@@ -139,4 +139,10 @@ export const subCategoryList = {
     { label: "Physiotherapy Furniture", value: "Physiotherapy Furniture" },
     { label: "Super speciality Furniture", value: "Super speciality Furniture" }
   ]
+};
+
+export const stripHtmlTags = (html) => {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent || tempDiv.innerText || '';
 };

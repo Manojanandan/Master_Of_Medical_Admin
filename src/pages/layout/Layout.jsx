@@ -3,7 +3,8 @@ import {
   Avatar,
   Box,
   CssBaseline,
-  Toolbar
+  Toolbar,
+  Typography
 } from '@mui/material';
 
 import { Outlet } from 'react-router-dom';
@@ -44,8 +45,12 @@ const Layout = () => {
           <Box>
             <img height={50} src={logo} alt="logo" />
           </Box>
-          <Box>
+          <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',gap:'10px'}}>
             <Avatar sx={{textTransform:'uppercase'}} src={tokenDecode?.profile} alt={tokenDecode?.name.charAt(0)} />
+            <Box sx={{height:'auto',width:'auto',lineHeight:'20px',textTransform:'capitalize'}}>
+              <Typography variant='p' component='div' sx={{color:'black',fontSize:'19px'}}>{tokenDecode?.name} |<span style={{color:'gray',fontSize:'16px'}}> {tokenDecode?.role}</span></Typography>
+              <Typography variant='p' component='div' sx={{color:'gray',fontSize:'15px'}}>{tokenDecode?.phone}</Typography>
+            </Box>
           </Box>
         </Toolbar>
       </AppBar>

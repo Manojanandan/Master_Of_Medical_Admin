@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
 import { Alert, Backdrop, Box, Button, CircularProgress, Grid2, IconButton, Paper, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles';
@@ -38,26 +38,40 @@ const TestimonialsEntry = () => {
         }
     }, [])
 
-    useMemo(async () => {
+    const resolveImagePath = () => {
+        if (!getData?.image) {
+            console.log('No image found in getData');
+            return null;
+        }
+
+        let imagePath = getData.image;
+        console.log('Raw imagePath:', imagePath); // ✅ check what exactly it contains
+
+        if (Array.isArray(imagePath) && imagePath.length > 0) {
+            imagePath = imagePath[0];
+            console.log('First image from array:', imagePath);
+        } else if (typeof imagePath === 'object' && imagePath?.path) {
+            imagePath = imagePath.path;
+            console.log('Extracted path from object:', imagePath);
+        }
+
+        if (typeof imagePath === 'string') {
+            const fullPath = imagePath.startsWith('http') ? imagePath : `http://luxcycs.com:5500/${imagePath}`;
+            console.log('Final image path:', fullPath);
+            return fullPath;
+        }
+
+        console.log('Image path is not a string:', imagePath);
+        return null;
+    };
+
+    useEffect(() => {
         setName(getData?.name)
         setMessage(getData?.message)
         setDesignation(getData?.designation)
-        const resolveImagePath = () => {
-            if (!getData?.image) return null;
-
-            let imagePath = getData.image;
-
-            if (typeof imagePath === 'object' && imagePath?.path) {
-                imagePath = imagePath.path;
-            } else if (Array.isArray(imagePath)) {
-                imagePath = imagePath[0];
-            }
-
-            return typeof imagePath === 'string'
-                ? (imagePath.startsWith('http') ? imagePath : `http://luxcycs.com:5500/${imagePath}`)
-                : null;
-        };
-        setImage(resolveImagePath)
+        if (getData?.image) {
+            setImage(resolveImagePath());
+        }
     }, [getData]);
 
     useEffect(() => {
@@ -100,16 +114,8 @@ const TestimonialsEntry = () => {
         }
     }
 
-    // const handleClear = () => {
-    //     if (mode === "Add") {
-    //         setName("")
-    //         setMessage("")
-    //         setDesignation("")
-    //         setImage(null)
-    //         setImageFile(null)
-    //     } else {
-    //         dispatch(getOneDataTestimonial(testimonialId))
-    //     }
+    console.log(image);
+
     return (
         <React.Fragment>
             <Backdrop
@@ -188,33 +194,54 @@ const TestimonialsEntry = () => {
                                 marginTop: 1
                             }}
                             onClick={() => {
-                                if (!image) fileInputRef.current.click()
+                                if (!image) fileInputRef.current.click();
                             }}
-
                         >
                             {!image && (
                                 <>
                                     <CloudUploadIcon sx={{ fontSize: 48, color: '#00bfae' }} />
-                                    <Typography sx={{ mt: 1, mb: 1, fontWeight: 600, color: '#00bfae', fontSize: '20px' }}>
+                                    <Typography
+                                        sx={{
+                                            mt: 1,
+                                            mb: 1,
+                                            fontWeight: 600,
+                                            color: '#00bfae',
+                                            fontSize: '20px'
+                                        }}
+                                    >
                                         Upload Image
                                     </Typography>
                                     <Button
                                         variant="contained"
-                                        sx={{ backgroundColor: '#00bfae', color: '#fff', mt: 1, fontWeight: 'bold' }}
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            fileInputRef.current.click()
+                                        sx={{
+                                            backgroundColor: '#00bfae',
+                                            color: '#fff',
+                                            mt: 1,
+                                            fontWeight: 'bold'
                                         }}
-                                        disabled={mode == "View" ? true : false}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            fileInputRef.current.click();
+                                        }}
+                                        disabled={mode === 'View'}
                                     >
                                         BROWSE
                                     </Button>
                                     <Typography sx={{ mt: 2, color: '#888', fontSize: 13 }}>
                                         Note: Only image files allowed. Max 5MB.
                                     </Typography>
-                                    {/* {errorMsg?.thumbNailErrorMsg && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.thumbNailErrorMsg}</Typography>} */}
+                                    {/* Optional error message */}
+                                    {/* {errorMsg?.thumbNailErrorMsg && (
+        <Typography
+          variant="span"
+          sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}
+        >
+          {errorMsg?.thumbNailErrorMsg}
+        </Typography>
+      )} */}
                                 </>
                             )}
+
                             <input
                                 ref={fileInputRef}
                                 type="file"
@@ -222,21 +249,35 @@ const TestimonialsEntry = () => {
                                 style={{ display: 'none' }}
                                 onChange={handleFileChange}
                             />
+
                             {image && (
-                                <Box sx={{ mt: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+                                <Box
+                                    sx={{
+                                        mt: 0,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        position: 'relative'
+                                    }}
+                                >
                                     <img
                                         src={
                                             typeof image === 'string'
-                                                ? (image.startsWith('http') ? image : `http://luxcycs.com:5500/${image}`)
+                                                ? image // ✅ use full URL as-is
                                                 : URL.createObjectURL(image)
                                         }
                                         alt="Thumbnail Preview"
-                                        style={{ maxWidth: 120, maxHeight: 120, borderRadius: 8, marginTop: 8 }}
+                                        style={{
+                                            maxWidth: 120,
+                                            maxHeight: 120,
+                                            borderRadius: 8,
+                                            marginTop: 8
+                                        }}
                                     />
                                     <Typography sx={{ fontSize: 13, mt: 1 }}>
                                         {typeof image === 'string' ? image.split('/').pop() : image.name}
                                     </Typography>
-                                    {mode !== "View" &&
+                                    {mode !== 'View' && (
                                         <IconButton
                                             size="small"
                                             sx={{
@@ -249,13 +290,13 @@ const TestimonialsEntry = () => {
                                             }}
                                             onClick={handleRemoveImage}
                                         >
-
                                             <CloseIcon fontSize="small" />
                                         </IconButton>
-                                    }
+                                    )}
                                 </Box>
                             )}
                         </Box>
+
                     </Grid2>
                     {mode !== "View" &&
                         <Grid2 size={12} sx={{ textAlign: 'right', margin: '10px 0' }}>

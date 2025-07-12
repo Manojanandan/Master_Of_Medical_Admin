@@ -14,10 +14,15 @@ import AdminUserList from './pages/adminUser/AdminUserList';
 import AdminEntry from './pages/adminUser/AdminEntry';
 import Login from './pages/login/Login';
 import VendorList from './pages/vendor/VendorList';
-
 import ProtectedRoutes from './pages/routes/ProtectedRoutes';
 import LoginRoutes from './pages/routes/LoginRoutes';
 import AdminView from './pages/adminUser/AdminView';
+import CustomerView from './pages/customer/CustomerView';
+import VendorView from './pages/vendor/VendorView';
+import TestimonialView from './pages/testimonials/TestimonialView';
+import BlogView from './pages/blog/BlogView';
+import Order from './pages/orders/Order'
+
 
 function App() {
   return (
@@ -35,13 +40,18 @@ function App() {
           <Route path="/productmanagemententry" element={<ProductEntry />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blogentry" element={<BlogEntry />} />
+          <Route path='/blogview' element={<BlogView />} />
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/testimonialsentry" element={<TestimonialsEntry />} />
+          <Route path="/testimonialview" element={<TestimonialView />} />
           <Route path="/customer" element={<CustomerList />} />
+          <Route path="/customerview" element={<CustomerView />} />
           <Route path="/adminUser" element={<AdminUserList />} />
           <Route path="/adminuserentry" element={<AdminEntry />} />
           <Route path="/viewAdmin" element={<AdminView />} />
           <Route path="/vendor" element={<VendorList />} />
+          <Route path="/vendorview" element={<VendorView />} />
+          <Route path='/orders' element={<Order />}  />
         </Route>
       </Route>
 

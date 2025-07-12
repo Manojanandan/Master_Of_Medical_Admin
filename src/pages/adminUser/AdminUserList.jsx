@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
 import Filter from '../../comnponents/filter/Filter'
-import { Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Alert, Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdornment, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
 import CommonTable from '../../comnponents/table/CommonTable'
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllUserData } from './AdminReducer';
+import { getAllUserData, removeAdminUser, resetMessages } from './AdminReducer';
 import SearchIcon from '@mui/icons-material/Search';
 import { stateList } from '../../utils/helpers'
 
@@ -17,10 +17,13 @@ const AdminUserList = () => {
     const [role, setRole] = useState('role')
     const [state, setState] = useState(null)
     const [page, setPage] = useState(1)
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
 
     const reducer = useSelector((state) => state.adminReducer)
-    const { adminData, loader } = reducer
+    const { adminData, loader, message, success } = reducer
+
+    useEffect(() => { dispatch(resetMessages()) }, [])
 
     useEffect(() => {
         setPage(1);
@@ -39,6 +42,12 @@ const AdminUserList = () => {
         return () => clearTimeout(debounceTimer);
 
     }, [name, role, state, status, dispatch]);
+
+    useEffect(() => {
+        if (message) [
+            setOpenSnackbar(true)
+        ]
+    }, [message])
 
     const columns = [
         // { datakey: 'id', headerName: 'ID', size: 50, align: 'left', },
@@ -102,6 +111,15 @@ const AdminUserList = () => {
         navigate('/adminuserentry')
     }
 
+    const handleDelete = (e) => {
+        dispatch(removeAdminUser(e?.id))
+    }
+
+    const handleClose = () => {
+        setOpenSnackbar(!openSnackbar)
+        dispatch(getAllUserData(`?page=${page}&limit=7`))
+    }
+
     return (
         <div style={{ height: 'auto' }}>
             <Backdrop
@@ -110,6 +128,16 @@ const AdminUserList = () => {
             >
                 <CircularProgress color="secondary" />
             </Backdrop>
+            {message && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={1000} onClose={handleClose}>
+                <Alert
+                    onClose={handleClose}
+                    severity={success ? "success" : "error"}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {message}
+                </Alert>
+            </Snackbar>}
             <Titlebar title={"Admin Users"} addBtn={true} addClick={() => { navigate('/adminuserentry'), sessionStorage.setItem("Mode", "Add") }} />
             <Filter>
                 <Grid2 container columnSpacing={2} rowSpacing={3}>
@@ -204,7 +232,7 @@ const AdminUserList = () => {
                     </Grid2>
                 </Grid2>
             </Filter>
-            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={adminData?.pagination?.totalPages} handleView={(data) => handleView(data)} handleEdit={(data) => handleEdit(data)} handleDelete={(data) => console.log(data)} />
+            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={adminData?.pagination?.totalPages} handleView={(data) => handleView(data)} handleEdit={(data) => handleEdit(data)} handleDelete={(data) => handleDelete(data)} />
         </div>
     )
 }

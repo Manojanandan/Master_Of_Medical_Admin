@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
 import { useNavigate } from 'react-router-dom'
-import { Alert, Autocomplete, Backdrop, Box, Button, CircularProgress, Grid, IconButton, MenuItem, Paper, Select, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material'
+import { Alert, Autocomplete, Backdrop, Box, Button, CircularProgress, Grid, IconButton, MenuItem, Paper, Rating, Select, Snackbar, TextareaAutosize, TextField, Typography } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import AddIcon from '@mui/icons-material/Add';
@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addProduct, editProduct, getOneProductList } from './ProductReducer'
 import EditIcon from '@mui/icons-material/Edit';
 import { getVendor } from '../vendor/VendorReducer'
+import { categoryList, subCategoryList } from '../../utils/helpers'
 
 const SUBCATEGORY_OPTIONS = {
   medical: [
@@ -182,6 +183,10 @@ const ProductEntry = () => {
   }
   const handleDropDownChange = (e) => {
     setAllData({ ...allData, [e.target.name]: e.target.value })
+      
+    if (e.target.value === "") {
+      setAllData({ ...allData, subCategory: "" })
+    }
     if (e.target.name === "category") {
       setErrorMsg({ ...errorMsg, categoryError: "" })
     }
@@ -314,10 +319,10 @@ const ProductEntry = () => {
               displayEmpty
               disabled={mode == "View" ? true : false}
             >
-              <MenuItem value="" disabled>Select Category</MenuItem>
-              <MenuItem value="medical">Medical</MenuItem>
-              <MenuItem value="surgical">Surgical</MenuItem>
-              <MenuItem value="equipment">Equipment</MenuItem>
+              <MenuItem value="">Select Category</MenuItem>
+              {categoryList?.map((e, key) => {
+                return (<MenuItem key={key} value={e?.value}>{e?.label}</MenuItem>)
+              })}
             </Select>
             {errorMsg?.categoryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.categoryError}</Typography>}
           </Grid>
@@ -334,9 +339,9 @@ const ProductEntry = () => {
               displayEmpty
             >
               <MenuItem value="" disabled>Select Subcategory</MenuItem>
-              {allData?.category && SUBCATEGORY_OPTIONS[allData?.category].map(opt => (
-                <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-              ))}
+              {allData?.category && subCategoryList[allData?.category]?.map((opt, key) => {
+                return (<MenuItem key={key} value={opt.value} >{opt.label}</MenuItem>)
+              })}
             </Select>
             {errorMsg?.subCategoryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.subCategoryError}</Typography>}
           </Grid>
@@ -448,6 +453,18 @@ const ProductEntry = () => {
           <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Bulk Discount<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
             <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='bulkDiscount' value={allData?.bulkDiscount} placeholder='Discount Offers' />
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>MRP price<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='mrpPrice' value={allData?.mrpPrice} placeholder='MRP Price' />
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Selling Price<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='sellingPrice' value={allData?.sellingPrice} placeholder='Selling Price' />
+          </Grid>
+          <Grid item xs={4}>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Rating<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <Rating size='large' name="rating" defaultValue={2.5} precision={0.5} sx={{marginTop:'5px'}} />
           </Grid>
           {allData?.status === "rejected" &&
             <Grid item xs={12}>
