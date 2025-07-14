@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {
-  AppBar,
-  Avatar,
   Box,
   Collapse,
-  CssBaseline,
   Drawer,
   List,
   ListItemButton,
@@ -27,6 +24,8 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { useLocation, useNavigate } from 'react-router-dom';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import { useAuth } from '../../pages/routes/AuthContext';
+import Modal from '../modal/Modal';
+
 
 const drawerWidth = 300;
 
@@ -35,7 +34,8 @@ const Sidebar = () => {
   const location = useLocation();
   const [selectedMenu, setSelectedMenu] = useState('');
   const [openMenus, setOpenMenus] = useState({});
-   const { logout } = useAuth();
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const { logout } = useAuth();
 
   const menuList = [
     {
@@ -141,7 +141,6 @@ const Sidebar = () => {
   };
 
 
-
   return (
     <React.Fragment>
       <Drawer
@@ -153,12 +152,12 @@ const Sidebar = () => {
             width: drawerWidth,
             boxSizing: 'border-box',
             backgroundColor: '#000000',
-            color: '#fff'
+            color: '#fff',
           },
         }}
       >
         <Toolbar />
-        <Box sx={{ overflow: 'auto', p: 2, marginTop: '0px' }}>
+        <Box sx={{ overflow: 'auto', p: 2 }}>
           <List>
             {menuList.map((item, index) => {
               const isItemSelected = selectedMenu === item.menuName;
@@ -242,9 +241,7 @@ const Sidebar = () => {
               );
             })}
           </List>
-        </Box>
-        <Box sx={{ overflow: 'auto', py: 1, px: 2, position: 'absolute', width: '100%', bottom: 15 }} onClick={logout}>
-          <List>
+          <List sx={{ marginTop: '15%' }} onClick={() => setDialogOpen(!dialogOpen)}>
             <ListItemButton
               sx={{
                 '&:hover': {
@@ -269,7 +266,34 @@ const Sidebar = () => {
             </ListItemButton>
           </List>
         </Box>
+        {/* <Box sx={{ overflow: 'auto', py: 1, px: 2, width: '100%', }} onClick={logout}>
+          <List>
+            <ListItemButton
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#1e1e1e',
+                  color: '#fff',
+                  borderRadius: '10px'
+                },
+                mb: 1,
+              }}
+            >
+              <ListItemIcon sx={{ color: '#bdb9b0' }}><ExitToApp /></ListItemIcon>
+              <ListItemText
+                primary='Logout'
+                primaryTypographyProps={{
+                  sx: {
+                    color: '#bdb9b0',
+                    fontSize: '1.1rem',
+                    fontWeight: 500
+                  }
+                }}
+              />
+            </ListItemButton>
+          </List>
+        </Box> */}
       </Drawer>
+      <Modal open={dialogOpen} close={() => setDialogOpen(!dialogOpen)} content={"Are you sure you want to logout this application."} success={logout} />
     </React.Fragment>
   )
 }

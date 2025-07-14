@@ -10,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { deleteTestimonialData, getDataTestimonial, resetMessage } from './TestimonialReducer'
 import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from '@mui/icons-material/Search';
+import Modal from '../../comnponents/modal/Modal'
 
 const Testimonials = () => {
   const navigate = useNavigate()
@@ -19,6 +20,7 @@ const Testimonials = () => {
   const [designation, setDesignation] = useState('')
   const [page, setPage] = useState(1)
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false)
 
 
   const reducerResponse = useSelector((state) => state.testimonial)
@@ -44,7 +46,7 @@ const Testimonials = () => {
     const debounceTimer = setTimeout(() => {
       let query = `?page=${page}&limit=6`;
       if (name) query += `&name=${name}`;
-      if (designation) query += `&type=${designation}`;
+      if (designation) query += `&designation=${designation}`;
       dispatch(getDataTestimonial(query));
     }, 500);
     return () => clearTimeout(debounceTimer);
@@ -54,6 +56,7 @@ const Testimonials = () => {
     if (successMsg) {
       const timer = setTimeout(() => {
         dispatch(resetMessage())
+        setPage(1)
         dispatch(getDataTestimonial(`?page=1&limit=6`))
       }, 1000);
 
@@ -72,7 +75,12 @@ const Testimonials = () => {
     sessionStorage.setItem("Mode", "Edit")
   }
   const handleDelete = (e) => {
-    dispatch(deleteTestimonialData(e.id))
+    setDialogOpen(!dialogOpen)
+    sessionStorage.setItem("tempRow", e?.id)
+  }
+  const deleteCustomer = () => {
+    setDialogOpen(!dialogOpen)
+    dispatch(deleteTestimonialData(sessionStorage.getItem("tempRow")))
     setOpenSnackbar(true)
   }
 
@@ -109,8 +117,8 @@ const Testimonials = () => {
 
   const handleClose = () => {
     setOpenSnackbar(!openSnackbar)
-    dispatch(getDataTestimonial(`?page=${page}&limit=6`))
     setPage(1)
+    dispatch(getDataTestimonial(`?page=${page}&limit=6`))
   }
 
   return (
@@ -170,6 +178,8 @@ const Testimonials = () => {
         </Grid2>
       </Filter>
       <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} handleView={(e) => handleView(e)} handleEdit={(e) => handleEdit(e)} handleDelete={(e) => handleDelete(e)} />
+      <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteCustomer} content={"Are you sure you want to delete this testimonial."} />
+
     </div>
   )
 }

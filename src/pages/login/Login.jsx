@@ -75,7 +75,7 @@ const Login = () => {
 
 
     return (
-        <Box sx={{ height: '100vh', backgroundColor: '#f2f3f5', padding: '4% 0' }}>
+        <Box sx={{ minHeight: '100vh', backgroundColor: '#f2f3f5', padding: '8% 0' }}>
             <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={loader}>
                 <CircularProgress color="secondary" />
             </Backdrop>
@@ -92,10 +92,10 @@ const Login = () => {
             </Snackbar>}
 
             <Box sx={{ backgroundColor: '#fff', borderRadius: '15px', width: '35%', margin: '4% auto', padding: '2rem' }}>
-                <Typography align="center" fontSize="1.8rem" gutterBottom>Welcome to Admin Portal</Typography>
+                <Typography align="center" fontSize="1.8rem">Welcome to Admin Portal</Typography>
                 <Typography align="center" fontSize="14px" gutterBottom>To access your admin portal login</Typography>
 
-                <Grid container spacing={3}>
+                <Grid container spacing={3} sx={{ marginTop: '1.5rem' }}>
                     <Grid item xs={12}>
                         <Typography>Email<span style={{ color: 'red' }}>*</span></Typography>
                         {errorMsg.emailError && <Typography color="error" fontSize="14px">{errorMsg.emailError}</Typography>}

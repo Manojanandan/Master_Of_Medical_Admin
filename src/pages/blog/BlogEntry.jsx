@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Titlebar from '../../comnponents/titlebar/Titlebar'
-import { Alert, Backdrop, Box, Button, CircularProgress, Grid2, IconButton, Paper, TextField, Typography } from '@mui/material'
+import { Alert, Backdrop, Box, Button, CircularProgress, Grid2, IconButton, Paper, Snackbar, TextField, Typography } from '@mui/material'
 import { Editor } from 'react-draft-wysiwyg';
 import { ContentState, convertToRaw, EditorState } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import { styled } from '@mui/material/styles';
+
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close'
 import { getOneBlogData, postBlogData, putBlogData } from './BlogReducer';
@@ -18,15 +18,18 @@ const BlogEntry = () => {
     const dispatch = useDispatch()
     const fileInputRef = useRef()
     const bannerInputRef = useRef()
-    const useQuery = new URLSearchParams(useLocation().search)
-    const blogId = useQuery.get("blogId")
-    const mode = useQuery.get("Mode")
+    const blogId = sessionStorage.getItem("blogId")
+    const mode = sessionStorage.getItem("Mode")
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
     const [featureImage, setFeatureImage] = useState(null)
     const [bannerImage, setBannerImage] = useState(null);
     const [title, setTitle] = useState("")
+    const [author, setAuthor] = useState("")
     const [metaTitle, setMetaTitle] = useState("")
     const [metaDescription, setMetaDescription] = useState("")
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+
+    const [errorMsg, setErrorMsg] = useState({ title: "", author: "", blogContent: "", featuredImage: "", bannerImage: "", metaTitle: "", metaDescription: "" })
 
     const rawContent = convertToRaw(editorState.getCurrentContent())
     const editorContent = draftToHtml(rawContent)
@@ -34,6 +37,7 @@ const BlogEntry = () => {
     const reducerResponse = useSelector((state) => state.blog)
     const Load = reducerResponse?.load
     const successMsg = reducerResponse?.message
+    const success = reducerResponse?.success
     const getOneData = reducerResponse?.getOneData?.data
 
     const handleFeatureImgChange = (e) => {
@@ -41,6 +45,7 @@ const BlogEntry = () => {
             setFeatureImage(e.target.files[0])
             // setErrorMsg({ ...errorMsg, profileImgError: "" })
         }
+        setErrorMsg({ ...errorMsg, featuredImage: "" })
     }
     const handleRemoveProfileImg = (e) => {
         e.stopPropagation()
@@ -51,6 +56,7 @@ const BlogEntry = () => {
             setBannerImage(e.target.files[0])
             // setErrorMsg({ ...errorMsg, profileImgError: "" })
         }
+        setErrorMsg({...errorMsg,bannerImage:""})
     }
     const handleRemoveBannerImg = (e) => {
         e.stopPropagation()
@@ -67,6 +73,7 @@ const BlogEntry = () => {
 
     useEffect(() => {
         if (successMsg) {
+            setOpenSnackbar(true)
             const timer = setTimeout(() => {
                 navigate('/blog');
             }, 1000);
@@ -78,9 +85,24 @@ const BlogEntry = () => {
     useMemo(() => {
         if (getOneData) {
             const resolveImagePath = () => {
-                if (!getOneData?.image) return null;
+                if (!getOneData?.featuredImage) return null;
 
-                let imagePath = getOneData.image;
+                let imagePath = getOneData.featuredImage;
+
+                if (typeof imagePath === 'object' && imagePath?.path) {
+                    imagePath = imagePath.path;
+                } else if (Array.isArray(imagePath)) {
+                    imagePath = imagePath[0];
+                }
+
+                return typeof imagePath === 'string'
+                    ? (imagePath.startsWith('http') ? imagePath : `http://luxcycs.com:5500/${imagePath}`)
+                    : null;
+            };
+            const resolveBannerImagePath = () => {
+                if (!getOneData?.bannerImage) return null;
+
+                let imagePath = getOneData.bannerImage;
 
                 if (typeof imagePath === 'object' && imagePath?.path) {
                     imagePath = imagePath.path;
@@ -93,8 +115,9 @@ const BlogEntry = () => {
                     : null;
             };
             setFeatureImage(resolveImagePath);
-            setBannerImage(bannerImage)
+            setBannerImage(resolveBannerImagePath)
             setTitle(getOneData?.title)
+            setAuthor(getOneData?.author)
             setMetaTitle(getOneData?.metaTitle)
             setMetaDescription(getOneData?.metaDescription)
             if (getOneData?.content) {
@@ -109,35 +132,52 @@ const BlogEntry = () => {
     }, [getOneData])
 
     const handleSubmit = () => {
-        const formData = new FormData()
-
-        if (mode !== "Add") {
-            formData.append("id", blogId)
-        }
-
-        formData.append("title", title)
-        formData.append("metaTitle", metaTitle)
-        formData.append("metaDescription", metaDescription)
-        formData.append("author", "abcd")
-        formData.append("featureImage", featureImage)
-        formData.append("bannerImage", bannerImage)
-        formData.append("content", editorContent)
-
-        if (mode === "Add") {
-            dispatch(postBlogData(formData))
+      console.log(featureImage);
+      
+        if (title === "") {
+            setErrorMsg({ ...errorMsg, title: "Blog Title is required" })
+        } else if (author === "") {
+            setErrorMsg({ ...errorMsg, author: "Author is required" })
+        } 
+        // else if (!editorContent) {
+        //     setErrorMsg({ ...errorMsg, blogContent: "Blog Content is required" })
+        // }
+         else if (featureImage === "" || featureImage === null) {
+            setErrorMsg({ ...errorMsg, featuredImage: "Feature Image is required" })
+        } else if (bannerImage === "" || bannerImage === null) {
+            setErrorMsg({ ...errorMsg, bannerImage: "Banner Image is required" })
+        } else if (metaTitle === "") {
+            setErrorMsg({ ...errorMsg, metaTitle: "Meta Title is required" })
+        } else if (metaDescription === "") {
+            setErrorMsg({ ...errorMsg, metaDescription: "Meta Title is required" })
         } else {
-            dispatch(putBlogData((formData)))
+            const formData = new FormData()
+
+            if (mode !== "Add") {
+                formData.append("id", blogId)
+            }
+
+            formData.append("title", title)
+            formData.append("metaTitle", metaTitle)
+            formData.append("metaDescription", metaDescription)
+            formData.append("author", author)
+            formData.append("featuredImage", featureImage)
+            formData.append("bannerImage", bannerImage)
+            formData.append("content", editorContent)
+
+            if (mode === "Add") {
+                dispatch(postBlogData(formData))
+            } else {
+                dispatch(putBlogData((formData)))
+            }
         }
     }
 
-    // const handleClear = () => {
-    //     setTitle("")
-    //     setBannerImage(null)
-    //     setFeatureImage(null)
-    //     setMetaDescription("")
-    //     setMetaTitle("")
-    //     setEditorState(EditorState.createEmpty());
-    // }
+    const handleClose = () => {
+        setOpenSnackbar(!openSnackbar)
+        sessionStorage.removeItem("blogId")
+        sessionStorage.removeItem("Mode")
+    }
 
     return (
         <React.Fragment>
@@ -147,12 +187,17 @@ const BlogEntry = () => {
             >
                 <CircularProgress color="secondary" />
             </Backdrop>
-            <Titlebar title={"Blog Details"} filter={false} back={true} backClick={() => navigate('/blog')} />
-            {successMsg &&
-                <Alert variant="filled" severity="success" sx={{ margin: '15px auto', width: '95%', fontSize: '16px' }}>
+            <Titlebar title={"Blog Details"} filter={false} back={true} backClick={() => { navigate('/blog'), sessionStorage.removeItem("Mode"), sessionStorage.removeItem("blogId") }} />
+            {successMsg && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={2000} onClose={handleClose}>
+                <Alert
+                    onClose={handleClose}
+                    severity={success ? "success" : "error"}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
                     {successMsg}
                 </Alert>
-            }
+            </Snackbar>}
             <Paper elevation={5} sx={{ width: '95%', margin: '2% auto', height: 'auto', borderRadius: '10px', padding: '2% 3%' }}>
                 <Grid2 container columnSpacing={4} rowSpacing={3}>
                     <Grid2 size={6} >
@@ -164,13 +209,30 @@ const BlogEntry = () => {
                             autoComplete='off'
                             fullWidth
                             placeholder='Enter Blog title'
-                            onChange={(e) => setTitle(e.target.value)}
+                            onChange={(e) => { setTitle(e.target.value), setErrorMsg({ ...errorMsg, title: "" }) }}
                             value={title ?? ""}
                             disabled={mode === "View" ? true : ""}
                         />
+                        {errorMsg?.title && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.title}</Typography>}
+                    </Grid2>
+                    <Grid2 size={6} >
+                        <Typography variant='p' sx={{ fontWeight: 'bold', }}>Author <span style={{ color: 'red' }}>*</span></Typography><br />
+                        <TextField
+                            id="author"
+                            size="small"
+                            sx={{ margin: '2% 0' }}
+                            autoComplete='off'
+                            fullWidth
+                            placeholder='Enter Author name'
+                            onChange={(e) => { setAuthor(e.target.value), setErrorMsg({ ...errorMsg, author: "" }) }}
+                            value={author ?? ""}
+                            disabled={mode === "View" ? true : ""}
+                        />
+                        {errorMsg?.author && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.author}</Typography>}
                     </Grid2>
                     <Grid2 size={12} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Blog Content <span style={{ color: 'red' }}>*</span></Typography><br />
+                        {errorMsg?.blogContent && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.blogContent}</Typography>}
                         <Box sx={{ height: '400px', width: '8%0px', border: 'solid 1.5px #2424', margin: '10px 0', padding: '5px', backgroundColor: '#fff' }}>
                             <Editor
                                 editorState={editorState}
@@ -215,7 +277,7 @@ const BlogEntry = () => {
                                 <>
                                     <CloudUploadIcon sx={{ fontSize: 48, color: '#00bfae' }} />
                                     <Typography sx={{ mt: 1, mb: 1, fontWeight: 600, color: '#00bfae', fontSize: '20px' }}>
-                                        Upload Profile
+                                        Upload Feature Image
                                     </Typography>
                                     <Button
                                         variant="contained"
@@ -309,6 +371,7 @@ const BlogEntry = () => {
                                 </Box>
                             )}
                         </Box>
+                        {errorMsg?.featuredImage && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.featuredImage}</Typography>}
                     </Grid2>
                     <Grid2 size={6} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Banner Image <span style={{ color: 'red' }}>*</span></Typography><br />
@@ -333,7 +396,7 @@ const BlogEntry = () => {
                                 <>
                                     <CloudUploadIcon sx={{ fontSize: 48, color: '#00bfae' }} />
                                     <Typography sx={{ mt: 1, mb: 1, fontWeight: 600, color: '#00bfae', fontSize: '20px' }}>
-                                        Upload Profile
+                                        Upload Banner Image
                                     </Typography>
                                     <Button
                                         variant="contained"
@@ -427,6 +490,7 @@ const BlogEntry = () => {
                                 </Box>
                             )}
                         </Box>
+                        {errorMsg?.bannerImage && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.bannerImage}</Typography>}
                     </Grid2>
                     <Grid2 size={6} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Meta Title <span style={{ color: 'red' }}>*</span></Typography><br />
@@ -437,10 +501,11 @@ const BlogEntry = () => {
                             autoComplete='off'
                             fullWidth
                             placeholder='Enter Meta title'
-                            onChange={(e) => setMetaTitle(e.target.value)}
+                            onChange={(e) => { setMetaTitle(e.target.value), setErrorMsg({ ...errorMsg, metaTitle: "" }) }}
                             value={metaTitle ?? ""}
                             disabled={mode === "View" ? true : ""}
                         />
+                        {errorMsg?.metaTitle && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.metaTitle}</Typography>}
                     </Grid2>
                     <Grid2 size={6} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Meta Description <span style={{ color: 'red' }}>*</span></Typography><br />
@@ -451,14 +516,15 @@ const BlogEntry = () => {
                             autoComplete='off'
                             fullWidth
                             placeholder='Enter Meta Decription'
-                            onChange={(e) => setMetaDescription(e.target.value)}
+                            onChange={(e) => { setMetaDescription(e.target.value), setErrorMsg({ ...errorMsg, metaDescription: "" }) }}
                             value={metaDescription ?? ""}
                             disabled={mode === "View" ? true : ""}
                         />
+                        {errorMsg?.metaDescription && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.metaDescription}</Typography>}
                     </Grid2>
                     {mode !== "View" &&
-                        <Grid2 size={12} sx={{ marginBottom: '10px',textAlign:'right' }}>
-                            <Button variant='contained' sx={{ padding: '5px 20px', fontSize: '16px', backgroundColor: '#00bfae', fontWeight: 'bold' }} onClick={handleSubmit}>Add Blog</Button>
+                        <Grid2 size={12} sx={{ marginBottom: '10px', textAlign: 'right' }}>
+                            <Button variant='contained' sx={{ padding: '5px 20px', fontSize: '16px', backgroundColor: '#00bfae', fontWeight: 'bold' }} onClick={handleSubmit}>{mode === "Add" ? "Add Blog" : "Update Blog"}</Button>
                             {/* <Button variant='contained' sx={{ marginLeft: '20px', textTransform: 'capitalize', backgroundColor: '#868787', padding: '5px 20px', fontWeight: 'bold', fontSize: '16px', }} onClick={handleClear}>Clear</Button> */}
                         </Grid2>
                     }

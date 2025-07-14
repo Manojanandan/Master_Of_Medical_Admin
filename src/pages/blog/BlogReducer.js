@@ -84,7 +84,7 @@ export const blogReducer = createSlice({
             state.addBlog.metaDescription = action.payload.metaDescription;
             state.success = action.payload?.success
 
-            state.message = action.payload.message;
+            state.message = action.payload?.message;
         })
         builder.addCase(deleteBlogData.pending, (state, action) => {
             state.load = true;

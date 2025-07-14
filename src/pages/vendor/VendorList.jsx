@@ -8,6 +8,7 @@ import { Alert, Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdorn
 import SearchIcon from '@mui/icons-material/Search';
 import { stateList } from '../../utils/helpers'
 import { useNavigate } from 'react-router-dom'
+import Modal from '../../comnponents/modal/Modal'
 
 const VendorList = () => {
     const dispatch = useDispatch()
@@ -18,6 +19,7 @@ const VendorList = () => {
     const [page, setPage] = useState(1)
     const [state, setState] = useState(null)
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false)
 
     const reducer = useSelector((state) => state.vendorReducer)
     const { listOfVendor, loader, success, message } = reducer
@@ -101,11 +103,20 @@ const VendorList = () => {
     }
 
     const handleDelete = (e) => {
-        dispatch(removeVendor(e?.id))
+        setDialogOpen(!dialogOpen)
+        sessionStorage.setItem("tempRow", e?.id)
+
+    }
+    const deleteCustomer = () => {
+        setDialogOpen(!dialogOpen)
+        dispatch(removeVendor(sessionStorage.getItem("tempRow")))
+        setOpenSnackbar(true)
     }
 
-     const handleClose = () => {
+    const handleClose = () => {
         setOpenSnackbar(!openSnackbar)
+        dispatch(getVendor(`?page=${page}&limit=7`))
+        setPage(1)
     }
 
     return (
@@ -209,6 +220,7 @@ const VendorList = () => {
                 </Grid2>
             </Filter>
             <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={listOfVendor?.pagination?.totalPages} handleView={(data) => handleView(data)} handleDelete={(data) => handleDelete(data)} />
+            <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteCustomer} content={"Are you sure you want to delete this vendor."} />
         </div>
     )
 }

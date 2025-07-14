@@ -3,26 +3,23 @@ import Titlebar from '../../comnponents/titlebar/Titlebar'
 import Filter from '../../comnponents/filter/Filter'
 import CommonTable from '../../comnponents/table/CommonTable'
 import { useDispatch, useSelector } from 'react-redux'
-import { getAllCustomer, removeCustomer, resetMessage } from './CustomerReducer'
 import { Backdrop, CircularProgress, Grid2, MenuItem, Select, TextField, Typography, InputAdornment, Box, Autocomplete, Alert, Snackbar } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import { stateList } from '../../utils/helpers'
 import { useNavigate } from 'react-router-dom'
-import Modal from '../../comnponents/modal/Modal'
+import { resetMessage, viewallSupport } from './SupportReducer'
 
-const CustomerList = () => {
+
+const SupportList = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [name, setName] = useState('')
     const [status, setStatus] = useState('all')
-    const [state, setState] = useState(null)
-    const [userType, setUserType] = useState("")
     const [page, setPage] = useState(1)
-    const [dialogOpen, setDialogOpen] = useState(false)
 
-    const reducer = useSelector((state) => state.customerReducer)
-    const { listOfCustomer, loader, message, success } = reducer
+    const reducer = useSelector((state) => state.supportReducer)
+    const { getAllSupport, loader, message, success } = reducer
+    console.log(getAllSupport);
 
     useEffect(() => {
         dispatch(resetMessage())
@@ -36,38 +33,25 @@ const CustomerList = () => {
 
     useEffect(() => {
         setPage(1)
-    }, [userType, name, status, state])
+    }, [status])
 
     useEffect(() => {
         const debounceTimer = setTimeout(() => {
             let query = `?page=${page}&limit=6`;
-            if (name) query += `&name=${name}`;
-            if (userType) query += `&type=${userType}`;
-            if (state) query += `&state=${state}`;
             if (status && status !== 'all') query += `&status=${status}`;
-            dispatch(getAllCustomer(query));
+            dispatch(viewallSupport(query));
         }, 500);
         return () => clearTimeout(debounceTimer);
-    }, [name, userType, state, status, page, dispatch]);
+    }, [status, page, dispatch]);
 
     const columns = [
-        // { datakey: 'id', headerName: 'ID', size: 50, align: 'left', },
-        { datakey: 'name', headerName: 'Name', size: 200, },
+        { datakey: 'id', headerName: 'Order ID', size: 50, align: 'left', },
+        { datakey: 'name', headerName: 'Customer Name', size: 200, },
         { datakey: 'email', headerName: 'Email', size: 200, },
         {
-            datakey: 'phone',
-            headerName: 'Mobile No',
+            datakey: 'price',
+            headerName: 'Price',
             size: 170,
-        },
-        {
-            datakey: 'type',
-            headerName: 'User Type',
-            size: 200,
-        },
-        {
-            datakey: 'state',
-            headerName: 'State',
-            size: 200,
         },
         {
             datakey: 'status',
@@ -84,7 +68,7 @@ const CustomerList = () => {
         },
     ];
 
-    const rows = listOfCustomer?.data?.map((e) => {
+    const rows = getAllSupport?.data?.map((e) => {
         return ({
             id: e?.id,
             name: e?.name,
@@ -101,23 +85,17 @@ const CustomerList = () => {
     };
 
     const handlView = (e) => {
-        sessionStorage.setItem("customerId", e?.id)
-        navigate(`/customerview`)
+        sessionStorage.setItem("supportId", e?.id)
+        navigate(`/supportview`)
     }
 
     const handleDelete = (e) => {
-        setDialogOpen(!dialogOpen)
-        sessionStorage.setItem("tempRow",e?.id)
-    }
-    const deleteCustomer = () => {
-        setDialogOpen(!dialogOpen)
-        dispatch(removeCustomer(sessionStorage.getItem("tempRow")))
+        dispatch(removeOrders(e?.id))
     }
 
     const handleClose = () => {
         setOpenSnackbar(!openSnackbar)
-        sessionStorage.removeItem("tempRow")
-        dispatch(getAllCustomer(`?page=${page}&limit=6`))
+        dispatch(viewallSupport(`?page=${page}&limit=6`))
         setPage(1)
     }
 
@@ -139,7 +117,7 @@ const CustomerList = () => {
                     {message}
                 </Alert>
             </Snackbar>}
-            <Titlebar title={"Customer Management"} addBtn={false} />
+            <Titlebar title={"Support Management"} addBtn={false} />
             <Filter>
                 <Grid2 container columnSpacing={2} rowSpacing={3}>
                     <Grid2 item size={4}>
@@ -152,7 +130,7 @@ const CustomerList = () => {
                             placeholder="Search with name"
                             variant="outlined"
                             value={name}
-                            onChange={(e) => { setName(e.target.value) }}
+                            // onChange={(e) => { setName(e.target.value) }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -160,46 +138,6 @@ const CustomerList = () => {
                                     </InputAdornment>
                                 ),
                             }}
-                        />
-                    </Grid2>
-                    <Grid2 item size={3}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>User Type</Typography>
-                        <TextField onChange={(e) => setUserType(e.target.value)} id='userType' placeholder='User type' name='userType' fullWidth size='small' sx={{ marginTop: '10px' }} />
-                    </Grid2>
-                    <Grid2 item size={3}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
-                        <Autocomplete
-                            id="state"
-                            fullWidth
-                            size="small"
-                            sx={{ marginTop: '10px' }}
-                            options={stateList}
-                            autoHighlight
-                            getOptionLabel={(option) => option}
-                            onChange={(event, value) => {
-                                setState(value); // This gives you "Tamil Nadu" if selected
-                            }}
-                            renderOption={(props, option) => {
-                                const { key, ...optionProps } = props;
-                                return (
-                                    <Box
-                                        key={key}
-                                        component="li"
-                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-                                        {...optionProps}
-                                    >
-                                        {option}
-                                    </Box>
-                                );
-                            }}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    size="small"
-                                    autoComplete="off"
-                                    placeholder="Select State"
-                                />
-                            )}
                         />
                     </Grid2>
                     <Grid2 item size={2}>
@@ -220,10 +158,9 @@ const CustomerList = () => {
                     </Grid2>
                 </Grid2>
             </Filter>
-            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={listOfCustomer?.pagination?.totalPages} handleView={(data) => handlView(data)} handleDelete={(data) => handleDelete(data)} />
-            <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteCustomer} content={"Are you sure you want to delete this customer."} />
+            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={getAllSupport?.pagination?.totalPages} handleView={(data) => handlView(data)} handleDelete={(data) => handleDelete(data)} />
         </div>
     )
 }
 
-export default CustomerList
+export default SupportList

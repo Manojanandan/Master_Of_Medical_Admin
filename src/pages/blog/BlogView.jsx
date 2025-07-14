@@ -24,7 +24,6 @@ const BlogView = () => {
             dispatch(getOneBlogData(sessionStorage.getItem("blogId")))
         }
     }, [sessionStorage.getItem("blogId")])
-    console.log(getOneData);
 
     return (
         <div>
@@ -34,7 +33,7 @@ const BlogView = () => {
             >
                 <CircularProgress color="secondary" />
             </Backdrop>
-            <Titlebar title={"Blog Details"} back={true} backClick={() => { navigate('/blog'), sessionStorage.removeItem("blogId") }} />
+            <Titlebar title={"Blog Details"} back={true} backClick={() => { navigate('/blog'), sessionStorage.removeItem("blogId"), sessionStorage.removeItem("Mode") }} />
             <Paper elevation={5} sx={{ borderRadius: '10px', padding: '2% 3%', margin: '3% auto', width: '95%' }}>
                 <Box sx={{ padding: '10px', width: '100%', borderBottom: 'solid 1px #2424' }}>
                     <Typography variant='p' component='div' sx={{ fontSize: '20px', fontWeight: 'bold', color: '#1976d2' }}>Personal Information</Typography>
@@ -54,50 +53,170 @@ const BlogView = () => {
                                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Blog Content</Typography>
                                 <Typography variant='p' component='div' sx={{ fontSize: '18px', }}>{stripHtmlTags(getOneData?.data?.content) ?? "-"}</Typography>
                             </Grid2>
-                            <Grid2 item size={12}>
-                                <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Documents</Typography>
+                            <Grid2 item size={6}>
+                                <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Feature Image</Typography>
                                 <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginTop: '5px' }}>
-                                    {getOneData?.data?.featuredImage?.length > 0 ? getOneData?.data?.featuredImage?.map((fileUrl, index) => {
-                                        const fileName = fileUrl.split('/').pop();
-                                        const actualFileName = fileName.replace(/^\d+-/, '');
-                                        const fileFormat = actualFileName.split('.').at(-1)
-                                        
-                                        return (
-                                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }} key={index}>
-                                                <img src={fileFormat === "jpg" ? JpgIcon : fileFormat === "jpeg" ? JpegIcon : fileFormat === "docx" ? WordIcon : fileFormat === "png" ? PngIcon : fileName === "pdf" ? PDFIcon : ExcelIcon} alt={JpgIcon} style={{ height: '20px', width: '20px' }} />
-                                                <a
-                                                    href={fileUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    style={{ color: '#0ea398', textDecoration: 'underline', fontWeight: 'bold' }}
-                                                >
-                                                    {actualFileName}
-                                                </a>
-                                            </Box>
+                                    {getOneData?.data?.featuredImage ? (
+                                        Array.isArray(getOneData.data.featuredImage)
+                                            ? getOneData.data.featuredImage.map((fileUrl, index) => {
+                                                const fileName = fileUrl.split('/').pop();
+                                                const actualFileName = fileName.replace(/^\d+-/, '');
+                                                const fileFormat = actualFileName.split('.').at(-1);
 
-                                        )
-                                    }) :
-                                        "-"}
-                                    {getOneData?.data?.bannerImage?.length > 0 ? getOneData?.data?.bannerImage?.map((fileUrl, index) => {
-                                        const fileName = fileUrl.split('/').pop();
-                                        const actualFileName = fileName.replace(/^\d+-/, '');
-                                        const fileFormat = actualFileName.split('.')[1]
-                                        return (
-                                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }} key={index}>
-                                                <img src={fileFormat === "jpg" ? JpgIcon : fileFormat === "jpeg" ? JpegIcon : fileFormat === "docx" ? WordIcon : fileFormat === "png" ? PngIcon : fileName === "pdf" ? PDFIcon : ExcelIcon} alt={JpgIcon} style={{ height: '20px', width: '20px' }} />
-                                                <a
-                                                    href={fileUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    style={{ color: '#0ea398', textDecoration: 'underline', fontWeight: 'bold' }}
-                                                >
-                                                    {actualFileName}
-                                                </a>
-                                            </Box>
+                                                return (
+                                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }} key={index}>
+                                                        <img
+                                                            src={
+                                                                fileFormat === 'jpg'
+                                                                    ? JpgIcon
+                                                                    : fileFormat === 'jpeg'
+                                                                        ? JpegIcon
+                                                                        : fileFormat === 'docx'
+                                                                            ? WordIcon
+                                                                            : fileFormat === 'png'
+                                                                                ? PngIcon
+                                                                                : fileFormat === 'pdf'
+                                                                                    ? PDFIcon
+                                                                                    : ExcelIcon
+                                                            }
+                                                            alt={fileFormat}
+                                                            style={{ height: '20px', width: '20px' }}
+                                                        />
+                                                        <a
+                                                            href={fileUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            style={{ color: '#0ea398', textDecoration: 'underline', fontWeight: 'bold' }}
+                                                        >
+                                                            {actualFileName}
+                                                        </a>
+                                                    </Box>
+                                                );
+                                            })
+                                            : (() => {
+                                                const fileUrl = getOneData.data.featuredImage;
+                                                const fileName = fileUrl.split('/').pop();
+                                                const actualFileName = fileName.replace(/^\d+-/, '');
+                                                const fileFormat = actualFileName.split('.').at(-1);
 
-                                        )
-                                    }) :
-                                        ""}
+                                                return (
+                                                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }}>
+                                                        <img
+                                                            src={
+                                                                fileFormat === 'jpg'
+                                                                    ? JpgIcon
+                                                                    : fileFormat === 'jpeg'
+                                                                        ? JpegIcon
+                                                                        : fileFormat === 'docx'
+                                                                            ? WordIcon
+                                                                            : fileFormat === 'png'
+                                                                                ? PngIcon
+                                                                                : fileFormat === 'pdf'
+                                                                                    ? PDFIcon
+                                                                                    : ExcelIcon
+                                                            }
+                                                            alt={fileFormat}
+                                                            style={{ height: '20px', width: '20px' }}
+                                                        />
+                                                        <a
+                                                            href={fileUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            style={{ color: '#0ea398', textDecoration: 'underline', fontWeight: 'bold' }}
+                                                        >
+                                                            {actualFileName}
+                                                        </a>
+                                                    </Box>
+                                                );
+                                            })()
+                                    ) : (
+                                        '-'
+                                    )}
+                                </Box>
+                            </Grid2>
+                            <Grid2 item size={6}>
+                                <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Banner Image</Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginTop: '5px' }}>
+                                    {getOneData?.data?.bannerImage ? (
+                                        Array.isArray(getOneData.data.bannerImage) ? (
+                                            getOneData.data.bannerImage.map((fileUrl, index) => {
+                                                const fileName = fileUrl.split('/').pop();
+                                                const actualFileName = fileName.replace(/^\d+-/, '');
+                                                const fileFormat = actualFileName.split('.').at(-1);
+
+                                                return (
+                                                    <Box
+                                                        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }}
+                                                        key={index}
+                                                    >
+                                                        <img
+                                                            src={
+                                                                fileFormat === 'jpg'
+                                                                    ? JpgIcon
+                                                                    : fileFormat === 'jpeg'
+                                                                        ? JpegIcon
+                                                                        : fileFormat === 'docx'
+                                                                            ? WordIcon
+                                                                            : fileFormat === 'png'
+                                                                                ? PngIcon
+                                                                                : fileFormat === 'pdf'
+                                                                                    ? PDFIcon
+                                                                                    : ExcelIcon
+                                                            }
+                                                            alt={fileFormat}
+                                                            style={{ height: '20px', width: '20px' }}
+                                                        />
+                                                        <a
+                                                            href={fileUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            style={{ color: '#0ea398', textDecoration: 'underline', fontWeight: 'bold' }}
+                                                        >
+                                                            {actualFileName}
+                                                        </a>
+                                                    </Box>
+                                                );
+                                            })
+                                        ) : (() => {
+                                            const fileUrl = getOneData.data.bannerImage;
+                                            const fileName = fileUrl.split('/').pop();
+                                            const actualFileName = fileName.replace(/^\d+-/, '');
+                                            const fileFormat = actualFileName.split('.').at(-1);
+
+                                            return (
+                                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }}>
+                                                    <img
+                                                        src={
+                                                            fileFormat === 'jpg'
+                                                                ? JpgIcon
+                                                                : fileFormat === 'jpeg'
+                                                                    ? JpegIcon
+                                                                    : fileFormat === 'docx'
+                                                                        ? WordIcon
+                                                                        : fileFormat === 'png'
+                                                                            ? PngIcon
+                                                                            : fileFormat === 'pdf'
+                                                                                ? PDFIcon
+                                                                                : ExcelIcon
+                                                        }
+                                                        alt={fileFormat}
+                                                        style={{ height: '20px', width: '20px' }}
+                                                    />
+                                                    <a
+                                                        href={fileUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{ color: '#0ea398', textDecoration: 'underline', fontWeight: 'bold' }}
+                                                    >
+                                                        {actualFileName}
+                                                    </a>
+                                                </Box>
+                                            );
+                                        })()
+                                    ) : (
+                                        ''
+                                    )}
+
                                 </Box>
                             </Grid2>
                         </Grid2>
@@ -112,9 +231,9 @@ const BlogView = () => {
               />
             </Box>
           </Box> */}
-                </Box>
-            </Paper>
-        </div>
+                </Box >
+            </Paper >
+        </div >
     )
 }
 

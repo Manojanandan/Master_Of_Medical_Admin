@@ -50,7 +50,7 @@ export const vendorReducer = createSlice({
         })
         builder.addCase(modifyVendor.fulfilled, (state, action) => {
             state.loader = false
-            state.createVendor = createVendor.push(action.payload)
+            state.createVendor.push(action.payload)
             state.message = action.payload?.message
             state.success = action.payload?.success
         })

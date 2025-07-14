@@ -100,7 +100,7 @@ export const getAllVendor = (id, data) => {
     if (id !== "") {
         return instance.get(`vendor/get-vendor/${id}`)
     } else {
-        return instance.get(`vendor/get-all-vendor`, data)
+        return instance.get(`vendor/get-all-vendor${data}`)
     }
 }
 
@@ -121,4 +121,17 @@ export const getAllOrders = async (id,data)=>{
 }
 export const deleteOrders = (id) =>{
     return instance.delete(`order/delete-order/${id}`)
+}
+
+// support
+export const getAllSupport = (id,data)=>{
+    if(id!==""){
+        return instance.get(`support-query/get-query/${id}`)
+    }else{
+        return instance.get(`support-query/get-all-query${data}`)
+    }
+}
+
+export const createSupport = (data) => {
+    return instance.put("support-query/update-query",data)
 }

@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getAllOrders } from "../../utils/Services";
-import { resetMessage } from "../vendor/VendorReducer";
 
 export const listOfAllOrders = createAsyncThunk("Get ALL Orders", async (data) => {
     return await getAllOrders("", data).then((response) => response?.data)

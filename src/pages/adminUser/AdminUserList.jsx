@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAllUserData, removeAdminUser, resetMessages } from './AdminReducer';
 import SearchIcon from '@mui/icons-material/Search';
 import { stateList } from '../../utils/helpers'
+import Modal from '../../comnponents/modal/Modal'
 
 const AdminUserList = () => {
     const navigate = useNavigate()
@@ -18,6 +19,7 @@ const AdminUserList = () => {
     const [state, setState] = useState(null)
     const [page, setPage] = useState(1)
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false)
 
 
     const reducer = useSelector((state) => state.adminReducer)
@@ -112,7 +114,12 @@ const AdminUserList = () => {
     }
 
     const handleDelete = (e) => {
-        dispatch(removeAdminUser(e?.id))
+        setDialogOpen(!dialogOpen)
+        sessionStorage.setItem("tempRow", e?.id)
+    }
+    const deleteCustomer = () => {
+        setDialogOpen(!dialogOpen)
+        dispatch(removeAdminUser(sessionStorage.getItem("tempRow")))
     }
 
     const handleClose = () => {
@@ -233,6 +240,7 @@ const AdminUserList = () => {
                 </Grid2>
             </Filter>
             <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={adminData?.pagination?.totalPages} handleView={(data) => handleView(data)} handleEdit={(data) => handleEdit(data)} handleDelete={(data) => handleDelete(data)} />
+            <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteCustomer} content={"Are you sure you want to delete this admin user."} />
         </div>
     )
 }

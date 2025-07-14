@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { deleteBlogData, getBlogData, resetMessage } from './BlogReducer'
 import SearchIcon from '@mui/icons-material/Search';
 import { stripHtmlTags } from '../../utils/helpers'
+import Modal from '../../comnponents/modal/Modal'
 
 const Blog = () => {
   const navigate = useNavigate()
@@ -20,6 +21,7 @@ const Blog = () => {
   const [page, setPage] = useState(1)
   const [openSnackbar, setOpenSnackbar] = useState(false);
   // const [contentReceiver, setContentReceiver] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const reducerResponse = useSelector((state) => state.blog)
   const blogData = reducerResponse?.getAllBog?.data
@@ -40,7 +42,7 @@ const Blog = () => {
     const debounceTimer = setTimeout(() => {
       let query = `?page=${page}&limit=6`;
       if (title) query += `&title=${title}`;
-      if (author) query += `&type=${author}`;
+      if (author) query += `&author=${author}`;
       dispatch(getBlogData(query));
     }, 500);
     return () => clearTimeout(debounceTimer);
@@ -64,10 +66,18 @@ const Blog = () => {
     sessionStorage.setItem("Mode", "View")
   }
   const handleEdit = (e) => {
-    navigate(`/blogentry?blogId=${e?.id}&&Mode=Edit`)
+    navigate(`/blogentry`)
+    sessionStorage.setItem("blogId", e?.id)
+    sessionStorage.setItem("Mode", "Edit")
   }
   const handleDelete = (e) => {
-    dispatch(deleteBlogData(e?.id))
+    setDialogOpen(!dialogOpen)
+    sessionStorage.setItem("tempRow", e?.id)
+  }
+
+  const deleteCustomer = () => {
+    setDialogOpen(!dialogOpen)
+    dispatch(deleteBlogData(sessionStorage.getItem("tempRow")))
     setOpenSnackbar(true)
     setPage(1)
   }
@@ -116,7 +126,7 @@ const Blog = () => {
       >
         <CircularProgress color="secondary" />
       </Backdrop>
-      <Titlebar title={"Blog Management"} addBtn={true} addClick={() => navigate('/blogentry?Mode=Add')} />
+      <Titlebar title={"Blog Management"} addBtn={true} addClick={() => { navigate('/blogentry'), sessionStorage.setItem("Mode", "Add") }} />
       {successMsg && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={2000} onClose={handleClose}>
         <Alert
           onClose={handleClose}
@@ -165,6 +175,7 @@ const Blog = () => {
         </Grid2>
       </Filter>
       <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} handleView={(e) => handleView(e)} handleEdit={(e) => handleEdit(e)} handleDelete={(e) => handleDelete(e)} />
+      <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteCustomer} content={"Are you sure you want to delete this blog."} />
     </div>
   )
 }

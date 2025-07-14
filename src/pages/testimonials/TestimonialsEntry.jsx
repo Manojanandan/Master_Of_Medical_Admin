@@ -17,11 +17,13 @@ const TestimonialsEntry = () => {
     const testimonialId = sessionStorage.getItem("testimonialId")
     const mode = sessionStorage.getItem("Mode")
 
-    const [name, setName] = useState('')
-    const [message, setMessage] = useState('')
-    const [designation, setDesignation] = useState('')
+    const [name, setName] = useState("")
+    const [message, setMessage] = useState("")
+    const [designation, setDesignation] = useState("")
     const [image, setImage] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [errorMsg, setErrorMsg] = useState({ name: "", designation: "", message: "", image: "" })
+
 
     const reducerResponse = useSelector((state) => state.testimonial)
 
@@ -29,7 +31,6 @@ const TestimonialsEntry = () => {
     const success = reducerResponse?.success
     const Load = reducerResponse?.loader
     const getData = reducerResponse?.getOneData?.data
-
 
     useEffect(() => {
         dispatch(resetMessage())
@@ -66,11 +67,13 @@ const TestimonialsEntry = () => {
     };
 
     useEffect(() => {
-        setName(getData?.name)
-        setMessage(getData?.message)
-        setDesignation(getData?.designation)
-        if (getData?.image) {
-            setImage(resolveImagePath());
+        if (getData !== undefined) {
+            setName(getData?.name)
+            setMessage(getData?.message)
+            setDesignation(getData?.designation)
+            if (getData?.image) {
+                setImage(resolveImagePath());
+            }
         }
     }, [getData]);
 
@@ -89,6 +92,7 @@ const TestimonialsEntry = () => {
         if (e.target.files && e.target.files[0]) {
             setImage(e.target.files[0])
         }
+        setErrorMsg({ ...errorMsg, image: "" })
     }
     const handleRemoveImage = (e) => {
         e.stopPropagation()
@@ -96,25 +100,34 @@ const TestimonialsEntry = () => {
     }
 
     const handleSubmit = () => {
-        const formData = new FormData();
-        if (mode === "Edit") {
-            formData.append("id", testimonialId)
-        }
-        formData.append('name', name);
-        formData.append('message', message);
-        formData.append('designation', designation);
-        formData.append('image', image);
-
-        if (getData) {
-            dispatch(putTestimonial(formData))
-            setOpenSnackbar(true)
+        if (name === "") {
+            setErrorMsg({ ...errorMsg, name: "Name is required" })
+        } else if (designation === "") {
+            setErrorMsg({ ...errorMsg, designation: "Designation is required" })
+        } else if (message === "") {
+            setErrorMsg({ ...errorMsg, message: "Message is required" })
+        } else if (image === null) {
+            setErrorMsg({ ...errorMsg, image: "Image is required" })
         } else {
-            dispatch(postTestimonial(formData))
-            setOpenSnackbar(true)
+            const formData = new FormData();
+            if (mode === "Edit") {
+                formData.append("id", testimonialId)
+            }
+            formData.append('name', name);
+            formData.append('message', message);
+            formData.append('designation', designation);
+            formData.append('image', image);
+
+            if (getData) {
+                dispatch(putTestimonial(formData))
+                setOpenSnackbar(true)
+            } else {
+                dispatch(postTestimonial(formData))
+                setOpenSnackbar(true)
+            }
         }
     }
 
-    console.log(image);
 
     return (
         <React.Fragment>
@@ -124,10 +137,10 @@ const TestimonialsEntry = () => {
             >
                 <CircularProgress color="secondary" />
             </Backdrop>
-            <Titlebar title={"Testimonial Details"} filter={false} back={true} backClick={() => navigate('/testimonials')} />
-            {successMsg && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(!openSnackbar)}>
+            <Titlebar title={"Testimonial Details"} filter={false} back={true} backClick={() => { navigate('/testimonials'), sessionStorage.removeItem("testimonialId"), sessionStorage.removeItem("Mode") }} />
+            {successMsg && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={3000} onClose={() => { setOpenSnackbar(!openSnackbar), sessionStorage.removeItem("testimonialId"), sessionStorage.removeItem("Mode") }}>
                 <Alert
-                    onClose={() => setOpenSnackbar(!openSnackbar)}
+                    onClose={() => { setOpenSnackbar(!openSnackbar), sessionStorage.removeItem("testimonialId"), sessionStorage.removeItem("Mode") }}
                     severity={success ? "success" : "error"}
                     variant="filled"
                     sx={{ width: '100%' }}
@@ -146,10 +159,11 @@ const TestimonialsEntry = () => {
                             autoComplete='off'
                             fullWidth
                             placeholder='Enter Name'
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={name ?? ""}
+                            onChange={(e) => { setName(e.target.value), setErrorMsg({ ...errorMsg, name: "" }) }}
                             disabled={mode === "View" && true}
                         />
+                        {errorMsg?.name && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.name}</Typography>}
                     </Grid2>
                     <Grid2 size={6} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Destination <span style={{ color: 'red' }}>*</span></Typography>
@@ -160,10 +174,11 @@ const TestimonialsEntry = () => {
                             autoComplete='off'
                             fullWidth
                             placeholder='Enter Destination'
-                            onChange={(e) => setDesignation(e.target.value)}
-                            value={designation}
+                            onChange={(e) => { setDesignation(e.target.value), setErrorMsg({ ...errorMsg, designation: "" }) }}
+                            value={designation ?? ""}
                             disabled={mode === "View" && true}
                         />
+                        {errorMsg?.designation && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.designation}</Typography>}
                     </Grid2>
                     <Grid2 size={12} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Message <span style={{ color: 'red' }}>*</span></Typography>
@@ -176,8 +191,9 @@ const TestimonialsEntry = () => {
                             placeholder='Enter Message'
                             value={message ?? ""}
                             disabled={mode === "View" && true}
-                            onChange={(e) => setMessage(e.target.value)}
+                            onChange={(e) => { setMessage(e.target.value), setErrorMsg({ ...errorMsg, message: "" }) }}
                         />
+                        {errorMsg?.message && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.message}</Typography>}
                     </Grid2>
                     <Grid2 size={12} >
                         <Typography variant='p' sx={{ fontWeight: 'bold', }}>Image <span style={{ color: 'red' }}>*</span></Typography><br />
@@ -296,11 +312,11 @@ const TestimonialsEntry = () => {
                                 </Box>
                             )}
                         </Box>
-
+                        {errorMsg?.image && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.image}</Typography>}
                     </Grid2>
                     {mode !== "View" &&
                         <Grid2 size={12} sx={{ textAlign: 'right', margin: '10px 0' }}>
-                            <Button variant='contained' sx={{ padding: '5px 20px', fontSize: '16px', backgroundColor: '#00bfae', fontWeight: 'bold' }} onClick={handleSubmit}>Add testimonial</Button>
+                            <Button variant='contained' sx={{ padding: '5px 20px', fontSize: '16px', backgroundColor: '#00bfae', fontWeight: 'bold' }} onClick={handleSubmit}>{mode === "Add" ? "Add testimonial" : "Update Testimonial"}</Button>
                             {/* <Button variant='contained' sx={{ marginLeft: '20px', textTransform: 'capitalize', backgroundColor: '#868787', padding: '5px 20px', fontWeight: 'bold', fontSize: '16px', }} onClick={handleClear}>Clear</Button> */}
                         </Grid2>
                     }

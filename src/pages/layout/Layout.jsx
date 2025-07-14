@@ -45,7 +45,7 @@ const Layout = () => {
           <Box>
             <img height={50} src={logo} alt="logo" />
           </Box>
-          <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',gap:'10px'}}>
+          <Box sx={{display:'flex',justifyContent:'center',alignItems:'center',gap:'12px'}}>
             <Avatar sx={{textTransform:'uppercase'}} src={tokenDecode?.profile} alt={tokenDecode?.name.charAt(0)} />
             <Box sx={{height:'auto',width:'auto',lineHeight:'20px',textTransform:'capitalize'}}>
               <Typography variant='p' component='div' sx={{color:'black',fontSize:'19px'}}>{tokenDecode?.name} |<span style={{color:'gray',fontSize:'16px'}}> {tokenDecode?.role}</span></Typography>
@@ -63,7 +63,7 @@ const Layout = () => {
           flexGrow: 1,
           display: 'flex',
           flexDirection: 'column',
-          height: '100vh',
+          minHeight: '100vh',
           backgroundColor: '#fafafa',
           overflowY: 'auto',
         }}
