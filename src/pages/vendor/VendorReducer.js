@@ -55,7 +55,6 @@ export const vendorReducer = createSlice({
             state.success = action.payload?.success
         })
         builder.addCase(modifyVendor.rejected, (state, action) => {
-            console.log(action.payload)
             state.loader = false
             state.message = action.payload?.message
             state.success = action.payload?.success

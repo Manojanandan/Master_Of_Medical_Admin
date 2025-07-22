@@ -36,8 +36,6 @@ const VendorView = () => {
     }, [sessionStorage.getItem("vendorId")])
 
     useEffect(() => {
-        console.log(message);
-
         if (message !== "" && message !== undefined) {
             setOpenSnackbar(true)
         }

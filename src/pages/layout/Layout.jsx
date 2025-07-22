@@ -15,8 +15,6 @@ import { jwtDecode } from "jwt-decode";
 
 const Layout = () => {
   const tokenDecode = jwtDecode(sessionStorage.getItem("jwt"))
-  console.log(tokenDecode)
-
   return (
     <Box
       sx={{

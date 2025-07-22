@@ -19,7 +19,6 @@ const AdminView = () => {
 
     }, [sessionStorage.getItem("adminId")])
 
-    console.log(adminOneData);
 
     return (
         <div>

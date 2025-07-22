@@ -23,7 +23,6 @@ const CustomerView = () => {
       dispatch(getOneCustomer(sessionStorage.getItem("customerId")))
     }
   }, [sessionStorage.getItem("customerId")])
-  console.log(listOneCustomer);
 
   return (
     <div>

@@ -41,28 +41,22 @@ const TestimonialsEntry = () => {
 
     const resolveImagePath = () => {
         if (!getData?.image) {
-            console.log('No image found in getData');
             return null;
         }
 
         let imagePath = getData.image;
-        console.log('Raw imagePath:', imagePath); // ✅ check what exactly it contains
 
         if (Array.isArray(imagePath) && imagePath.length > 0) {
             imagePath = imagePath[0];
-            console.log('First image from array:', imagePath);
         } else if (typeof imagePath === 'object' && imagePath?.path) {
             imagePath = imagePath.path;
-            console.log('Extracted path from object:', imagePath);
         }
 
         if (typeof imagePath === 'string') {
             const fullPath = imagePath.startsWith('http') ? imagePath : `http://luxcycs.com:5500/${imagePath}`;
-            console.log('Final image path:', fullPath);
             return fullPath;
         }
 
-        console.log('Image path is not a string:', imagePath);
         return null;
     };
 

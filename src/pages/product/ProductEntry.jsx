@@ -48,7 +48,6 @@ const ProductEntry = () => {
     if (getOneData?.data && mode !== "Add") {
       const data = getOneData?.data
       const additional = JSON.parse(getOneData?.data?.additionalInformation)
-      console.log(additional);
 
       setAllData({
         ...errorMsg,
@@ -267,7 +266,6 @@ const ProductEntry = () => {
 
     }
   }
-  console.log(allData.postedBy);
 
   return (
     <div>

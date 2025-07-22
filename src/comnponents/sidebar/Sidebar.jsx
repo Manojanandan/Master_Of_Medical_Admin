@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Collapse,
@@ -7,61 +7,60 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar
-} from '@mui/material';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
-import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
-import WebIcon from '@mui/icons-material/Web';
-import HomeIcon from '@mui/icons-material/Home';
-import SupportIcon from '@mui/icons-material/Support';
-import ViewListIcon from '@mui/icons-material/ViewList';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import BiotechIcon from '@mui/icons-material/Biotech';
-import ExitToApp from '@mui/icons-material/ExitToApp';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import { useLocation, useNavigate } from 'react-router-dom';
-import StorefrontIcon from '@mui/icons-material/Storefront';
-import { useAuth } from '../../pages/routes/AuthContext';
-import Modal from '../modal/Modal';
-
+  Toolbar,
+} from "@mui/material";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
+import ProductionQuantityLimitsIcon from "@mui/icons-material/ProductionQuantityLimits";
+import WebIcon from "@mui/icons-material/Web";
+import HomeIcon from "@mui/icons-material/Home";
+import SupportIcon from "@mui/icons-material/Support";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import BiotechIcon from "@mui/icons-material/Biotech";
+import ExitToApp from "@mui/icons-material/ExitToApp";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import { useLocation, useNavigate } from "react-router-dom";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import { useAuth } from "../../pages/routes/AuthContext";
+import Modal from "../modal/Modal";
 
 const drawerWidth = 300;
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedMenu, setSelectedMenu] = useState('');
+  const [selectedMenu, setSelectedMenu] = useState("");
   const [openMenus, setOpenMenus] = useState({});
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { logout } = useAuth();
 
   const menuList = [
     {
-      menuName: 'Dashboard',
-      pageUrl: '/dashboard',
-      icon: <HomeIcon />
+      menuName: "Dashboard",
+      pageUrl: "/dashboard",
+      icon: <HomeIcon />,
     },
     {
-      menuName: 'Customer',
-      pageUrl: '/customer',
-      icon: <SupportAgentIcon />
+      menuName: "Customer",
+      pageUrl: "/customer",
+      icon: <SupportAgentIcon />,
     },
     {
-      menuName: 'Vendors',
-      pageUrl: '/vendor',
-      icon: <StorefrontIcon />
+      menuName: "Vendors",
+      pageUrl: "/vendor",
+      icon: <StorefrontIcon />,
     },
     {
-      menuName: 'Products',
-      pageUrl: '/productmanagement',
-      icon: <ProductionQuantityLimitsIcon />
+      menuName: "Products",
+      pageUrl: "/productmanagement",
+      icon: <ProductionQuantityLimitsIcon />,
     },
     {
-      menuName: 'Orders',
+      menuName: "Orders",
       icon: <DeliveryDiningIcon />,
-      pageUrl: '/orders',
+      pageUrl: "/orders",
       // submenu: [
       //   {
       //     menuName: 'Order List',
@@ -76,19 +75,19 @@ const Sidebar = () => {
       // ]
     },
     {
-      menuName: 'Blog',
-      pageUrl: '/blog',
-      icon: <WebIcon />
+      menuName: "Blog",
+      pageUrl: "/blog",
+      icon: <WebIcon />,
     },
     {
-      menuName: 'Support',
-      pageUrl: '/support',
-      icon: <SupportIcon />
+      menuName: "Support",
+      pageUrl: "/support",
+      icon: <SupportIcon />,
     },
     {
-      menuName: 'Testimonials',
+      menuName: "Testimonials",
       icon: <BiotechIcon />,
-      pageUrl: '/testimonials',
+      pageUrl: "/testimonials",
       // submenu: [
       //   {
       //     menuName: 'All Testimonials',
@@ -98,9 +97,9 @@ const Sidebar = () => {
       // ]
     },
     {
-      menuName: 'Admin Users',
-      pageUrl: '/adminUser',
-      icon: <AdminPanelSettingsIcon />
+      menuName: "Admin Users",
+      pageUrl: "/adminUser",
+      icon: <AdminPanelSettingsIcon />,
     },
   ];
 
@@ -125,7 +124,7 @@ const Sidebar = () => {
   const handleMenuChange = (item) => {
     if (item.submenu) {
       setOpenMenus({
-        [item.menuName]: !openMenus[item.menuName]
+        [item.menuName]: !openMenus[item.menuName],
       });
     } else {
       navigate(item.pageUrl);
@@ -140,7 +139,6 @@ const Sidebar = () => {
     setOpenMenus((prev) => ({ ...prev, [parentMenuName]: true }));
   };
 
-
   return (
     <React.Fragment>
       <Drawer
@@ -150,14 +148,36 @@ const Sidebar = () => {
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: {
             width: drawerWidth,
-            boxSizing: 'border-box',
-            backgroundColor: '#000000',
-            color: '#fff',
+            boxSizing: "border-box",
+            backgroundColor: "#000000",
+            color: "#fff",
           },
         }}
       >
         <Toolbar />
-        <Box sx={{ overflow: 'auto', p: 2 }}>
+        <Box
+          sx={{
+            overflowY: "auto",
+            p: 2,
+            height: `calc(100vh - 64px)`,
+            scrollbarWidth: "thin",
+            scrollbarColor: "#555 #000",
+            "&::-webkit-scrollbar": {
+              width: "8px",
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#000",
+              borderRadius: "10px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#555",
+              borderRadius: "10px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: "#888",
+            },
+          }}
+        >
           <List>
             {menuList.map((item, index) => {
               const isItemSelected = selectedMenu === item.menuName;
@@ -168,32 +188,38 @@ const Sidebar = () => {
                   <ListItemButton
                     onClick={() => handleMenuChange(item)}
                     sx={{
-                      '&:hover': {
-                        backgroundColor: '#1e1e1e',
-                        color: '#fff',
-                        borderRadius: '10px'
+                      "&:hover": {
+                        backgroundColor: "#1e1e1e",
+                        color: "#fff",
+                        borderRadius: "10px",
                       },
                       mb: 1,
-                      backgroundColor: isItemSelected ? '#1e1e1e' : 'transparent',
-                      borderRadius: '10px'
+                      backgroundColor: isItemSelected
+                        ? "#1e1e1e"
+                        : "transparent",
+                      borderRadius: "10px",
                     }}
                   >
-                    <ListItemIcon sx={{ color: isItemSelected ? '#fff' : '#bdb9b0' }}>{item.icon}</ListItemIcon>
+                    <ListItemIcon
+                      sx={{ color: isItemSelected ? "#fff" : "#bdb9b0" }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
                     <ListItemText
                       primary={item.menuName}
                       primaryTypographyProps={{
                         sx: {
-                          color: isItemSelected ? '#fff' : '#bdb9b0',
-                          fontSize: '1.1rem',
-                          fontWeight: 500
-                        }
+                          color: isItemSelected ? "#fff" : "#bdb9b0",
+                          fontSize: "1.1rem",
+                          fontWeight: 500,
+                        },
                       }}
                     />
                     {item.submenu &&
                       (isMenuOpen ? (
-                        <KeyboardArrowDownIcon sx={{ color: '#bdb9b0' }} />
+                        <KeyboardArrowDownIcon sx={{ color: "#bdb9b0" }} />
                       ) : (
-                        <KeyboardArrowRightIcon sx={{ color: '#bdb9b0' }} />
+                        <KeyboardArrowRightIcon sx={{ color: "#bdb9b0" }} />
                       ))}
                   </ListItemButton>
 
@@ -202,33 +228,44 @@ const Sidebar = () => {
                     <Collapse in={isMenuOpen} timeout="auto" unmountOnExit>
                       <List component="div" disablePadding>
                         {item.submenu.map((subItem, subIndex) => {
-                          const isSubItemSelected = selectedMenu === subItem.menuName;
+                          const isSubItemSelected =
+                            selectedMenu === subItem.menuName;
                           return (
                             <ListItemButton
                               key={subItem.menuName}
-                              onClick={() => handleSubmenuClick(subItem, item.menuName)}
+                              onClick={() =>
+                                handleSubmenuClick(subItem, item.menuName)
+                              }
                               sx={{
                                 pl: 4,
                                 mb: 1,
-                                backgroundColor: isSubItemSelected ? '#1e1e1e' : 'transparent',
-                                borderRadius: '10px',
-                                '&:hover': {
-                                  backgroundColor: '#1e1e1e',
-                                  color: '#fff'
-                                }
+                                backgroundColor: isSubItemSelected
+                                  ? "#1e1e1e"
+                                  : "transparent",
+                                borderRadius: "10px",
+                                "&:hover": {
+                                  backgroundColor: "#1e1e1e",
+                                  color: "#fff",
+                                },
                               }}
                             >
-                              <ListItemIcon sx={{ color: isSubItemSelected ? '#fff' : '#bdb9b0' }}>
+                              <ListItemIcon
+                                sx={{
+                                  color: isSubItemSelected ? "#fff" : "#bdb9b0",
+                                }}
+                              >
                                 {subItem.icon}
                               </ListItemIcon>
                               <ListItemText
                                 primary={subItem.menuName}
                                 primaryTypographyProps={{
                                   sx: {
-                                    color: isSubItemSelected ? '#fff' : '#bdb9b0',
-                                    fontSize: '1.1rem',
-                                    fontWeight: 500
-                                  }
+                                    color: isSubItemSelected
+                                      ? "#fff"
+                                      : "#bdb9b0",
+                                    fontSize: "1.1rem",
+                                    fontWeight: 500,
+                                  },
                                 }}
                               />
                             </ListItemButton>
@@ -241,26 +278,31 @@ const Sidebar = () => {
               );
             })}
           </List>
-          <List sx={{ marginTop: '15%' }} onClick={() => setDialogOpen(!dialogOpen)}>
+          <List
+            sx={{ marginTop: "15%" }}
+            onClick={() => setDialogOpen(!dialogOpen)}
+          >
             <ListItemButton
               sx={{
-                '&:hover': {
-                  backgroundColor: '#1e1e1e',
-                  color: '#fff',
-                  borderRadius: '10px'
+                "&:hover": {
+                  backgroundColor: "#1e1e1e",
+                  color: "#fff",
+                  borderRadius: "10px",
                 },
                 mb: 1,
               }}
             >
-              <ListItemIcon sx={{ color: '#bdb9b0' }}><ExitToApp /></ListItemIcon>
+              <ListItemIcon sx={{ color: "#bdb9b0" }}>
+                <ExitToApp />
+              </ListItemIcon>
               <ListItemText
-                primary='Logout'
+                primary="Logout"
                 primaryTypographyProps={{
                   sx: {
-                    color: '#bdb9b0',
-                    fontSize: '1.1rem',
-                    fontWeight: 500
-                  }
+                    color: "#bdb9b0",
+                    fontSize: "1.1rem",
+                    fontWeight: 500,
+                  },
                 }}
               />
             </ListItemButton>
@@ -293,9 +335,14 @@ const Sidebar = () => {
           </List>
         </Box> */}
       </Drawer>
-      <Modal open={dialogOpen} close={() => setDialogOpen(!dialogOpen)} content={"Are you sure you want to logout this application."} success={logout} />
+      <Modal
+        open={dialogOpen}
+        close={() => setDialogOpen(!dialogOpen)}
+        content={"Are you sure you want to logout this application."}
+        success={logout}
+      />
     </React.Fragment>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

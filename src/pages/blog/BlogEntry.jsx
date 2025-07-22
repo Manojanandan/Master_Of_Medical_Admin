@@ -131,9 +131,7 @@ const BlogEntry = () => {
         }
     }, [getOneData])
 
-    const handleSubmit = () => {
-      console.log(featureImage);
-      
+    const handleSubmit = () => {      
         if (title === "") {
             setErrorMsg({ ...errorMsg, title: "Blog Title is required" })
         } else if (author === "") {

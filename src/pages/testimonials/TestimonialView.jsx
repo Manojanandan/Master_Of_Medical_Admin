@@ -23,7 +23,6 @@ const TestimonialView = () => {
             dispatch(getOneDataTestimonial(sessionStorage.getItem("testimonialId")))
         }
     }, [sessionStorage.getItem("testimonialId")])
-    console.log(getOneData);
 
     return (
         <div>
