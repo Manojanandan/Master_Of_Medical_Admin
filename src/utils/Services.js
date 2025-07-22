@@ -74,6 +74,18 @@ export const updateProduct = async (data) => {
     data
   );
 };
+export const deleteProduct = async (data) => {
+  return await instance.delete(
+    `product/delete-product/${data}`,
+    data
+  );
+};
+export const categoryList = async () =>{
+  return await instance.get("product/get-all-catagory")
+}
+export const subCategoryList = async (id) =>{
+  return await instance.get(`product/get-all-sub-catagory/${id}`)
+}
 
 //Admin User
 export const getAllAdminUser = async (id, data) => {

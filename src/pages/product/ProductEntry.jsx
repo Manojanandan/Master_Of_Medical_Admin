@@ -6,7 +6,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import AddIcon from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux'
-import { addProduct, editProduct, getOneProductList } from './ProductReducer'
+import { addProduct, editProduct, getCategory, getOneProductList, getSubCategory } from './ProductReducer'
 import EditIcon from '@mui/icons-material/Edit';
 import { getVendor } from '../vendor/VendorReducer'
 import { categoryList, subCategoryList } from '../../utils/helpers'
@@ -21,27 +21,34 @@ const ProductEntry = () => {
   const productImagesInputRef = useRef()
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [vendors, setVendors] = useState([]);
-  const [allData, setAllData] = useState({ category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "India", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "", status: "pending", bulkDiscount: "", rejectedReason: "" })
-  const [errorMsg, setErrorMsg] = useState({ categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "" })
+  const [allData, setAllData] = useState({ category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "India", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "", status: "pending", bulkDiscount: "", rejectedReason: "", mrpPrice: "", sellingPrice: "", mediguardDetails: "" })
+  const [errorMsg, setErrorMsg] = useState({ categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "", mrpPriceError: "", sellingPriceError: "", mediguardDetailsError: "" })
   const mode = sessionStorage.getItem("Mode")
 
   const reducer = useSelector((state) => state.productReducer)
   const vendorReducer = useSelector((state) => state.vendorReducer)
   const { listOfVendor } = vendorReducer
-  const { loader, successMsg, success, getOneData } = reducer
+  const { loader, successMsg, success, getOneData, categoryData, subCategoryData } = reducer
 
   useEffect(() => {
-    // Simulate fetching and attaching unique tempId
-    const processedVendors = listOfVendor?.data?.map((vendor, index) => ({
+    const processedVendors = listOfVendor?.rows?.map((vendor, index) => ({
       ...vendor,
-      tempId: `${vendor.name}_${index}` // Create unique temp ID
+      tempId: `${vendor.name}_${index}`
     }));
     setVendors(processedVendors);
   }, [listOfVendor]);
 
+  useEffect(() => {
+    dispatch(getCategory());
+  }, [])
+  useEffect(() => {
+    if (category !== "") {
+      dispatch(getSubCategory(allData?.category));
+    }
+  }, [allData?.category]);
 
   useEffect(() => {
-    dispatch(getVendor())
+    dispatch(getVendor(`?allVendors=true`))
   }, [])
 
   useEffect(() => {
@@ -66,12 +73,25 @@ const ProductEntry = () => {
 
   }, [sessionStorage.getItem("productId")])
 
+  useEffect(() => {
+    if (success) {
+      setOpenSnackbar(true)
+      navigate('/productmanagement')
+      setAllData({ ...allData, category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "", status: "pending" })
+      setErrorMsg({ ...errorMsg, categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "" })
+      setThumbnail(null)
+      setProductImages([])
+      sessionStorage.removeItem("productId")
+      sessionStorage.removeItem("Mode")
+    }
+  }, [success])
+
   const handleProductImagesChange = (e) => {
     const files = Array.from(e.target.files);
     setProductImages((prev) => {
       // Combine previous and new, filter images and pdfs, max 5, max 5MB each
       const all = [...prev, ...files];
-      const valid = all.filter((file, idx, arr) => {
+      const valid = all?.filter((file, idx, arr) => {
         // If file is a string (URL from API), keep it
         if (typeof file === 'string') return arr.findIndex(f => f === file) === idx;
         // If file is a File object, check type and size
@@ -98,7 +118,7 @@ const ProductEntry = () => {
     const files = Array.from(e.dataTransfer.files);
     setProductImages((prev) => {
       const all = [...prev, ...files];
-      const valid = all.filter(
+      const valid = all?.filter(
         (file, idx, arr) =>
           (file.type.startsWith('image/') || file.type === 'application/pdf') &&
           file.size <= 5 * 1024 * 1024 &&
@@ -138,13 +158,16 @@ const ProductEntry = () => {
     if (e.target.id === "priceLabel") {
       setErrorMsg({ ...errorMsg, priceLabelError: "" })
     }
+    if (e.target.id === "productDescription") {
+      setErrorMsg({ ...errorMsg, productDescriptionError: "" })
+    }
     if (e.target.id === "shelfLife") {
       setErrorMsg({ ...errorMsg, shelfLifeError: "" })
     }
     if (e.target.id === "brandName") {
       setErrorMsg({ ...errorMsg, brandNameError: "" })
     }
-    if (e.target.id === "expiresAfter") {
+    if (e.target.id === "expireAfter") {
       setErrorMsg({ ...errorMsg, expireAfterError: "" })
     }
     if (e.target.id === "country") {
@@ -162,10 +185,13 @@ const ProductEntry = () => {
     if (e.target.id === "manufacturerDetails") {
       setErrorMsg({ ...errorMsg, manufacturerDetailsError: "" })
     }
+    if (e.target.id === "mediguardDetails") {
+      setErrorMsg({ ...errorMsg, mediguardDetailsError: "" })
+    }
   }
   const handleDropDownChange = (e) => {
     setAllData({ ...allData, [e.target.name]: e.target.value })
-      
+
     if (e.target.value === "") {
       setAllData({ ...allData, subCategory: "" })
     }
@@ -180,25 +206,29 @@ const ProductEntry = () => {
     }
   }
   const handlePostedByChange = (fieldName, value) => {
-    setAllData({ ...allData, [fieldName]: value?.name })
+    setAllData({ ...allData, [fieldName]: value?.id })
     if (fieldName === "postedBy") {
       setErrorMsg({ ...errorMsg, postedByError: "" })
     }
   }
 
   const handleSubmit = () => {
+    console.log(allData?.postedBy);
+
     if (allData?.category === "") {
       setErrorMsg({ ...errorMsg, categoryError: "Category is required" })
     } else if (allData?.subCategory === "") {
       setErrorMsg({ ...errorMsg, subCategoryError: "Sub Category is required" })
     } else if (allData?.productName === "") {
       setErrorMsg({ ...errorMsg, productNameError: "Product Name is required" })
-    } else if (allData?.postedBy === "") {
+    } else if (!allData?.postedBy) {
       setErrorMsg({ ...errorMsg, postedByError: "Vendor Id is required" })
     } else if (allData?.price === "") {
       setErrorMsg({ ...errorMsg, priceError: "Price is required" })
     } else if (allData?.priceLabel === "") {
       setErrorMsg({ ...errorMsg, priceLabelError: "Price Label is required" })
+    } else if (allData?.productDescription === "") {
+      setErrorMsg({ ...errorMsg, productDescriptionError: "Description is required" })
     } else if (allData?.shelfLife === "") {
       setErrorMsg({ ...errorMsg, shelfLifeError: "Shelf Life is required" })
     } else if (allData?.brandName === "") {
@@ -207,8 +237,14 @@ const ProductEntry = () => {
       setErrorMsg({ ...errorMsg, expireAfterError: "Expires After is required" })
     } else if (allData?.country === "") {
       setErrorMsg({ ...errorMsg, countryError: "Country is required" })
-    } else if (allData?.manufacturerDetails === "") {
+    }
+    // else if (allData?.sellingPrice === "") {
+    //   setErrorMsg({ ...errorMsg, sellingPriceError: "Selling Price is required" })
+    // } 
+    else if (allData?.manufacturerDetails === "") {
       setErrorMsg({ ...errorMsg, manufacturerDetailsError: "Manufacturer details is required" })
+    } else if (allData?.mediguardDetails === "") {
+      setErrorMsg({ ...errorMsg, mediguardDetailsError: "Mediguard details is required" })
     } else if (!thumbnail) {
       setErrorMsg({ ...errorMsg, thumbNailErrorMsg: "Thumnail is required" })
     } else if (productImages?.length === 0) {
@@ -221,19 +257,22 @@ const ProductEntry = () => {
         howToUse: allData?.uses,
         sideEffects: allData?.sideEffects,
         manufacturer: allData?.manufacturerDetails,
+        category: allData?.category,
+        mediguardDetails: allData?.mediguardDetails,
+        bulkDiscount: allData?.bulkDiscount,
+        mrpPrice: allData?.mrpPrice
       };
       const formData = new FormData()
       formData.append('name', allData?.productName);
       formData.append('description', allData?.productDescription);
-      formData.append('category', allData?.category);
-      formData.append('subCategory', allData?.subCategory);
+      formData.append('subCategoryId', allData?.subCategory);
       formData.append('postedBy', allData.postedBy);
       formData.append('price', allData.price);
       formData.append('priceLable', allData.priceLabel);
       formData.append('brandName', allData.brandName);
-      formData.append('benefits', allData.benefits);
+      formData.append('benefits', allData.benefits ?? '-');
       formData.append('expiresOn', allData.expireAfter);
-      formData.append('status', allData.status);
+      // formData.append('status', allData.status);
 
       formData.append('additionalInformation', JSON.stringify(productData));
       // Handle files
@@ -251,17 +290,6 @@ const ProductEntry = () => {
         dispatch(addProduct(formData))
       } else {
         dispatch(editProduct(formData))
-      }
-
-      if (success) {
-        setOpenSnackbar(true)
-        navigate('/productmanagement')
-        setAllData({ ...allData, category: "", subCategory: "", productName: "", price: "", priceLabel: "", postedBy: "", productDescription: "", shelfLife: "", brandName: "", expireAfter: "", country: "", uses: "", benefits: "", sideEffects: "", manufacturerDetails: "", status: "pending" })
-        setErrorMsg({ ...errorMsg, categoryError: "", subCategoryError: "", productNameError: "", priceError: "", postedByError: "", priceLabelError: "", productDescriptionError: "", shelfLifeError: "", brandNameError: "", expireAfterError: "", countryError: "", usesError: "", benefitsError: "", sideEffectsError: "", manufacturerDetailsError: "", thumbNailErrorMsg: "", productImageErrorMsg: "" })
-        setThumbnail(null)
-        setProductImages([])
-        sessionStorage.removeItem("productId")
-        sessionStorage.removeItem("Mode")
       }
 
     }
@@ -301,8 +329,8 @@ const ProductEntry = () => {
               disabled={mode == "View" ? true : false}
             >
               <MenuItem value="">Select Category</MenuItem>
-              {categoryList?.map((e, key) => {
-                return (<MenuItem key={key} value={e?.value}>{e?.label}</MenuItem>)
+              {categoryData?.data?.map((e, key) => {
+                return (<MenuItem key={key} value={e?.id}>{e?.name}</MenuItem>)
               })}
             </Select>
             {errorMsg?.categoryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.categoryError}</Typography>}
@@ -320,8 +348,8 @@ const ProductEntry = () => {
               displayEmpty
             >
               <MenuItem value="" disabled>Select Subcategory</MenuItem>
-              {allData?.category && subCategoryList[allData?.category]?.map((opt, key) => {
-                return (<MenuItem key={key} value={opt.value} >{opt.label}</MenuItem>)
+              {subCategoryData?.data?.map((opt, key) => {
+                return (<MenuItem key={key} value={opt.id} >{opt.name}</MenuItem>)
               })}
             </Select>
             {errorMsg?.subCategoryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.subCategoryError}</Typography>}
@@ -379,7 +407,7 @@ const ProductEntry = () => {
 
           </Grid>
           <Grid item xs={12}>
-            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Product Description</Typography>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Product Description<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
             <TextareaAutosize
               id='productDescription'
               value={allData?.productDescription}
@@ -389,6 +417,7 @@ const ProductEntry = () => {
               onChange={handleChange}
               disabled={mode == "View" ? true : false}
             />
+            {errorMsg?.productDescriptionError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.productDescriptionError}</Typography>}
           </Grid>
           <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Shelf Life<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
@@ -409,11 +438,11 @@ const ProductEntry = () => {
 
           </Grid>
           <Grid item xs={4}>
-            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Country of Origin<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Country or Origin<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
             <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='country' value={allData?.country} placeholder='Country of Origin' disabled />
             {errorMsg?.countryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.countryError}</Typography>}
           </Grid>
-          <Grid item xs={4}>
+          {/* <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Status</Typography>
             <Select
               id="status"
@@ -430,23 +459,24 @@ const ProductEntry = () => {
               <MenuItem value="approved">Approved</MenuItem>
               <MenuItem value="rejected">Rejected</MenuItem>
             </Select>
-          </Grid>
+          </Grid> */}
           <Grid item xs={4}>
-            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Bulk Discount<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Bulk Discount</Typography>
             <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='bulkDiscount' value={allData?.bulkDiscount} placeholder='Discount Offers' />
           </Grid>
           <Grid item xs={4}>
-            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>MRP price<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>MRP price</Typography>
             <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='mrpPrice' value={allData?.mrpPrice} placeholder='MRP Price' />
           </Grid>
-          <Grid item xs={4}>
+          {/*   <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Selling Price<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
             <TextField disabled={mode == "View" ? true : false} onChange={handleChange} fullWidth size='small' id='sellingPrice' value={allData?.sellingPrice} placeholder='Selling Price' />
-          </Grid>
-          <Grid item xs={4}>
+            {errorMsg?.sellingPriceError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.sellingPriceError}</Typography>}
+          </Grid> */}
+          {/* <Grid item xs={4}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Rating<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
-            <Rating size='large' name="rating" defaultValue={2.5} precision={0.5} sx={{marginTop:'5px'}} />
-          </Grid>
+            <Rating size='large' name="rating" defaultValue={2.5} precision={0.5} sx={{ marginTop: '5px' }} />
+          </Grid> */}
           {allData?.status === "rejected" &&
             <Grid item xs={12}>
               <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Rejected Reason<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
@@ -462,7 +492,7 @@ const ProductEntry = () => {
             </Grid>
           }
           <Grid item xs={12}>
-            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>How to Use<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>How to Use</Typography>
             <TextareaAutosize
               id='uses'
               value={allData?.uses}
@@ -486,7 +516,7 @@ const ProductEntry = () => {
             />
           </Grid>
           <Grid item xs={12}>
-            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Side Effects<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
+            <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Side Effects</Typography>
             <TextareaAutosize
               id='sideEffects'
               value={allData?.sideEffects}
@@ -512,15 +542,15 @@ const ProductEntry = () => {
           <Grid item xs={12}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Mediguard Essentials<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
             <TextareaAutosize
-              id='manufacturerDetails'
-              value={allData?.manufacturerDetails}
+              id='mediguardDetails'
+              value={allData?.mediguardDetails}
               style={{ width: '100%', fontSize: '16px', padding: '15px 20px 0', backgroundColor: '#f8fafc' }}
               maxRows={4}
               minRows={3}
               onChange={handleChange}
               disabled={mode == "View" ? true : false}
             />
-            {errorMsg?.manufacturerDetailsError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.manufacturerDetailsError}</Typography>}
+            {errorMsg?.mediguardDetailsError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.mediguardDetailsError}</Typography>}
           </Grid>
           <Grid item xs={12}>
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Product Thumbnail<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>

@@ -25,6 +25,7 @@ import Order from './pages/orders/Order'
 import SupportList from './pages/support/SupportList';
 import SupportView from './pages/support/SupportView';
 import OrderView from './pages/orders/OrderView';
+import ProductView from './pages/product/ProductView';
 
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/productmanagement" element={<Product />} />
           <Route path="/productmanagemententry" element={<ProductEntry />} />
+          <Route path='/productview' element={<ProductView />}  />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blogentry" element={<BlogEntry />} />
           <Route path='/blogview' element={<BlogView />} />

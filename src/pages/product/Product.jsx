@@ -6,8 +6,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import CommonTable from '../../comnponents/table/CommonTable';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProductList } from './ProductReducer';
-import { categoryList, subCategoryList } from '../../utils/helpers';
+import { getCategory, getProductList, getSubCategory, removeProduct } from './ProductReducer';
+import Modal from "../../comnponents/modal/Modal"
 
 const Product = () => {
   const navigate = useNavigate();
@@ -18,21 +18,32 @@ const Product = () => {
   const [subCategory, setSubCategory] = useState([]);
   const [status, setStatus] = useState('all');
   const [page, setPage] = useState(1);
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const reducer = useSelector((state) => state.productReducer);
-  const { loader, getProduct } = reducer;
+  const { loader, getProduct, categoryData, subCategoryData } = reducer;
+
+  useEffect(() => {
+    dispatch(getCategory());
+  }, [])
+  useEffect(() => {
+    if (category !== "") {
+      dispatch(getSubCategory(category));
+    }
+  }, [category]);
 
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
   }, [name, subCategory, status]);
+  console.log(subCategory);
 
   // Load data on filter change or page change
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       let query = `?page=${page}&limit=7`;
       if (name) query += `&name=${name}`;
-      if (subCategory?.length > 0) query += `&subCategory=${subCategory}`;
+      if (subCategory !== "") query += `&subCategory=${subCategory}`;
       if (status && status !== 'all') query += `&status=${status}`;
       dispatch(getProductList(query));
     }, 500);
@@ -51,6 +62,7 @@ const Product = () => {
 
 
   const rows = getProduct?.data?.map((e) => ({
+    id: e?.id,
     thumbnailImage: e?.thumbnailImage,
     name: e?.name,
     category: e?.category,
@@ -62,10 +74,10 @@ const Product = () => {
     setPage(value);
   };
 
-  const handleView = (e) => {
+  const handleView = (e) => { 
     sessionStorage.setItem("productId", e?.id);
     sessionStorage.setItem("Mode", "View");
-    navigate('/productmanagemententry');
+    navigate('/productview');
   };
 
   const handleEdit = (e) => {
@@ -73,6 +85,16 @@ const Product = () => {
     sessionStorage.setItem("Mode", "Edit");
     navigate('/productmanagemententry');
   };
+
+
+  const handleDelete = (e) => {
+    setDialogOpen(!dialogOpen)
+    sessionStorage.setItem("tempRow", e?.id)
+  }
+  const deleteProduct = () => {
+    setDialogOpen(!dialogOpen)
+    dispatch(removeProduct(sessionStorage.getItem("tempRow")))
+  }
 
   const handleDropDownChange = (e) => {
     setCategory(e.target.value)
@@ -138,8 +160,8 @@ const Product = () => {
               displayEmpty
             >
               <MenuItem value="">Select Category</MenuItem>
-              {categoryList?.map((e, key) => {
-                return (<MenuItem key={key} value={e?.value}>{e?.label}</MenuItem>)
+              {categoryData?.data?.map((e, key) => {
+                return (<MenuItem key={key} value={e?.id}>{e?.name}</MenuItem>)
               })}
             </Select>
           </Grid2>
@@ -167,8 +189,8 @@ const Product = () => {
               }}
             >
               <MenuItem value="" disabled>Select Subcategory</MenuItem>
-              {category && subCategoryList[category]?.map((opt, key) => {
-                return (<MenuItem key={key} value={opt.value} >{opt.label}</MenuItem>)
+              {subCategoryData?.data?.map((opt, key) => {
+                return (<MenuItem key={key} value={opt.id} >{opt.name}</MenuItem>)
               })}
             </Select>
           </Grid2>
@@ -198,10 +220,11 @@ const Product = () => {
         handlePageChange={handlePageChange}
         page={page}
         count={getProduct?.pagination?.totalPages || 1}
-        handleView={handleView}
+        handleView={(data) => handleView(data)}
         handleEdit={handleEdit}
         handleDelete={(data) => handleDelete(data)}
       />
+      <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteProduct} content={"Are you sure you want to delete this product."} />
     </div>
   );
 };
