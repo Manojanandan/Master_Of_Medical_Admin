@@ -9,16 +9,16 @@ const Modal = ({content,open,close,success}) => {
         // onClose={() => setDialogOpen(!dialogOpen)}
         >
             <DialogTitle sx={{ color: 'red', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CancelIcon sx={{ fontSize: '2rem' }} /> Warning
+                <CancelIcon sx={{ fontSize: '1.6rem' }} /> Warning
             </DialogTitle>
             <DialogContent>
-                <DialogContentText sx={{ color: 'black', fontSize: '18px' }}>
+                <DialogContentText sx={{ color: 'black', fontSize: '16px' }}>
                     {content}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button variant='contained' onClick={close} sx={{ backgroundColor: '#2424', fontWeight: 'bold', textTransform: 'capitalize', color: '#fffff', fontSize: '17px', mr: 1 }}>No</Button>
-                <Button variant='contained' onClick={success} autoFocus sx={{ backgroundColor: '#06a094', fontWeight: 'bold', textTransform: 'capitalize', color: '#ffffff', fontSize: '17px', mx: 2, }}>
+                <Button variant='contained' onClick={close} sx={{ backgroundColor: '#2424', fontWeight: 'bold', textTransform: 'capitalize', color: '#fffff', fontSize: '16px', mr: 1,p: 0 }}>No</Button>
+                <Button variant='contained' onClick={success} autoFocus sx={{ backgroundColor: '#06a094', fontWeight: 'bold', textTransform: 'capitalize', color: '#ffffff', fontSize: '16px', mx: 2, p: 0 }}>
                     Yes
                 </Button>
             </DialogActions>

@@ -8,6 +8,7 @@ import {
     Grid,
     IconButton,
     InputAdornment,
+    Paper,
     Snackbar,
     TextField,
     Typography,
@@ -75,7 +76,7 @@ const Login = () => {
 
 
     return (
-        <Box sx={{ minHeight: '100vh', backgroundColor: '#f2f3f5', padding: '8% 0' }}>
+        <Box sx={{ height: '100vh', backgroundColor: '#f2f3f5', padding: '8% 0',display:'flex',justifyContent:'center',alignItems:'center' }}>
             <Backdrop sx={{ color: '#fff', zIndex: theme => theme.zIndex.drawer + 1 }} open={loader}>
                 <CircularProgress color="secondary" />
             </Backdrop>
@@ -91,7 +92,7 @@ const Login = () => {
                 </Alert>
             </Snackbar>}
 
-            <Box sx={{ backgroundColor: '#fff', borderRadius: '15px', width: '35%', margin: '4% auto', padding: '2rem' }}>
+            <Paper elevation={3} sx={{ backgroundColor: '#fff', borderRadius: '15px', width: '35%', margin: '0 auto', padding: '2rem' }}>
                 <Typography align="center" fontSize="1.8rem">Welcome to Admin Portal</Typography>
                 <Typography align="center" fontSize="14px" gutterBottom>To access your admin portal login</Typography>
 
@@ -145,7 +146,7 @@ const Login = () => {
                         </Button>
                     </Grid>
                 </Grid>
-            </Box>
+            </Paper>
         </Box>
     );
 };
