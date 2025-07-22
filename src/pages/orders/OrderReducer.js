@@ -4,6 +4,9 @@ import { getAllOrders } from "../../utils/Services";
 export const listOfAllOrders = createAsyncThunk("Get ALL Orders", async (data) => {
     return await getAllOrders("", data).then((response) => response?.data)
 })
+export const getOrders = createAsyncThunk("Get One Orders", async (data) => {
+    return await getAllOrders(data, "").then((response) => response?.data)
+})
 export const removeOrders = createAsyncThunk("Delete Orders", async (data) => {
     return await deleteOrders(data).then((response) => response?.data)
 })
@@ -12,6 +15,7 @@ export const orderReducer = createSlice({
     name: "orders",
     initialState: {
         getAllOrders: [],
+        getOneOrders: [],
         loader: false,
         success: false,
         message: ""
@@ -30,6 +34,13 @@ export const orderReducer = createSlice({
         builder.addCase(listOfAllOrders.fulfilled, (state, action) => {
             state.loader = false
             state.getAllOrders = action.payload
+        })
+        builder.addCase(getOrders.pending, (state) => {
+            state.loader = true
+        })
+        builder.addCase(getOrders.fulfilled, (state, action) => {
+            state.loader = false
+            state.getOneOrders = action.payload
         })
         builder.addCase(removeOrders.pending, (state) => {
             state.loader = true

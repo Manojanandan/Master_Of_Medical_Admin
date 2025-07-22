@@ -24,6 +24,7 @@ import BlogView from './pages/blog/BlogView';
 import Order from './pages/orders/Order'
 import SupportList from './pages/support/SupportList';
 import SupportView from './pages/support/SupportView';
+import OrderView from './pages/orders/OrderView';
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
           <Route path="/vendor" element={<VendorList />} />
           <Route path="/vendorview" element={<VendorView />} />
           <Route path='/orders' element={<Order />}  />
+          <Route path='/orderview' element={<OrderView />}  />
           <Route path='/support' element={<SupportList />}  />
           <Route path='/supportview' element={<SupportView />}  />
         </Route>

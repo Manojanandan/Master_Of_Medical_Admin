@@ -15,6 +15,7 @@ const SupportList = () => {
     const navigate = useNavigate()
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [status, setStatus] = useState('all')
+    const [name, setName] = useState('')
     const [page, setPage] = useState(1)
 
     const reducer = useSelector((state) => state.supportReducer)
@@ -39,24 +40,25 @@ const SupportList = () => {
         const debounceTimer = setTimeout(() => {
             let query = `?page=${page}&limit=6`;
             if (status && status !== 'all') query += `&status=${status}`;
+            if (name) query += `&name=${name}`;
             dispatch(viewallSupport(query));
         }, 500);
         return () => clearTimeout(debounceTimer);
-    }, [status, page, dispatch]);
+    }, [status, name, page, dispatch]);
 
     const columns = [
-        { datakey: 'id', headerName: 'Order ID', size: 50, align: 'left', },
-        { datakey: 'name', headerName: 'Customer Name', size: 200, },
-        { datakey: 'email', headerName: 'Email', size: 200, },
-        {
-            datakey: 'price',
-            headerName: 'Price',
-            size: 170,
-        },
+        { datakey: 'id', headerName: 'Order ID', size: 110, align: 'left', },
+        { datakey: 'name', headerName: 'Customer Name', size: 250, },
+        { datakey: 'email', headerName: 'Email', size: 250, },
+        // {
+        //     datakey: 'price',
+        //     headerName: 'Price',
+        //     size: 170,
+        // },
         {
             datakey: 'status',
             headerName: 'Status',
-            size: 150,
+            size: 170,
             align: 'left'
         },
         {
@@ -130,7 +132,7 @@ const SupportList = () => {
                             placeholder="Search with name"
                             variant="outlined"
                             value={name}
-                            // onChange={(e) => { setName(e.target.value) }}
+                            onChange={(e) => { setName(e.target.value) }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">

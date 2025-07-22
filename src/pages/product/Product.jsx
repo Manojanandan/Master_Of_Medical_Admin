@@ -43,7 +43,7 @@ const Product = () => {
   const columns = [
     { datakey: 'thumbnailImage', headerName: 'Img', size: 100, align: 'left' },
     { datakey: 'name', headerName: 'Product Name', size: 200 },
-    { datakey: 'price', headerName: 'Price', size: 200, align: 'left' },
+    { datakey: 'price', headerName: 'Price', size: 200, align: 'center' },
     { datakey: 'category', headerName: 'Category', size: 200, align: 'left' },
     { datakey: 'status', headerName: 'Status', size: 150, align: 'left' },
     { datakey: 'actions', headerName: 'Actions', size: 200, align: 'center' },

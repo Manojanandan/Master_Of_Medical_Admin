@@ -5,24 +5,39 @@ import CommonTable from '../../comnponents/table/CommonTable'
 import { useDispatch, useSelector } from 'react-redux'
 import { Backdrop, CircularProgress, Grid2, MenuItem, Select, TextField, Typography, InputAdornment, Box, Autocomplete, Alert, Snackbar } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
-import { stateList } from '../../utils/helpers'
 import { useNavigate } from 'react-router-dom'
 import { listOfAllOrders, removeOrders, resetMessage } from './OrderReducer'
+import { getAllCustomer } from '../customer/CustomerReducer'
 
 const Orders = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [status, setStatus] = useState('all')
+    const [customerName, setCustomerName] = useState('')
+    const [getCustomerList, setCustomerList] = useState([])
     const [page, setPage] = useState(1)
 
     const reducer = useSelector((state) => state.orderReducer)
+    const customerData = useSelector((state) => state.customerReducer)
     const { getAllOrders, loader, message, success } = reducer
-    console.log(getAllOrders);
+    const { listOfCustomer } = customerData
+    console.log(listOfCustomer);
 
     useEffect(() => {
         dispatch(resetMessage())
+        dispatch(getAllCustomer(`?allCustomers=true`));
     }, [])
+console.log(customerName);
+
+      useEffect(() => {
+        // Simulate fetching and attaching unique tempId
+        const processedCustomers = listOfCustomer?.rows?.map((customer, index) => ({
+          ...customer,
+          tempId: `${customer.name}_${index}` // Create unique temp ID
+        }));
+        setCustomerList(processedCustomers);
+      }, [listOfCustomer]);
 
     useEffect(() => {
         if (success) {
@@ -38,17 +53,18 @@ const Orders = () => {
         const debounceTimer = setTimeout(() => {
             let query = `?page=${page}&limit=6`;
             if (status && status !== 'all') query += `&status=${status}`;
+            if(customerName) query += `&customerId=${customerName?.id}`;
             dispatch(listOfAllOrders(query));
         }, 500);
         return () => clearTimeout(debounceTimer);
-    }, [status, page, dispatch]);
+    }, [status, customerName, page, dispatch]);
 
     const columns = [
-        { datakey: 'id', headerName: 'Order ID', size: 50, align: 'left', },
+        { datakey: 'id', headerName: 'Order ID', size: 100, align: 'left', },
         { datakey: 'name', headerName: 'Customer Name', size: 200, },
         { datakey: 'email', headerName: 'Email', size: 200, },
         {
-            datakey: 'price',
+            datakey: 'totalCost',
             headerName: 'Price',
             size: 170,
         },
@@ -70,11 +86,9 @@ const Orders = () => {
     const rows = getAllOrders?.data?.map((e) => {
         return ({
             id: e?.id,
-            name: e?.name,
-            email: e?.email,
-            phone: e?.phone,
-            type: e?.type,
-            state: e?.state,
+            name: e?.customerInfo?.name,
+            email: e?.customerInfo?.email,
+            totalCost: e?.totalCost,
             status: e?.status
         })
     })
@@ -121,7 +135,7 @@ const Orders = () => {
                 <Grid2 container columnSpacing={2} rowSpacing={3}>
                     <Grid2 item size={4}>
                         <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search with Name</Typography>
-                        <TextField
+                        {/* <TextField
                             sx={{ marginTop: '10px' }}
                             id="search"
                             fullWidth
@@ -137,6 +151,39 @@ const Orders = () => {
                                     </InputAdornment>
                                 ),
                             }}
+                        /> */}
+                        <Autocomplete
+                            id="state"
+                            fullWidth
+                            size="small"
+                            sx={{ marginTop: '10px' }}
+                            options={getCustomerList}
+                            autoHighlight
+                            getOptionLabel={(option) => option?.name || ""}
+                            onChange={(event, value) => {
+                                setCustomerName(value); // This gives you "Tamil Nadu" if selected
+                            }}
+                            renderOption={(props, option) => {
+                                const { key, ...optionProps } = props;
+                                return (
+                                    <Box
+                                        key={option?.tempId}
+                                        component="li"
+                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                        {...optionProps}
+                                    >
+                                        {option?.name}
+                                    </Box>
+                                );
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    size="small"
+                                    autoComplete="off"
+                                    placeholder="Select Customer Name"
+                                />
+                            )}
                         />
                     </Grid2>
                     <Grid2 item size={2}>
@@ -151,8 +198,9 @@ const Orders = () => {
                         >
 
                             <MenuItem value={"all"}>All</MenuItem>
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"in-active"}>In-Active</MenuItem>
+                            <MenuItem value={"pending"}>Pending</MenuItem>
+                            <MenuItem value={"shipped"}>Shipped</MenuItem>
+                            <MenuItem value={"delivered"}>Delivered</MenuItem>
                         </Select>
                     </Grid2>
                 </Grid2>

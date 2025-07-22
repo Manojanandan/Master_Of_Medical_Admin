@@ -114,7 +114,7 @@ export const deleteVendor = async (id) => {
 // Orders
 export const getAllOrders = async (id,data)=>{
     if(id!==""){
-        return await instance.get("order/get-order/${id")
+        return await instance.get(`order/get-order/${id}`)
     }else{
         return await instance.get(`order/get-all-orders${data}`)
     }

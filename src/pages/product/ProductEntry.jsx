@@ -11,23 +11,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import { getVendor } from '../vendor/VendorReducer'
 import { categoryList, subCategoryList } from '../../utils/helpers'
 
-const SUBCATEGORY_OPTIONS = {
-  medical: [
-    { value: 'bandages', label: 'Bandages' },
-    { value: 'masks', label: 'Masks' },
-    { value: 'syringes', label: 'Syringes' },
-  ],
-  surgical: [
-    { value: 'gloves', label: 'Gloves' },
-    { value: 'scissors', label: 'Scissors' },
-    { value: 'forceps', label: 'Forceps' },
-  ],
-  equipment: [
-    { value: 'monitor', label: 'Monitor' },
-    { value: 'stethoscope', label: 'Stethoscope' },
-    { value: 'thermometer', label: 'Thermometer' },
-  ],
-};
 
 const ProductEntry = () => {
   const navigate = useNavigate()
