@@ -214,8 +214,9 @@ const CustomerList = () => {
                         >
 
                             <MenuItem value={"all"}>All</MenuItem>
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"in-active"}>In-Active</MenuItem>
+                            <MenuItem value={"pending"}>Pending</MenuItem>
+                            <MenuItem value={"approved"}>Approved</MenuItem>
+                            <MenuItem value={"rejected"}>Rejected</MenuItem>
                         </Select>
                     </Grid2>
                 </Grid2>

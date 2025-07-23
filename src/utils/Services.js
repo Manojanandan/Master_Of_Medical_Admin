@@ -57,6 +57,10 @@ export const deleteCustomer = (id) => {
   return instance.delete(`customer/delete-customer/${id}`);
 };
 
+export const updateCustomer = (data) => {
+  return instance.put(`customer/update-customer`, data);
+};
+
 // Product
 export const createProduct = async (data) => {
   return await instance.post("product/create-product", data);
@@ -70,7 +74,7 @@ export const getAllProduct = async (id, data) => {
 };
 export const updateProduct = async (data) => {
   return await instance.put(
-    `product/update-product/${sessionStorage.getItem("productId")}`,
+    `product/update-product`,
     data
   );
 };

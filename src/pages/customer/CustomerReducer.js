@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { deleteCustomer, getCustomer } from "../../utils/Services";
+import { deleteCustomer, getCustomer, updateCustomer } from "../../utils/Services";
 
 export const getAllCustomer = createAsyncThunk("Get Customer", async (data) => {
     return await getCustomer("", data).then((response) => response.data)
@@ -10,6 +10,9 @@ export const getOneCustomer = createAsyncThunk("Get One Customer", async (id) =>
 export const removeCustomer = createAsyncThunk("Delete Customer", async (id) => {
     return await deleteCustomer(id).then((response) => response.data)
 });
+export const modifyCustomer = createAsyncThunk("Update Vendor", async (data) => {
+    return await updateCustomer(data).then((response) => response?.data)
+})
 
 export const customerReducer = createSlice({
     name: 'customer',
@@ -50,6 +53,20 @@ export const customerReducer = createSlice({
             state.listOfCustomer = state?.listOfCustomer?.data?.filter((rows) => rows?.id !== action.payload.id)
             state.success = action.payload?.success
             state.message = action.payload?.message;
+        })
+        builder.addCase(modifyCustomer.pending, (state) => {
+            state.loader = true
+        })
+        builder.addCase(modifyCustomer.fulfilled, (state, action) => {
+            state.loader = false
+            state.success = action.payload?.success
+            state.message = action.payload?.message
+            state.listOfCustomer.push(action.payload)
+        })
+        builder.addCase(modifyCustomer.rejected, (state, action) => {
+            state.loader = false
+            state.success = false
+            state.message = action?.payload?.message
         })
     }
 })

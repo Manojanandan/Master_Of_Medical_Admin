@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Titlebar from '../../comnponents/titlebar/Titlebar';
 import Filter from '../../comnponents/filter/Filter';
-import { Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdornment, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Alert, Autocomplete, Backdrop, Box, CircularProgress, Grid2, InputAdornment, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CommonTable from '../../comnponents/table/CommonTable';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getCategory, getProductList, getSubCategory, removeProduct } from './ProductReducer';
+import { getCategory, getProductList, getSubCategory, removeProduct, resetMessage } from './ProductReducer';
 import Modal from "../../comnponents/modal/Modal"
 
 const Product = () => {
@@ -19,9 +19,12 @@ const Product = () => {
   const [status, setStatus] = useState('all');
   const [page, setPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
 
   const reducer = useSelector((state) => state.productReducer);
-  const { loader, getProduct, categoryData, subCategoryData } = reducer;
+  const { loader, getProduct, categoryData, subCategoryData, success, successMsg } = reducer;
+
 
   useEffect(() => {
     dispatch(getCategory());
@@ -32,18 +35,24 @@ const Product = () => {
     }
   }, [category]);
 
+  useEffect(() => {
+    if (success) {
+      alert(success)
+      setOpenSnackbar(!openSnackbar)
+    }
+  }, [success])
+
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
   }, [name, subCategory, status]);
-  console.log(subCategory);
 
   // Load data on filter change or page change
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       let query = `?page=${page}&limit=7`;
       if (name) query += `&name=${name}`;
-      if (subCategory !== "") query += `&subCategory=${subCategory}`;
+      if (subCategory !== "" && subCategory?.length > 0) query += `&subCategory=${subCategory}`;
       if (status && status !== 'all') query += `&status=${status}`;
       dispatch(getProductList(query));
     }, 500);
@@ -74,7 +83,7 @@ const Product = () => {
     setPage(value);
   };
 
-  const handleView = (e) => { 
+  const handleView = (e) => {
     sessionStorage.setItem("productId", e?.id);
     sessionStorage.setItem("Mode", "View");
     navigate('/productview');
@@ -95,7 +104,12 @@ const Product = () => {
     setDialogOpen(!dialogOpen)
     dispatch(removeProduct(sessionStorage.getItem("tempRow")))
   }
-
+  const handleClose = () => {
+    setOpenSnackbar(!openSnackbar)
+    sessionStorage.removeItem("tempRow")
+    dispatch(getProductList(`?page=${page}&limit=7`));
+    setPage(1)
+  }
   const handleDropDownChange = (e) => {
     setCategory(e.target.value)
     setSubCategory([])
@@ -112,6 +126,16 @@ const Product = () => {
       >
         <CircularProgress color="secondary" />
       </Backdrop>
+      {successMsg && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={500} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={success ? "success" : "error"}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {successMsg}
+        </Alert>
+      </Snackbar>}
 
       <Titlebar
         title={"Products List"}

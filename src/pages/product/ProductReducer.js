@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { categoryList, createProduct, getAllProduct, subCategoryList, updateProduct } from "../../utils/Services";
+import { categoryList, createProduct, deleteProduct, getAllProduct, subCategoryList, updateProduct } from "../../utils/Services";
 
 export const getProductList = createAsyncThunk("GETProduct", async (data) => {
     return await getAllProduct("", data).then((response) => response?.data)
@@ -35,10 +35,11 @@ export const productReducer = createSlice({
         successMsg: "",
         success: false
     },
-    reducer: {
+    reducers: {
         resetMessage: (state) => {
             state.success = false
-            state.message = ""
+            state.loader = false
+            state.successMsg = ""
         }
     },
     extraReducers: (builder) => {
