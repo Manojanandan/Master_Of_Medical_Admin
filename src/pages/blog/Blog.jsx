@@ -137,44 +137,45 @@ const Blog = () => {
           {successMsg}
         </Alert>
       </Snackbar>}
-      <Filter>
-        <Grid2 container columnSpacing={2} rowSpacing={3}>
-          <Grid2 item size={4}>
-            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search with Title</Typography>
-            <TextField
-              sx={{ marginTop: '10px' }}
-              id="search"
-              fullWidth
-              size="small"
-              placeholder="Search with title"
-              variant="outlined"
-              value={title}
-              onChange={(e) => { setTitle(e.target.value) }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
+      <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} handleView={(e) => handleView(e)} handleEdit={(e) => handleEdit(e)} handleDelete={(e) => handleDelete(e)} >
+        <Filter>
+          <Grid2 container columnSpacing={2} rowSpacing={3}>
+            <Grid2 item size={4}>
+              <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search with Title</Typography>
+              <TextField
+                sx={{ marginTop: '10px' }}
+                id="search"
+                fullWidth
+                size="small"
+                placeholder="Search with title"
+                variant="outlined"
+                value={title}
+                onChange={(e) => { setTitle(e.target.value) }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid2>
+            <Grid2 item size={4}>
+              <Typography variant='p' sx={{ fontWeight: 'bold' }}>Author</Typography>
+              <TextField
+                sx={{ marginTop: '10px' }}
+                id="search"
+                fullWidth
+                size="small"
+                placeholder="Search with author"
+                variant="outlined"
+                value={author}
+                onChange={(e) => { setAuthor(e.target.value) }}
+              />
+            </Grid2>
           </Grid2>
-          <Grid2 item size={4}>
-            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Author</Typography>
-            <TextField
-              sx={{ marginTop: '10px' }}
-              id="search"
-              fullWidth
-              size="small"
-              placeholder="Search with author"
-              variant="outlined"
-              value={author}
-              onChange={(e) => { setAuthor(e.target.value) }}
-            />
-          </Grid2>
-        </Grid2>
-      </Filter>
-      <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={pagination?.totalPages} handleView={(e) => handleView(e)} handleEdit={(e) => handleEdit(e)} handleDelete={(e) => handleDelete(e)} />
+        </Filter>
+      </CommonTable>
       <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteCustomer} content={"Are you sure you want to delete this blog."} />
     </div>
   )

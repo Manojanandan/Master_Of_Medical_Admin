@@ -146,100 +146,101 @@ const AdminUserList = () => {
                 </Alert>
             </Snackbar>}
             <Titlebar title={"Admin Users"} addBtn={true} addClick={() => { navigate('/adminuserentry'), sessionStorage.setItem("Mode", "Add") }} />
-            <Filter>
-                <Grid2 container columnSpacing={2} rowSpacing={3}>
-                    <Grid2 item size={4}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search with Name</Typography>
-                        <TextField
-                            sx={{ marginTop: '10px' }}
-                            id="search"
-                            fullWidth
-                            size="small"
-                            placeholder="Search with Name"
-                            variant="outlined"
-                            value={name}
-                            onChange={(e) => { setName(e.target.value) }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                    </Grid2>
-                    <Grid2 item size={3}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>User Role</Typography>
-                        <Select
-                            fullWidth
-                            size="small"
-                            id="role"
-                            name="role"
-                            value={role}
-                            onChange={(e) => { setRole(e.target.value) }}
-                            sx={{ marginTop: '10px' }}
-                        >
+            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={adminData?.pagination?.totalPages} handleView={(data) => handleView(data)} handleEdit={(data) => handleEdit(data)} handleDelete={(data) => handleDelete(data)} >
+                <Filter>
+                    <Grid2 container columnSpacing={2} rowSpacing={3}>
+                        <Grid2 item size={4}>
+                            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search with Name</Typography>
+                            <TextField
+                                sx={{ marginTop: '10px' }}
+                                id="search"
+                                fullWidth
+                                size="small"
+                                placeholder="Search with Name"
+                                variant="outlined"
+                                value={name}
+                                onChange={(e) => { setName(e.target.value) }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchIcon />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Grid2>
+                        <Grid2 item size={3}>
+                            <Typography variant='p' sx={{ fontWeight: 'bold' }}>User Role</Typography>
+                            <Select
+                                fullWidth
+                                size="small"
+                                id="role"
+                                name="role"
+                                value={role}
+                                onChange={(e) => { setRole(e.target.value) }}
+                                sx={{ marginTop: '10px' }}
+                            >
 
-                            <MenuItem value="role">Select Role</MenuItem>
-                            <MenuItem value={"admin"}>Admin</MenuItem>
-                            <MenuItem value={"support"}>Support</MenuItem>
-                        </Select>
-                    </Grid2>
-                    <Grid2 item size={3}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
-                        <Autocomplete
-                            id="state"
-                            fullWidth
-                            size="small"
-                            sx={{ marginTop: '10px' }}
-                            options={stateList}
-                            autoHighlight
-                            getOptionLabel={(option) => option}
-                            onChange={(event, value) => {
-                                setState(value); // This gives you "Tamil Nadu" if selected
-                            }}
-                            renderOption={(props, option) => {
-                                const { key, ...optionProps } = props;
-                                return (
-                                    <Box
-                                        key={key}
-                                        component="li"
-                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-                                        {...optionProps}
-                                    >
-                                        {option}
-                                    </Box>
-                                );
-                            }}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    size="small"
-                                    autoComplete="off"
-                                    placeholder="Select State"
-                                />
-                            )}
-                        />
-                    </Grid2>
-                    <Grid2 item size={2}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Status</Typography>
-                        <Select
-                            fullWidth
-                            size="small"
-                            id="status"
-                            value={status}
-                            onChange={(e) => { setStatus(e.target.value) }}
-                            sx={{ marginTop: '10px' }}
-                        >
+                                <MenuItem value="role">Select Role</MenuItem>
+                                <MenuItem value={"admin"}>Admin</MenuItem>
+                                <MenuItem value={"support"}>Support</MenuItem>
+                            </Select>
+                        </Grid2>
+                        <Grid2 item size={3}>
+                            <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
+                            <Autocomplete
+                                id="state"
+                                fullWidth
+                                size="small"
+                                sx={{ marginTop: '10px' }}
+                                options={stateList}
+                                autoHighlight
+                                getOptionLabel={(option) => option}
+                                onChange={(event, value) => {
+                                    setState(value); // This gives you "Tamil Nadu" if selected
+                                }}
+                                renderOption={(props, option) => {
+                                    const { key, ...optionProps } = props;
+                                    return (
+                                        <Box
+                                            key={key}
+                                            component="li"
+                                            sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                            {...optionProps}
+                                        >
+                                            {option}
+                                        </Box>
+                                    );
+                                }}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        size="small"
+                                        autoComplete="off"
+                                        placeholder="Select State"
+                                    />
+                                )}
+                            />
+                        </Grid2>
+                        <Grid2 item size={2}>
+                            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Status</Typography>
+                            <Select
+                                fullWidth
+                                size="small"
+                                id="status"
+                                value={status}
+                                onChange={(e) => { setStatus(e.target.value) }}
+                                sx={{ marginTop: '10px' }}
+                            >
 
-                            <MenuItem value={"all"}>All</MenuItem>
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"in-active"}>In-Active</MenuItem>
-                        </Select>
+                                <MenuItem value={"all"}>All</MenuItem>
+                                <MenuItem value={"active"}>Active</MenuItem>
+                                <MenuItem value={"in-active"}>In-Active</MenuItem>
+                            </Select>
+                        </Grid2>
                     </Grid2>
-                </Grid2>
-            </Filter>
-            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={adminData?.pagination?.totalPages} handleView={(data) => handleView(data)} handleEdit={(data) => handleEdit(data)} handleDelete={(data) => handleDelete(data)} />
+                </Filter>
+            </CommonTable>
             <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteCustomer} content={"Are you sure you want to delete this admin user."} />
         </div>
     )

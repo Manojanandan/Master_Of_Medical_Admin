@@ -138,88 +138,89 @@ const VendorList = () => {
                 </Alert>
             </Snackbar>}
             <Titlebar title={"Vendor Management"} addBtn={false} />
-            <Filter>
-                <Grid2 container columnSpacing={2} rowSpacing={3}>
-                    <Grid2 item size={4}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search with Name</Typography>
-                        <TextField
-                            sx={{ marginTop: '10px' }}
-                            id="search"
-                            fullWidth
-                            size="small"
-                            placeholder="Search with name"
-                            variant="outlined"
-                            value={name}
-                            onChange={(e) => { setName(e.target.value) }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                    </Grid2>
-                    <Grid2 item size={3}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Vendor Type</Typography>
-                        <TextField id='vendorType' onChange={(e) => setVendorType(e.target.value)} placeholder='Vendor type' name='vendorType' fullWidth size='small' sx={{ marginTop: '10px' }} />
-                    </Grid2>
-                    <Grid2 item size={3}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
-                        <Autocomplete
-                            id="state"
-                            fullWidth
-                            size="small"
-                            sx={{ marginTop: '10px' }}
-                            options={stateList}
-                            autoHighlight
-                            getOptionLabel={(option) => option}
-                            onChange={(event, value) => {
-                                setState(value); // This gives you "Tamil Nadu" if selected
-                            }}
-                            renderOption={(props, option) => {
-                                const { key, ...optionProps } = props;
-                                return (
-                                    <Box
-                                        key={key}
-                                        component="li"
-                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-                                        {...optionProps}
-                                    >
-                                        {option}
-                                    </Box>
-                                );
-                            }}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    size="small"
-                                    autoComplete="off"
-                                    placeholder="Select State"
-                                />
-                            )}
-                        />
-                    </Grid2>
-                    <Grid2 item size={2}>
-                        <Typography variant='p' sx={{ fontWeight: 'bold' }}>Status</Typography>
-                        <Select
-                            fullWidth
-                            size="small"
-                            id="status"
-                            value={status}
-                            onChange={(e) => { setStatus(e.target.value) }}
-                            sx={{ marginTop: '10px' }}
-                        >
+            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={listOfVendor?.pagination?.totalPages} handleView={(data) => handleView(data)} handleDelete={(data) => handleDelete(data)} >
+                <Filter>
+                    <Grid2 container columnSpacing={2} rowSpacing={3}>
+                        <Grid2 item size={4}>
+                            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Search with Name</Typography>
+                            <TextField
+                                sx={{ marginTop: '10px' }}
+                                id="search"
+                                fullWidth
+                                size="small"
+                                placeholder="Search with name"
+                                variant="outlined"
+                                value={name}
+                                onChange={(e) => { setName(e.target.value) }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchIcon />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Grid2>
+                        <Grid2 item size={3}>
+                            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Vendor Type</Typography>
+                            <TextField id='vendorType' onChange={(e) => setVendorType(e.target.value)} placeholder='Vendor type' name='vendorType' fullWidth size='small' sx={{ marginTop: '10px' }} />
+                        </Grid2>
+                        <Grid2 item size={3}>
+                            <Typography variant='p' sx={{ fontWeight: 'bold' }}>State</Typography>
+                            <Autocomplete
+                                id="state"
+                                fullWidth
+                                size="small"
+                                sx={{ marginTop: '10px' }}
+                                options={stateList}
+                                autoHighlight
+                                getOptionLabel={(option) => option}
+                                onChange={(event, value) => {
+                                    setState(value); // This gives you "Tamil Nadu" if selected
+                                }}
+                                renderOption={(props, option) => {
+                                    const { key, ...optionProps } = props;
+                                    return (
+                                        <Box
+                                            key={key}
+                                            component="li"
+                                            sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                            {...optionProps}
+                                        >
+                                            {option}
+                                        </Box>
+                                    );
+                                }}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        size="small"
+                                        autoComplete="off"
+                                        placeholder="Select State"
+                                    />
+                                )}
+                            />
+                        </Grid2>
+                        <Grid2 item size={2}>
+                            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Status</Typography>
+                            <Select
+                                fullWidth
+                                size="small"
+                                id="status"
+                                value={status}
+                                onChange={(e) => { setStatus(e.target.value) }}
+                                sx={{ marginTop: '10px' }}
+                            >
 
-                            <MenuItem value={"all"}>All</MenuItem>
-                            <MenuItem value={"pending"}>Pending</MenuItem>
-                            <MenuItem value={"approved"}>Approved</MenuItem>
-                            <MenuItem value={"rejected"}>Rejected</MenuItem>
-                        </Select>
+                                <MenuItem value={"all"}>All</MenuItem>
+                                <MenuItem value={"pending"}>Pending</MenuItem>
+                                <MenuItem value={"approved"}>Approved</MenuItem>
+                                <MenuItem value={"rejected"}>Rejected</MenuItem>
+                            </Select>
+                        </Grid2>
                     </Grid2>
-                </Grid2>
-            </Filter>
-            <CommonTable rows={rows} columns={columns} handlePageChange={handlePageChange} page={page} count={listOfVendor?.pagination?.totalPages} handleView={(data) => handleView(data)} handleDelete={(data) => handleDelete(data)} />
+                </Filter>
+            </CommonTable>
             <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteCustomer} content={"Are you sure you want to delete this vendor."} />
         </div>
     )

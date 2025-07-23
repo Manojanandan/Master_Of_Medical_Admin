@@ -147,55 +147,6 @@ const SupportList = () => {
         </Snackbar>
       )}
       <Titlebar title={"Support Management"} addBtn={false} />
-      <Filter>
-        <Grid2 container columnSpacing={2} rowSpacing={3}>
-          <Grid2 item size={4}>
-            <Typography variant="p" sx={{ fontWeight: "bold" }}>
-              Search with Name
-            </Typography>
-            <TextField
-              sx={{ marginTop: "10px" }}
-              id="search"
-              fullWidth
-              size="small"
-              placeholder="Search with name"
-              variant="outlined"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid2>
-          <Grid2 item size={2}>
-            <Typography variant="p" sx={{ fontWeight: "bold" }}>
-              Status
-            </Typography>
-            <Select
-              fullWidth
-              size="small"
-              id="status"
-              value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
-              }}
-              sx={{ marginTop: "10px" }}
-            >
-              <MenuItem value={"all"}>All</MenuItem>
-              <MenuItem value={"pending"}>Pending</MenuItem>
-              <MenuItem value={"resolved"}>Resolved</MenuItem>
-              <MenuItem value={"rejected"}>Rejected</MenuItem>
-              <MenuItem value={"spam"}>Spam</MenuItem>
-            </Select>
-          </Grid2>
-        </Grid2>
-      </Filter>
       <CommonTable
         rows={rows}
         columns={columns}
@@ -204,7 +155,57 @@ const SupportList = () => {
         count={getAllSupport?.pagination?.totalPages}
         handleView={(data) => handlView(data)}
         handleDelete={(data) => handleDelete(data)}
-      />
+      >
+        <Filter>
+          <Grid2 container columnSpacing={2} rowSpacing={3}>
+            <Grid2 item size={4}>
+              <Typography variant="p" sx={{ fontWeight: "bold" }}>
+                Search with Name
+              </Typography>
+              <TextField
+                sx={{ marginTop: "10px" }}
+                id="search"
+                fullWidth
+                size="small"
+                placeholder="Search with name"
+                variant="outlined"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid2>
+            <Grid2 item size={2}>
+              <Typography variant="p" sx={{ fontWeight: "bold" }}>
+                Status
+              </Typography>
+              <Select
+                fullWidth
+                size="small"
+                id="status"
+                value={status}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                }}
+                sx={{ marginTop: "10px" }}
+              >
+                <MenuItem value={"all"}>All</MenuItem>
+                <MenuItem value={"pending"}>Pending</MenuItem>
+                <MenuItem value={"resolved"}>Resolved</MenuItem>
+                <MenuItem value={"rejected"}>Rejected</MenuItem>
+                <MenuItem value={"spam"}>Spam</MenuItem>
+              </Select>
+            </Grid2>
+          </Grid2>
+        </Filter>
+      </CommonTable>
       <Modal
         open={dialogOpen}
         close={() => {

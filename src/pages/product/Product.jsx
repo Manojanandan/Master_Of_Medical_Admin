@@ -146,98 +146,6 @@ const Product = () => {
         }}
       />
 
-      <Filter>
-        <Grid2 container columnSpacing={2} rowSpacing={3}>
-          <Grid2 item size={4}>
-            <Typography variant='p' sx={{ fontWeight: 'bold' }}>
-              Search with Name
-            </Typography>
-            <TextField
-              sx={{ marginTop: '10px' }}
-              id="search"
-              fullWidth
-              size="small"
-              placeholder="Search with name"
-              variant="outlined"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid2>
-
-          <Grid2 item size={3}>
-            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Category</Typography>
-            <Select
-              sx={{ marginTop: '10px' }}
-              id="category"
-              size='small'
-              name="category"
-              value={category}
-              onChange={handleDropDownChange}
-              fullWidth
-              displayEmpty
-            >
-              <MenuItem value="">Select Category</MenuItem>
-              {categoryData?.data?.map((e, key) => {
-                return (<MenuItem key={key} value={e?.id}>{e?.name}</MenuItem>)
-              })}
-            </Select>
-          </Grid2>
-
-          <Grid2 item size={3}>
-            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Sub Category</Typography>
-            <Select
-              sx={{ marginTop: '10px' }}
-              id="subCategory"
-              size='small'
-              name='subCategory'
-              value={subCategory}
-              onChange={(e) => setSubCategory(e.target.value)}
-              fullWidth
-              disabled={category === "" || category?.length == 0 ? true : false}
-              displayEmpty
-              MenuProps={{
-                PaperProps: {
-                  style: {
-                    maxHeight: 300,
-                    overflowY: 'auto',
-                    maxWidth: 200
-                  },
-                },
-              }}
-            >
-              <MenuItem value="" disabled>Select Subcategory</MenuItem>
-              {subCategoryData?.data?.map((opt, key) => {
-                return (<MenuItem key={key} value={opt.id} >{opt.name}</MenuItem>)
-              })}
-            </Select>
-          </Grid2>
-
-          <Grid2 item size={2}>
-            <Typography variant='p' sx={{ fontWeight: 'bold' }}>Status</Typography>
-            <Select
-              fullWidth
-              size="small"
-              id="status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              sx={{ marginTop: '10px' }}
-            >
-              <MenuItem value={"all"}>All</MenuItem>
-              <MenuItem value={"pending"}>Pending</MenuItem>
-              <MenuItem value={"approved"}>Approved</MenuItem>
-              <MenuItem value={"rejected"}>Rejected</MenuItem>
-            </Select>
-          </Grid2>
-        </Grid2>
-      </Filter>
-
       <CommonTable
         rows={rows}
         columns={columns}
@@ -247,7 +155,99 @@ const Product = () => {
         handleView={(data) => handleView(data)}
         handleEdit={handleEdit}
         handleDelete={(data) => handleDelete(data)}
-      />
+      >
+        <Filter>
+          <Grid2 container columnSpacing={2} rowSpacing={3}>
+            <Grid2 item size={4}>
+              <Typography variant='p' sx={{ fontWeight: 'bold' }}>
+                Search with Name
+              </Typography>
+              <TextField
+                sx={{ marginTop: '10px' }}
+                id="search"
+                fullWidth
+                size="small"
+                placeholder="Search with name"
+                variant="outlined"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid2>
+
+            <Grid2 item size={3}>
+              <Typography variant='p' sx={{ fontWeight: 'bold' }}>Category</Typography>
+              <Select
+                sx={{ marginTop: '10px' }}
+                id="category"
+                size='small'
+                name="category"
+                value={category}
+                onChange={handleDropDownChange}
+                fullWidth
+                displayEmpty
+              >
+                <MenuItem value="">Select Category</MenuItem>
+                {categoryData?.data?.map((e, key) => {
+                  return (<MenuItem key={key} value={e?.id}>{e?.name}</MenuItem>)
+                })}
+              </Select>
+            </Grid2>
+
+            <Grid2 item size={3}>
+              <Typography variant='p' sx={{ fontWeight: 'bold' }}>Sub Category</Typography>
+              <Select
+                sx={{ marginTop: '10px' }}
+                id="subCategory"
+                size='small'
+                name='subCategory'
+                value={subCategory}
+                onChange={(e) => setSubCategory(e.target.value)}
+                fullWidth
+                disabled={category === "" || category?.length == 0 ? true : false}
+                displayEmpty
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                      overflowY: 'auto',
+                      maxWidth: 200
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="" disabled>Select Subcategory</MenuItem>
+                {subCategoryData?.data?.map((opt, key) => {
+                  return (<MenuItem key={key} value={opt.id} >{opt.name}</MenuItem>)
+                })}
+              </Select>
+            </Grid2>
+
+            <Grid2 item size={2}>
+              <Typography variant='p' sx={{ fontWeight: 'bold' }}>Status</Typography>
+              <Select
+                fullWidth
+                size="small"
+                id="status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                sx={{ marginTop: '10px' }}
+              >
+                <MenuItem value={"all"}>All</MenuItem>
+                <MenuItem value={"pending"}>Pending</MenuItem>
+                <MenuItem value={"approved"}>Approved</MenuItem>
+                <MenuItem value={"rejected"}>Rejected</MenuItem>
+              </Select>
+            </Grid2>
+          </Grid2>
+        </Filter>
+      </CommonTable>
       <Modal open={dialogOpen} close={() => { setDialogOpen(!dialogOpen) }} success={deleteProduct} content={"Are you sure you want to delete this product."} />
     </div>
   );

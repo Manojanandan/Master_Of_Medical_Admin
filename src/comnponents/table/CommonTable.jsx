@@ -22,6 +22,7 @@ const CommonTable = ({
   handleView,
   handleEdit,
   handleDelete,
+  children
 }) => {
   return (
     <React.Fragment>
@@ -29,11 +30,13 @@ const CommonTable = ({
         elevation={5}
         sx={{
           width: "95%",
-          margin: "6px 25px 25px",
+          margin: "20px 25px 25px",
           height: "auto",
           borderRadius: "5px",
+          padding: "0 0 15px"
         }}
       >
+        {children}
         {rows?.length > 0 ? (
           <>
             <Box
@@ -44,6 +47,10 @@ const CommonTable = ({
                 padding: "15px 20px",
                 backgroundColor: "#06a094",
                 color: "#fff",
+                width: '98%',
+                margin: '0 auto',
+                borderRight: 'solid 1px #2424',
+                borderLeft: 'solid 1px #2424',
               }}
             >
               {columns?.map((col, key) => {
@@ -73,6 +80,10 @@ const CommonTable = ({
                     "&:hover": {
                       backgroundColor: "#f0f4f8",
                     },
+                    width: '98%',
+                    margin: '0 auto',
+                    borderRight: 'solid 1px #2424',
+                    borderLeft: 'solid 1px #2424',
                   }}
                 >
                   {columns?.map((col, idx) => {
@@ -139,36 +150,34 @@ const CommonTable = ({
                                   sx={{
                                     height: "12px",
                                     width: "12px",
-                                    border: `solid 1px ${
-                                      item[col?.datakey] === "active" ||
-                                      item[col?.datakey] === "approved" ||
-                                      item[col?.datakey] === "resolved" ||
-                                      item[col?.datakey] === "delivered"
+                                    border: `solid 1px ${item[col?.datakey] === "active" ||
+                                        item[col?.datakey] === "approved" ||
+                                        item[col?.datakey] === "resolved" ||
+                                        item[col?.datakey] === "delivered"
                                         ? "green"
                                         : item[col?.datakey] === "pending"
-                                        ? "orange"
-                                        : item[col?.datakey] === "spam"
-                                        ? "blue"
-                                        : item[col?.datakey] === "shipped"
-                                        ? "#0398d5"
-                                        : "red"
-                                    }`,
+                                          ? "orange"
+                                          : item[col?.datakey] === "spam"
+                                            ? "blue"
+                                            : item[col?.datakey] === "shipped"
+                                              ? "#0398d5"
+                                              : "red"
+                                      }`,
                                     borderRadius: "50%",
                                     marginRight: "10px",
-                                    backgroundColor: `${
-                                      item[col?.datakey] === "active" ||
-                                      item[col?.datakey] === "approved" ||
-                                      item[col?.datakey] === "resolved" ||
-                                      item[col?.datakey] === "delivered"
+                                    backgroundColor: `${item[col?.datakey] === "active" ||
+                                        item[col?.datakey] === "approved" ||
+                                        item[col?.datakey] === "resolved" ||
+                                        item[col?.datakey] === "delivered"
                                         ? "green"
                                         : item[col?.datakey] === "pending"
-                                        ? "orange"
-                                        : item[col?.datakey] === "spam"
-                                        ? "blue"
-                                        : item[col?.datakey] === "shipped"
-                                        ? "#0398d5"
-                                        : "red"
-                                    }`,
+                                          ? "orange"
+                                          : item[col?.datakey] === "spam"
+                                            ? "blue"
+                                            : item[col?.datakey] === "shipped"
+                                              ? "#0398d5"
+                                              : "red"
+                                      }`,
                                   }}
                                 ></Box>
                                 <Typography
@@ -177,20 +186,19 @@ const CommonTable = ({
                                   sx={{
                                     fontSize: "16px",
                                     textAlign: col?.align,
-                                    color: `${
-                                      item[col?.datakey] === "active" ||
-                                      item[col?.datakey] === "approved" ||
-                                      item[col?.datakey] === "resolved" ||
-                                      item[col?.datakey] === "delivered"
+                                    color: `${item[col?.datakey] === "active" ||
+                                        item[col?.datakey] === "approved" ||
+                                        item[col?.datakey] === "resolved" ||
+                                        item[col?.datakey] === "delivered"
                                         ? "green"
                                         : item[col?.datakey] === "pending"
-                                        ? "orange"
-                                        : item[col?.datakey] === "spam"
-                                        ? "blue"
-                                        : item[col?.datakey] === "shipped"
-                                        ? "#0398d5"
-                                        : "red"
-                                    }`,
+                                          ? "orange"
+                                          : item[col?.datakey] === "spam"
+                                            ? "blue"
+                                            : item[col?.datakey] === "shipped"
+                                              ? "#0398d5"
+                                              : "red"
+                                      }`,
                                     fontWeight: "bold",
                                     paddingRight: "12px",
                                   }}
