@@ -7,9 +7,18 @@ export const getAllCustomer = createAsyncThunk("Get Customer", async (data) => {
 export const getOneCustomer = createAsyncThunk("Get One Customer", async (id) => {
     return await getCustomer(id, "").then((response) => response.data)
 });
-export const removeCustomer = createAsyncThunk("Delete Customer", async (id) => {
-    return await deleteCustomer(id).then((response) => response.data)
-});
+export const removeCustomer = createAsyncThunk(
+    "Delete Customer",
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await deleteCustomer(id);
+            return response.data;
+        } catch (err) {
+            // Axios-style error handling
+            return rejectWithValue(err?.response?.data || { message: "Something went wrong", success: false });
+        }
+    }
+);
 export const modifyCustomer = createAsyncThunk("Update Vendor", async (data) => {
     return await updateCustomer(data).then((response) => response?.data)
 })
@@ -19,6 +28,7 @@ export const customerReducer = createSlice({
     initialState: {
         listOfCustomer: [],
         listOneCustomer: [],
+        createCustomer: [],
         loader: false,
         message: "",
         success: false
@@ -54,14 +64,19 @@ export const customerReducer = createSlice({
             state.success = action.payload?.success
             state.message = action.payload?.message;
         })
+        builder.addCase(removeCustomer.rejected, (state, action) => {
+            state.loader = false
+            state.success = false
+            state.message = action.payload?.message;
+        })
         builder.addCase(modifyCustomer.pending, (state) => {
             state.loader = true
         })
         builder.addCase(modifyCustomer.fulfilled, (state, action) => {
             state.loader = false
+            state.createCustomer.push(action.payload)
             state.success = action.payload?.success
             state.message = action.payload?.message
-            state.listOfCustomer.push(action.payload)
         })
         builder.addCase(modifyCustomer.rejected, (state, action) => {
             state.loader = false

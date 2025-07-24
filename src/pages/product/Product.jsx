@@ -24,7 +24,9 @@ const Product = () => {
 
   const reducer = useSelector((state) => state.productReducer);
   const { loader, getProduct, categoryData, subCategoryData, success, successMsg } = reducer;
-
+  useEffect(() => {
+    dispatch(resetMessage())
+  }, [])
 
   useEffect(() => {
     dispatch(getCategory());
@@ -36,10 +38,8 @@ const Product = () => {
   }, [category]);
 
   useEffect(() => {
-    if (success) {
-      alert(success)
-      setOpenSnackbar(!openSnackbar)
-    }
+    setOpenSnackbar(!openSnackbar)
+
   }, [success])
 
   // Reset page when filters change

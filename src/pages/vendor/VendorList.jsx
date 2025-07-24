@@ -68,7 +68,7 @@ const VendorList = () => {
         {
             datakey: 'status',
             headerName: 'Status',
-            size: 150,
+            size: 160,
             align: 'left'
         },
         {

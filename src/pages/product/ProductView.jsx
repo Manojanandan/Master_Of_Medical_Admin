@@ -35,8 +35,6 @@ const ProductView = () => {
     useEffect(() => {
         setVendors(listOfVendor);
     }, [listOfVendor]);
-console.log(vendors);
-
 
     let additionalData = "-";
     try {
@@ -76,7 +74,7 @@ console.log(vendors);
         dispatch(resetMessage())
     }
 
-    console.log("getOneData", getOneData)
+
     const fileName = getOneData?.data?.thumbnailImage ? getOneData?.data?.thumbnailImage.split('/').pop() : "-"
     const actualFileName = fileName.replace(/^\d+-/, '');
     const fileFormat = actualFileName.split('.')[1]

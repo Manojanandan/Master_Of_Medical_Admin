@@ -35,6 +35,7 @@ const CustomerView = () => {
   }, [sessionStorage.getItem("customerId")])
 
   useEffect(() => {
+     
     if (message !== "" && message !== undefined) {
       setOpenSnackbar(true)
     }
@@ -50,33 +51,32 @@ const CustomerView = () => {
     navigate('/customer')
     dispatch(resetMessage())
   }
-console.log(listOneCustomer);
 
-    const updateVendor = async () => {
-          if (status === "all") {
-              setErrMsg({ ...errMsg, status: "Select any status" })
-          } else if (status === "rejected" && remarks === "") {
-              setErrMsg({ ...errMsg, remarks: "Remarks is required" })
-          } else {
-              const formData = new FormData()
-              formData.append("id", listOneCustomer?.data?.id)
-              formData.append("name", listOneCustomer?.data?.name)
-              formData.append("email", listOneCustomer?.data?.email)
-              formData.append("phone", listOneCustomer?.data?.phone)
-              formData.append("type", listOneCustomer?.data?.type)
-              formData.append("address", listOneCustomer?.data?.address)
-              formData.append("country", listOneCustomer?.data?.country)
-              formData.append("state", listOneCustomer?.data?.state)
-              formData.append("city", listOneCustomer?.data?.city)
-              formData.append("postalCode", listOneCustomer?.data?.postalCode)
-              formData.append("status", status ?? listOneCustomer?.data?.status)
-              formData.append("remarks", remarks ?? listOneCustomer?.data?.remarks)
-              formData.append("files", listOneCustomer?.data?.files)
-  
-              dispatch(modifyCustomer(formData))
-          }
-      }
-  
+  const updateVendor = async () => {
+    if (status === "all") {
+      setErrMsg({ ...errMsg, status: "Select any status" })
+    } else if (status === "rejected" && remarks === "") {
+      setErrMsg({ ...errMsg, remarks: "Remarks is required" })
+    } else {
+      const formData = new FormData()
+      formData.append("id", listOneCustomer?.data?.id)
+      formData.append("name", listOneCustomer?.data?.name)
+      formData.append("email", listOneCustomer?.data?.email)
+      formData.append("phone", listOneCustomer?.data?.phone)
+      formData.append("type", listOneCustomer?.data?.type)
+      formData.append("address", listOneCustomer?.data?.address)
+      formData.append("country", listOneCustomer?.data?.country)
+      formData.append("state", listOneCustomer?.data?.state)
+      formData.append("city", listOneCustomer?.data?.city)
+      formData.append("postalCode", listOneCustomer?.data?.postalCode)
+      formData.append("status", status ?? listOneCustomer?.data?.status)
+      formData.append("remarks", remarks ?? listOneCustomer?.data?.remarks)
+      formData.append("files", listOneCustomer?.data?.files)
+
+      dispatch(modifyCustomer(formData))
+    }
+  }
+
 
   return (
     <div>

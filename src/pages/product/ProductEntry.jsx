@@ -6,7 +6,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
 import AddIcon from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux'
-import { addProduct, editProduct, getCategory, getOneProductList, getSubCategory } from './ProductReducer'
+import { addProduct, editProduct, getCategory, getOneProductList, getSubCategory, resetMessage } from './ProductReducer'
 import EditIcon from '@mui/icons-material/Edit';
 import { getVendor } from '../vendor/VendorReducer'
 import { categoryList, subCategoryList } from '../../utils/helpers'
@@ -30,10 +30,12 @@ const ProductEntry = () => {
   const { listOfVendor } = vendorReducer
   const { loader, successMsg, success, getOneData, categoryData, subCategoryData } = reducer
 
+  useEffect(()=>{
+    dispatch(resetMessage())
+  },[])
   useEffect(() => {
     setVendors(listOfVendor);
   }, [listOfVendor]);
-  console.log(vendors);
 
   useEffect(() => {
     dispatch(getCategory());
@@ -60,8 +62,6 @@ const ProductEntry = () => {
       } catch (e) {
         console.error("Invalid JSON in additionalInformation:", e);
       }
-      console.log(data);
-      console.log(additional);
 
       setAllData({
         ...errorMsg,
@@ -346,18 +346,22 @@ const ProductEntry = () => {
             <Typography variant='p' component='div' sx={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '1%' }}>Sub Category<span style={{ color: 'red', marginLeft: '5px' }}>*</span></Typography>
             <Select
               id="subCategory"
-              size='small'
-              name='subCategory'
-              value={allData?.subCategory}
+              size="small"
+              name="subCategory"
+              value={String(allData?.subCategory)}
               onChange={handleDropDownChange}
               fullWidth
-              disabled={!allData?.category || mode == "View"}
+              disabled={!allData?.category || mode === "View"}
               displayEmpty
             >
-              <MenuItem value="" disabled>Select Subcategory</MenuItem>
-              {subCategoryData?.data?.map((opt, key) => {
-                return (<MenuItem key={key} value={opt.id} >{opt.name}</MenuItem>)
-              })}
+              <MenuItem value="" disabled>
+                Select Subcategory
+              </MenuItem>
+              {subCategoryData?.data?.map((opt, key) => (
+                <MenuItem key={key} value={String(opt.id)}>
+                  {opt.name}
+                </MenuItem>
+              ))}
             </Select>
             {errorMsg?.subCategoryError && <Typography variant='span' sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>{errorMsg?.subCategoryError}</Typography>}
           </Grid>

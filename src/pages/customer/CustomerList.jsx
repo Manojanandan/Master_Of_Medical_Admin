@@ -29,9 +29,7 @@ const CustomerList = () => {
     }, [])
 
     useEffect(() => {
-        if (success) {
-            setOpenSnackbar(true)
-        }
+        setOpenSnackbar(true)
     }, [success])
 
     useEffect(() => {
@@ -107,7 +105,7 @@ const CustomerList = () => {
 
     const handleDelete = (e) => {
         setDialogOpen(!dialogOpen)
-        sessionStorage.setItem("tempRow", e?.id)
+        sessionStorage.setItem("tempRow", 340)
     }
     const deleteCustomer = () => {
         setDialogOpen(!dialogOpen)
@@ -120,7 +118,7 @@ const CustomerList = () => {
         dispatch(getAllCustomer(`?page=${page}&limit=6`))
         setPage(1)
     }
-
+    
     return (
         <div style={{ height: '100vh' }}>
             <Backdrop
