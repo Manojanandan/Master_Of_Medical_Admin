@@ -105,7 +105,7 @@ const CustomerList = () => {
 
     const handleDelete = (e) => {
         setDialogOpen(!dialogOpen)
-        sessionStorage.setItem("tempRow", 340)
+        sessionStorage.setItem("tempRow", e?.id)
     }
     const deleteCustomer = () => {
         setDialogOpen(!dialogOpen)

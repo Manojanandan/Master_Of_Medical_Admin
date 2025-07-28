@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Collapse,
@@ -9,26 +9,32 @@ import {
   ListItemText,
   Toolbar,
 } from "@mui/material";
-import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import DeliveryDiningIcon from "@mui/icons-material/DeliveryDining";
-import ProductionQuantityLimitsIcon from "@mui/icons-material/ProductionQuantityLimits";
-import WebIcon from "@mui/icons-material/Web";
-import HomeIcon from "@mui/icons-material/Home";
-import SupportIcon from "@mui/icons-material/Support";
-import ViewListIcon from "@mui/icons-material/ViewList";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import BiotechIcon from "@mui/icons-material/Biotech";
-import ExitToApp from "@mui/icons-material/ExitToApp";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import {
+  SupportAgent as SupportAgentIcon,
+  DeliveryDining as DeliveryDiningIcon,
+  ProductionQuantityLimits as ProductionQuantityLimitsIcon,
+  Web as WebIcon,
+  Home as HomeIcon,
+  Support as SupportIcon,
+  ViewList as ViewListIcon,
+  KeyboardArrowRight as KeyboardArrowRightIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  Biotech as BiotechIcon,
+  ExitToApp as ExitToAppIcon,
+  AdminPanelSettings as AdminPanelSettingsIcon,
+  Storefront as StorefrontIcon,
+  Business as BusinessIcon,
+  LocalOffer as LocalOfferIcon,
+  BrandingWatermark as BrandingWatermarkIcon
+} from "@mui/icons-material";
+// import BusinessIcon from '@mui/icons-material/Business';
 import { useLocation, useNavigate } from "react-router-dom";
-import StorefrontIcon from "@mui/icons-material/Storefront";
 import { useAuth } from "../../pages/routes/AuthContext";
 import Modal from "../modal/Modal";
 
 const drawerWidth = 300;
 
-const Sidebar = () => {
+const Sidebar = ({ role }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedMenu, setSelectedMenu] = useState("");
@@ -36,80 +42,55 @@ const Sidebar = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { logout } = useAuth();
 
-  const menuList = [
-    {
-      menuName: "Dashboard",
-      pageUrl: "/dashboard",
-      icon: <HomeIcon />,
-    },
-    {
-      menuName: "Customer",
-      pageUrl: "/customer",
-      icon: <SupportAgentIcon />,
-    },
-    {
-      menuName: "Vendors",
-      pageUrl: "/vendor",
-      icon: <StorefrontIcon />,
-    },
-    {
-      menuName: "Products",
-      pageUrl: "/productmanagement",
-      icon: <ProductionQuantityLimitsIcon />,
-    },
-    {
-      menuName: "Orders",
-      icon: <DeliveryDiningIcon />,
-      pageUrl: "/orders",
-      // submenu: [
-      //   {
-      //     menuName: 'Order List',
-      //     pageUrl: '/orders',
-      //     icon: <ViewListIcon />
-      //   },
-      //   {
-      //     menuName: 'Order Tracking',
-      //     pageUrl: '/orders/tracking',
-      //     icon: <ProductionQuantityLimitsIcon />
-      //   }
-      // ]
-    },
-    {
-      menuName: "Blog",
-      pageUrl: "/blog",
-      icon: <WebIcon />,
-    },
-    {
-      menuName: "Support",
-      pageUrl: "/support",
-      icon: <SupportIcon />,
-    },
-    {
-      menuName: "Testimonials",
-      icon: <BiotechIcon />,
-      pageUrl: "/testimonials",
-      // submenu: [
-      //   {
-      //     menuName: 'All Testimonials',
-      //     pageUrl: '/testimonials',
-      //     icon: <ViewListIcon />
-      //   }
-      // ]
-    },
-    {
-      menuName: "Admin Users",
-      pageUrl: "/adminUser",
-      icon: <AdminPanelSettingsIcon />,
-    },
-  ];
+  // ✅ Menu List based on role
+  const menuList = useMemo(() => {
+    if (role === "admin") {
+      return [
+        { menuName: "Dashboard", pageUrl: "/dashboard", icon: <HomeIcon /> },
+        { menuName: "Customer", pageUrl: "/customer", icon: <SupportAgentIcon /> },
+        { menuName: "Vendors", pageUrl: "/vendor", icon: <StorefrontIcon /> },
+        { menuName: "Products", pageUrl: "/productmanagement", icon: <ProductionQuantityLimitsIcon /> },
+        { menuName: "Orders", pageUrl: "/orders", icon: <DeliveryDiningIcon /> },
+        { menuName: "Blog", pageUrl: "/blog", icon: <WebIcon /> },
+        { menuName: "Support", pageUrl: "/support", icon: <SupportIcon /> },
+        { menuName: "Testimonials", pageUrl: "/testimonials", icon: <BiotechIcon /> },
+        { menuName: "Admin Users", pageUrl: "/adminUser", icon: <AdminPanelSettingsIcon /> },
+        {
+          menuName: 'Banners',
+          pageUrl: '/banners',
+          icon: <BusinessIcon />
+        },
+        {
+          menuName: 'Offers',
+          pageUrl: '/offerBanners',
+          icon: <LocalOfferIcon />
+        },
+        {
+          menuName: 'Brands',
+          pageUrl: '/brand',
+          icon: <BrandingWatermarkIcon />
+        },
 
-  // Determine selected menu from current URL
+      ];
+    } else if (role === "support") {
+      return [
+        { menuName: "Orders", pageUrl: "/orders", icon: <DeliveryDiningIcon /> },
+        { menuName: "Blog", pageUrl: "/blog", icon: <WebIcon /> },
+        { menuName: "Support", pageUrl: "/support", icon: <SupportIcon /> },
+        { menuName: "Testimonials", pageUrl: "/testimonials", icon: <BiotechIcon /> },
+      ];
+    } else {
+      return [];
+    }
+  }, [role]);
+
+  // ✅ Set selected menu on URL change
   useEffect(() => {
     for (const item of menuList) {
       if (item.submenu) {
-        for (const subItem of item.submenu) {
-          if (location.pathname.startsWith(subItem.pageUrl)) {
-            setSelectedMenu(subItem.menuName);
+        for (const sub of item.submenu) {
+          if (location.pathname.startsWith(sub.pageUrl)) {
+            setSelectedMenu(sub.menuName);
             setOpenMenus((prev) => ({ ...prev, [item.menuName]: true }));
             return;
           }
@@ -119,13 +100,14 @@ const Sidebar = () => {
         return;
       }
     }
-  }, [location.pathname]);
+  }, [location.pathname, menuList]);
 
   const handleMenuChange = (item) => {
     if (item.submenu) {
-      setOpenMenus({
-        [item.menuName]: !openMenus[item.menuName],
-      });
+      setOpenMenus((prev) => ({
+        ...prev,
+        [item.menuName]: !prev[item.menuName],
+      }));
     } else {
       navigate(item.pageUrl);
       setSelectedMenu(item.menuName);
@@ -178,7 +160,7 @@ const Sidebar = () => {
             },
           }}
         >
-          <List>
+          <List sx={{ minHeight: '82%' }}>
             {menuList.map((item, index) => {
               const isItemSelected = selectedMenu === item.menuName;
               const isMenuOpen = openMenus[item.menuName];
@@ -194,15 +176,11 @@ const Sidebar = () => {
                         borderRadius: "10px",
                       },
                       mb: 1,
-                      backgroundColor: isItemSelected
-                        ? "#1e1e1e"
-                        : "transparent",
+                      backgroundColor: isItemSelected ? "#1e1e1e" : "transparent",
                       borderRadius: "10px",
                     }}
                   >
-                    <ListItemIcon
-                      sx={{ color: isItemSelected ? "#fff" : "#bdb9b0" }}
-                    >
+                    <ListItemIcon sx={{ color: isItemSelected ? "#fff" : "#bdb9b0" }}>
                       {item.icon}
                     </ListItemIcon>
                     <ListItemText
@@ -228,8 +206,7 @@ const Sidebar = () => {
                     <Collapse in={isMenuOpen} timeout="auto" unmountOnExit>
                       <List component="div" disablePadding>
                         {item.submenu.map((subItem, subIndex) => {
-                          const isSubItemSelected =
-                            selectedMenu === subItem.menuName;
+                          const isSubItemSelected = selectedMenu === subItem.menuName;
                           return (
                             <ListItemButton
                               key={subItem.menuName}
@@ -239,9 +216,7 @@ const Sidebar = () => {
                               sx={{
                                 pl: 4,
                                 mb: 1,
-                                backgroundColor: isSubItemSelected
-                                  ? "#1e1e1e"
-                                  : "transparent",
+                                backgroundColor: isSubItemSelected ? "#1e1e1e" : "transparent",
                                 borderRadius: "10px",
                                 "&:hover": {
                                   backgroundColor: "#1e1e1e",
@@ -260,9 +235,7 @@ const Sidebar = () => {
                                 primary={subItem.menuName}
                                 primaryTypographyProps={{
                                   sx: {
-                                    color: isSubItemSelected
-                                      ? "#fff"
-                                      : "#bdb9b0",
+                                    color: isSubItemSelected ? "#fff" : "#bdb9b0",
                                     fontSize: "1.1rem",
                                     fontWeight: 500,
                                   },
@@ -278,10 +251,9 @@ const Sidebar = () => {
               );
             })}
           </List>
-          <List
-            sx={{ marginTop: "15%" }}
-            onClick={() => setDialogOpen(!dialogOpen)}
-          >
+
+          {/* Logout */}
+          <List sx={{ marginTop: "15%" }} onClick={() => setDialogOpen(true)}>
             <ListItemButton
               sx={{
                 "&:hover": {
@@ -293,7 +265,7 @@ const Sidebar = () => {
               }}
             >
               <ListItemIcon sx={{ color: "#bdb9b0" }}>
-                <ExitToApp />
+                <ExitToAppIcon />
               </ListItemIcon>
               <ListItemText
                 primary="Logout"
@@ -308,37 +280,13 @@ const Sidebar = () => {
             </ListItemButton>
           </List>
         </Box>
-        {/* <Box sx={{ overflow: 'auto', py: 1, px: 2, width: '100%', }} onClick={logout}>
-          <List>
-            <ListItemButton
-              sx={{
-                '&:hover': {
-                  backgroundColor: '#1e1e1e',
-                  color: '#fff',
-                  borderRadius: '10px'
-                },
-                mb: 1,
-              }}
-            >
-              <ListItemIcon sx={{ color: '#bdb9b0' }}><ExitToApp /></ListItemIcon>
-              <ListItemText
-                primary='Logout'
-                primaryTypographyProps={{
-                  sx: {
-                    color: '#bdb9b0',
-                    fontSize: '1.1rem',
-                    fontWeight: 500
-                  }
-                }}
-              />
-            </ListItemButton>
-          </List>
-        </Box> */}
       </Drawer>
+
+      {/* Logout Confirmation Modal */}
       <Modal
         open={dialogOpen}
-        close={() => setDialogOpen(!dialogOpen)}
-        content={"Are you sure you want to logout this application."}
+        close={() => setDialogOpen(false)}
+        content={"Are you sure you want to logout this application?"}
         success={logout}
       />
     </React.Fragment>

@@ -48,7 +48,9 @@ const VendorView = () => {
     }
     const handleClose = () => {
         setOpenSnackbar(!openSnackbar)
-        navigate('/vendor')
+        if (success) {
+            navigate('/vendor')
+        }
         dispatch(resetMessage())
     }
 
@@ -96,7 +98,7 @@ const VendorView = () => {
                     {message}
                 </Alert>
             </Snackbar>}
-            <Titlebar title={"Vendor Details"} back={true} backClick={() => { navigate('/vendor'), sessionStorage.removeItem("vendorId") }} />
+            <Titlebar title={"Vendor Details"} back={true} backClick={() => { navigate('/vendor'), sessionStorage.removeItem("vendorId"), sessionStorage.removeItem("Mode") }} />
             <Paper elevation={5} sx={{ borderRadius: '10px', padding: '2% 3%', margin: '3% auto', width: '95%' }}>
                 <Box sx={{ padding: '10px', width: '100%', borderBottom: 'solid 1px #2424', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant='p' component='div' sx={{ fontSize: '20px', fontWeight: 'bold', color: '#1976d2' }}>Personal Information</Typography>

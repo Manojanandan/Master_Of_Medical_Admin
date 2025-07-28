@@ -26,6 +26,15 @@ import SupportList from './pages/support/SupportList';
 import SupportView from './pages/support/SupportView';
 import OrderView from './pages/orders/OrderView';
 import ProductView from './pages/product/ProductView';
+import BannerList from './pages/banners/BannerList';
+import BannerView from './pages/banners/BannerView';
+import BannerEntry from './pages/banners/BannerEntry';
+import OffersBannerList from './pages/offersBanner/OffersBannerList';
+import OffersBannerView from './pages/offersBanner/OffersBannerView';
+import OffersBannerEntry from './pages/offersBanner/OffersBannerEntry';
+import BrandList from './pages/brands/BrandList';
+import BrandView from './pages/brands/BrandView';
+import BrandEntry from './pages/brands/BrandEntry';
 
 
 function App() {
@@ -42,7 +51,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/productmanagement" element={<Product />} />
           <Route path="/productmanagemententry" element={<ProductEntry />} />
-          <Route path='/productview' element={<ProductView />}  />
+          <Route path='/productview' element={<ProductView />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blogentry" element={<BlogEntry />} />
           <Route path='/blogview' element={<BlogView />} />
@@ -56,10 +65,19 @@ function App() {
           <Route path="/viewAdmin" element={<AdminView />} />
           <Route path="/vendor" element={<VendorList />} />
           <Route path="/vendorview" element={<VendorView />} />
-          <Route path='/orders' element={<Order />}  />
-          <Route path='/orderview' element={<OrderView />}  />
-          <Route path='/support' element={<SupportList />}  />
-          <Route path='/supportview' element={<SupportView />}  />
+          <Route path='/orders' element={<Order />} />
+          <Route path='/orderview' element={<OrderView />} />
+          <Route path='/support' element={<SupportList />} />
+          <Route path='/supportview' element={<SupportView />} />
+          <Route path='/banners' element={<BannerList />} />
+          <Route path='/bannerView' element={<BannerView />} />
+          <Route path="/bannerEntry" element={<BannerEntry />} />
+          <Route path='/offerBanners' element={<OffersBannerList />} />
+          <Route path='/offerBannersView' element={<OffersBannerView />} />
+          <Route path="/offerBannerEntry" element={<OffersBannerEntry />} />
+          <Route path='/brand' element={<BrandList />} />
+          <Route path='/brandView' element={<BrandView />} />
+          <Route path='/brandEntry' element={<BrandEntry />} />
         </Route>
       </Route>
 

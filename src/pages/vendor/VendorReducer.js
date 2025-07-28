@@ -7,12 +7,34 @@ export const getVendor = createAsyncThunk("Get Vendor", async (data) => {
 export const getOneVendor = createAsyncThunk("Get One Vendor", async (data) => {
     return await getAllVendor(data, "").then((response) => response.data)
 })
-export const modifyVendor = createAsyncThunk("Update Vendor", async (data) => {
-    return await updateVendor(data).then((response) => response?.data)
-})
-export const removeVendor = createAsyncThunk("Delete Customer", async (id) => {
-    return await deleteVendor(id).then((response) => response?.data)
-})
+export const modifyVendor = createAsyncThunk("Update Vendor",
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await updateVendor(data);
+            return response.data;
+        } catch (err) {
+            // Safely extract the error message
+            const message =
+                err?.response?.data?.message || err.message || "Something went wrong";
+            const success = err?.response?.data?.success ?? false;
+            return rejectWithValue({ message, success });
+        }
+    }
+)
+export const removeVendor = createAsyncThunk("Delete Customer",
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await deleteVendor(id);
+            return response.data;
+        } catch (err) {
+            // Safely extract the error message
+            const message =
+                err?.response?.data?.message || err.message || "Something went wrong";
+            const success = err?.response?.data?.success ?? false;
+            return rejectWithValue({ message, success });
+        }
+    }
+)
 
 export const vendorReducer = createSlice({
     name: 'vendor',
@@ -55,9 +77,9 @@ export const vendorReducer = createSlice({
             state.success = action.payload?.success
         })
         builder.addCase(modifyVendor.rejected, (state, action) => {
-            state.loader = false
-            state.message = action.payload?.message
-            state.success = action.payload?.success
+            state.loader = false;
+            state.success = false;
+            state.message = action.payload?.message || "Something went wrong";
         })
         builder.addCase(removeVendor.pending, (state) => {
             state.loader = true
@@ -69,9 +91,9 @@ export const vendorReducer = createSlice({
             state.message = action.payload?.message
         })
         builder.addCase(removeVendor.rejected, (state, action) => {
-            state.loader = false
-            state.success = action.payload?.success
-            state.message = action.payload?.message
+            state.loader = false;
+            state.success = false;
+            state.message = action.payload?.message || "Something went wrong";
         })
     }
 })

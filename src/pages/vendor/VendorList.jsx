@@ -116,6 +116,7 @@ const VendorList = () => {
     const handleClose = () => {
         setOpenSnackbar(!openSnackbar)
         dispatch(getVendor(`?page=${page}&limit=7`))
+        sessionStorage.removeItem("tempRow")
         setPage(1)
     }
 
@@ -127,7 +128,7 @@ const VendorList = () => {
             >
                 <CircularProgress color="secondary" />
             </Backdrop>
-            {message && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={1000} onClose={handleClose}>
+            {message && <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} open={openSnackbar} autoHideDuration={1500} onClose={handleClose}>
                 <Alert
                     onClose={handleClose}
                     severity={success ? "success" : "error"}

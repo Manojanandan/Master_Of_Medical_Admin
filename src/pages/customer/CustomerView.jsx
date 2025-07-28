@@ -35,7 +35,6 @@ const CustomerView = () => {
   }, [sessionStorage.getItem("customerId")])
 
   useEffect(() => {
-     
     if (message !== "" && message !== undefined) {
       setOpenSnackbar(true)
     }
@@ -48,7 +47,10 @@ const CustomerView = () => {
   }
   const handleClose = () => {
     setOpenSnackbar(!openSnackbar)
-    navigate('/customer')
+    if (success) {
+      sessionStorage.removeItem("customerId")
+      navigate('/customer')
+    }
     dispatch(resetMessage())
   }
 
@@ -176,22 +178,6 @@ const CustomerView = () => {
                   <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.remarks ?? "-"}</Typography>
                 </Grid2>
               }
-              {status === "rejected" &&
-                <>
-                  <Grid2 item size={8}>
-                    <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Remarks</Typography>
-                    {errMsg.remarks && <Typography variant='p' component='div' sx={{ fontSize: '14px', color: 'red' }} >{errMsg.remarks}</Typography>}
-                    <TextareaAutosize
-                      id='remarks'
-                      value={remarks}
-                      style={{ width: '100%', fontSize: '16px', padding: '15px 20px 0', backgroundColor: '#f8fafc' }}
-                      maxRows={4}
-                      minRows={3}
-                      onChange={(e) => { setRemarks(e.target.value), setErrMsg({ ...errMsg, remarks: "" }) }}
-                    />
-                  </Grid2>
-                </>
-              }
               <Grid2 item size={8}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Documents</Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginTop: '5px' }}>
@@ -217,6 +203,22 @@ const CustomerView = () => {
                     "-"}
                 </Box>
               </Grid2>
+              {status === "rejected" &&
+                <>
+                  <Grid2 item size={8}>
+                    <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Remarks</Typography>
+                    <TextareaAutosize
+                      id='remarks'
+                      value={remarks}
+                      style={{ width: '100%', fontSize: '16px', padding: '15px 20px 0', backgroundColor: '#f8fafc' }}
+                      maxRows={4}
+                      minRows={3}
+                      onChange={(e) => { setRemarks(e.target.value), setErrMsg({ ...errMsg, remarks: "" }) }}
+                    />
+                    {errMsg.remarks && <Typography variant='p' component='div' sx={{ fontSize: '14px', color: 'red' }} >{errMsg.remarks}</Typography>}
+                  </Grid2>
+                </>
+              }
               {editFlag && <Grid2 item size={12}>
                 <Button onClick={updateVendor} variant='contained' sx={{ backgroundColor: "#0ea398", marginRight: '15px' }}>update</Button>
                 <Button onClick={handleEdit} variant='contained' sx={{ backgroundColor: "#2424", color: 'black' }}>clear</Button>

@@ -14,14 +14,24 @@ export const removeCustomer = createAsyncThunk(
             const response = await deleteCustomer(id);
             return response.data;
         } catch (err) {
-            // Axios-style error handling
             return rejectWithValue(err?.response?.data || { message: "Something went wrong", success: false });
         }
     }
 );
-export const modifyCustomer = createAsyncThunk("Update Vendor", async (data) => {
-    return await updateCustomer(data).then((response) => response?.data)
-})
+export const modifyCustomer = createAsyncThunk(
+    "Update Vendor",
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await updateCustomer(data);
+            return response.data;
+        } catch (err) {
+            const message =
+                err?.response?.data?.message || err.message || "Something went wrong";
+            const success = err?.response?.data?.success ?? false;
+            return rejectWithValue({ message, success });
+        }
+    }
+);
 
 export const customerReducer = createSlice({
     name: 'customer',
@@ -79,9 +89,9 @@ export const customerReducer = createSlice({
             state.message = action.payload?.message
         })
         builder.addCase(modifyCustomer.rejected, (state, action) => {
-            state.loader = false
-            state.success = false
-            state.message = action?.payload?.message
+            state.loader = false;
+            state.success = false;
+            state.message = action.payload?.message || "Something went wrong";
         })
     }
 })

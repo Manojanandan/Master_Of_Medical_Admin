@@ -141,7 +141,6 @@ const AdminEntry = () => {
         } else if (allData.status === '') {
             setErrorMsg({ ...errorMsg, statusError: "Status is required" })
         } else {
-            alert()
             const formData = new FormData()
             formData.append("name", allData?.name)
             formData.append("email", allData?.email)
@@ -172,7 +171,7 @@ const AdminEntry = () => {
     }
 
     useEffect(() => {
-        if (success) {
+        if (message) {
             setOpenSnackbar(true)
             navigate('/adminUser')
             setAllData({ name: "", mobile: "", email: "", password: "", address: "", city: "", state: "", pincode: "", adminRole: "", status: "", country: "" })

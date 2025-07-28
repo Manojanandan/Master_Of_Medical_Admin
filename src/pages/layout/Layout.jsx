@@ -15,6 +15,7 @@ import { jwtDecode } from "jwt-decode";
 
 const Layout = () => {
   const tokenDecode = jwtDecode(sessionStorage.getItem("jwt"))
+  
   return (
     <Box
       sx={{
@@ -53,7 +54,7 @@ const Layout = () => {
         </Toolbar>
       </AppBar>
 
-      <Sidebar />
+      <Sidebar role={tokenDecode?.role} />
 
       <Box
         component="main"
