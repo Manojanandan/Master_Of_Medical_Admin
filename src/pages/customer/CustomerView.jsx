@@ -62,6 +62,7 @@ const CustomerView = () => {
     } else {
       const formData = new FormData()
       formData.append("id", listOneCustomer?.data?.id)
+      formData.append("userName", listOneCustomer?.data?.userName)
       formData.append("name", listOneCustomer?.data?.name)
       formData.append("email", listOneCustomer?.data?.email)
       formData.append("phone", listOneCustomer?.data?.phone)
@@ -113,39 +114,43 @@ const CustomerView = () => {
             <Grid2 container rowSpacing={3} columnSpacing={2}>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>User Name</Typography>
-                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.name}</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.userName ?? "-"}</Typography>
+              </Grid2>
+              <Grid2 item size={4}>
+                <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Name</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.name ?? "-"}</Typography>
               </Grid2>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Email</Typography>
-                <Typography variant='p' component='div' sx={{ fontSize: '18px', }}>{listOneCustomer?.data?.email}</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', }}>{listOneCustomer?.data?.email ?? "-"}</Typography>
               </Grid2>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Mobile No</Typography>
-                <Typography variant='p' component='div' sx={{ fontSize: '18px', }}>{listOneCustomer?.data?.phone}</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', }}>{listOneCustomer?.data?.phone ?? '-'}</Typography>
               </Grid2>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>User type</Typography>
-                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.type}</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.type ?? "-"}</Typography>
               </Grid2>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Address</Typography>
-                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.address}</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.address ?? "-"}</Typography>
               </Grid2>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Country</Typography>
-                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.country}</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.country ?? "-"}</Typography>
               </Grid2>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>State</Typography>
-                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.state}</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.state ?? "-"}</Typography>
               </Grid2>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>City</Typography>
-                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.city}</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.city ?? "-"}</Typography>
               </Grid2>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Postal Code</Typography>
-                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.postalCode}</Typography>
+                <Typography variant='p' component='div' sx={{ fontSize: '18px', textTransform: 'capitalize' }}>{listOneCustomer?.data?.postalCode ?? "-"}</Typography>
               </Grid2>
               <Grid2 item size={4}>
                 <Typography variant='p' component='div' sx={{ fontSize: '15px', color: '#22442280' }}>Status</Typography>
