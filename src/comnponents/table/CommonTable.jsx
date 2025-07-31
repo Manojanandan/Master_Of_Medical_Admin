@@ -33,7 +33,7 @@ const CommonTable = ({
           margin: "20px 25px 25px",
           height: "auto",
           borderRadius: "5px",
-          padding: "0 0 15px"
+          padding: "10px 0 15px"
         }}
       >
         {children}

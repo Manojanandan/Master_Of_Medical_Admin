@@ -169,6 +169,12 @@ const OrderView = () => {
     }
   };
 
+  const isoDate = getOneOrders?.data?.createdAt;
+  const date = new Date(isoDate);
+
+  const formattedDate = date.toLocaleDateString("en-GB"); // Output: "31/07/2025"
+  console.log(formattedDate);
+
   return (
     <div>
       <Backdrop
@@ -253,6 +259,38 @@ const OrderView = () => {
                   component="div"
                   sx={{ fontSize: "15px", color: "#22442280" }}
                 >
+                  Order Id
+                </Typography>
+                <Typography
+                  variant="p"
+                  component="div"
+                  sx={{ fontSize: "18px", textTransform: "capitalize" }}
+                >
+                  {sessionStorage.getItem("orderId") ?? "-"}
+                </Typography>
+              </Grid2>
+              <Grid2 item size={4}>
+                <Typography
+                  variant="p"
+                  component="div"
+                  sx={{ fontSize: "15px", color: "#22442280" }}
+                >
+                  Order Date
+                </Typography>
+                <Typography
+                  variant="p"
+                  component="div"
+                  sx={{ fontSize: "18px", textTransform: "capitalize" }}
+                >
+                  {formattedDate ?? "-"}
+                </Typography>
+              </Grid2>
+              <Grid2 item size={4}>
+                <Typography
+                  variant="p"
+                  component="div"
+                  sx={{ fontSize: "15px", color: "#22442280" }}
+                >
                   Customer Name
                 </Typography>
                 <Typography
@@ -311,7 +349,7 @@ const OrderView = () => {
                   {getOneOrders?.data?.customerInfo?.address?.country ?? "-"}
                 </Typography>
               </Grid2>
-              <Grid2 item size={4}>
+              {/* <Grid2 item size={4}>
                 <Typography
                   variant="p"
                   component="div"
@@ -342,21 +380,21 @@ const OrderView = () => {
                 >
                   {getOneOrders?.data?.customerInfo?.address?.city ?? "-"}
                 </Typography>
-              </Grid2>
-              <Grid2 item size={4}>
+              </Grid2> */}
+              <Grid2 item size={8}>
                 <Typography
                   variant="p"
                   component="div"
                   sx={{ fontSize: "15px", color: "#22442280" }}
                 >
-                  Address
+                  Delivery Address
                 </Typography>
                 <Typography
                   variant="p"
                   component="div"
                   sx={{ fontSize: "18px" }}
                 >
-                  {getOneOrders?.data?.customerInfo?.address?.address ?? "-"}
+                  {getOneOrders?.data?.customerInfo?.address?.address + "," + getOneOrders?.data?.customerInfo?.address?.city + "," + getOneOrders?.data?.customerInfo?.address?.state + "," + getOneOrders?.data?.customerInfo?.address?.postalCode + "." ?? "-"}
                 </Typography>
               </Grid2>
               <Grid2 item size={4}>
@@ -374,13 +412,12 @@ const OrderView = () => {
                     sx={{
                       fontSize: "18px",
                       textTransform: "capitalize",
-                      color: `${
-                        getOneOrders?.data?.status == "approved"
-                          ? "green"
-                          : getOneOrders?.data?.status == "rejected"
+                      color: `${getOneOrders?.data?.status == "approved"
+                        ? "green"
+                        : getOneOrders?.data?.status == "rejected"
                           ? "red"
                           : "orange"
-                      }`,
+                        }`,
                       fontWeight: "bold",
                     }}
                   >
@@ -560,7 +597,7 @@ const OrderView = () => {
       </Paper>
       <Dialog
         open={dialogOpen}
-        // onClose={() => setDialogOpen(!dialogOpen)}
+      // onClose={() => setDialogOpen(!dialogOpen)}
       >
         <DialogTitle
           sx={{

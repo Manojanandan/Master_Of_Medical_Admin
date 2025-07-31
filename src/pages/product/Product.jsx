@@ -68,7 +68,6 @@ const Product = () => {
   //     setOpenSnackbar(!openSnackbar);
   //   }
   // }, [successMsg]);
-  console.log(successMsg);
 
   // Reset page when filters change
   useEffect(() => {

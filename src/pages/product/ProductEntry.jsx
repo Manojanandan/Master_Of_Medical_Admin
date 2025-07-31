@@ -123,28 +123,15 @@ const ProductEntry = () => {
     if (category !== "" && mode === "Add") {
       dispatch(getSubCategory(allData?.category));
     } else {
-      dispatch(getSubCategory(allData?.category));
+      if (allData?.category !=="") {
+        dispatch(getSubCategory(allData?.category));
+      }
     }
   }, [allData?.category]);
 
   useEffect(() => {
     dispatch(getVendor(`?allVendors=true`));
   }, []);
-
-  console.log(productImages);
-  const sanitizeUrl = (url) => {
-    try {
-      const urlObj = new URL(url);
-      urlObj.pathname = urlObj.pathname
-        .split("/")
-        .map((segment) => encodeURIComponent(segment))
-        .join("/");
-      return urlObj.toString();
-    } catch (e) {
-      // fallback if url is not a valid URL object
-      return encodeURI(url);
-    }
-  };
 
   useEffect(() => {
     if (getOneData?.data && mode !== "Add") {
@@ -174,10 +161,10 @@ const ProductEntry = () => {
         benefits: data?.benefits,
         sideEffects: additional?.sideEffects,
         manufacturerDetails: additional?.manufacturer,
-        status: allData?.status,
+        status: data?.status,
         mrpPrice: additional?.mrpPrice,
         mediguardDetails: additional?.mediguardDetails,
-        rejectedReason: data?.remarks,
+        rejectedReason: data?.remarks == "null" ? '' : data?.remarks,
         gst: data?.gst,
         hsnCode: data?.hsnCode,
       });
@@ -488,7 +475,7 @@ const ProductEntry = () => {
       formData.append("hsnCode", allData.hsnCode);
       if (productImages?.length > 0 || removedImages) {
         const oldImg = productImages?.filter((el) => typeof el === "string");
-        formData.append("oldGalleryImage", oldImg.toString());
+        formData.append("oldGalleryImage", JSON.stringify(oldImg));
       }
       if (mode === "Edit") {
         formData.append("id", getOneData?.data?.id);
@@ -505,7 +492,6 @@ const ProductEntry = () => {
         if (productImages && productImages?.length > 0) {
           // All files as gallery
           const newImg = productImages?.filter((el) => typeof el !== "string");
-          console.log(newImg);
 
           if (newImg !== undefined) {
             for (let i = 0; i < newImg?.length; i++) {
@@ -514,7 +500,6 @@ const ProductEntry = () => {
           }
         }
       }
-      console.log(formData);
 
       if (mode === "Add") {
         dispatch(addProduct(formData));
@@ -1456,9 +1441,8 @@ const ProductEntry = () => {
 
                     const isUrl = typeof file === "string";
                     const url = isUrl
-                      ? sanitizeUrl(file)
+                      ? encodeURI(file)
                       : URL.createObjectURL(file);
-                    console.log(url);
                     const isPdf =
                       url.toLowerCase().endsWith(".pdf") ||
                       (file.type && file.type === "application/pdf");

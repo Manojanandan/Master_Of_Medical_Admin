@@ -87,7 +87,6 @@ const OffersBannerList = () => {
       align: "center",
     },
   ];
-  console.log(getAllOfferBannerData);
 
   const rows =
     getAllOfferBannerData?.data?.map((item) => {
