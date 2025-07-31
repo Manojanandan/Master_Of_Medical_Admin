@@ -132,6 +132,19 @@ const ProductEntry = () => {
   }, []);
 
   console.log(productImages);
+  const sanitizeUrl = (url) => {
+    try {
+      const urlObj = new URL(url);
+      urlObj.pathname = urlObj.pathname
+        .split("/")
+        .map((segment) => encodeURIComponent(segment))
+        .join("/");
+      return urlObj.toString();
+    } catch (e) {
+      // fallback if url is not a valid URL object
+      return encodeURI(url);
+    }
+  };
 
   useEffect(() => {
     if (getOneData?.data && mode !== "Add") {
@@ -473,8 +486,9 @@ const ProductEntry = () => {
       formData.append("expiresOn", allData.expireAfter);
       formData.append("gst", allData.gst);
       formData.append("hsnCode", allData.hsnCode);
-      if (productImages?.length > 0 && removedImages) {
-        formData.append("oldGalleryImage", productImages);
+      if (productImages?.length > 0 || removedImages) {
+        const oldImg = productImages?.filter((el) => typeof el === "string");
+        formData.append("oldGalleryImage", oldImg.toString());
       }
       if (mode === "Edit") {
         formData.append("id", getOneData?.data?.id);
@@ -490,11 +504,17 @@ const ProductEntry = () => {
       if (isImgChanged) {
         if (productImages && productImages?.length > 0) {
           // All files as gallery
-          for (let i = 0; i < productImages?.length; i++) {
-            formData.append("galleryImage", productImages[i]);
+          const newImg = productImages?.filter((el) => typeof el !== "string");
+          console.log(newImg);
+
+          if (newImg !== undefined) {
+            for (let i = 0; i < newImg?.length; i++) {
+              formData.append("galleryImage", newImg[i]);
+            }
           }
         }
       }
+      console.log(formData);
 
       if (mode === "Add") {
         dispatch(addProduct(formData));
@@ -1360,7 +1380,8 @@ const ProductEntry = () => {
                 minHeight: 120,
               }}
               onClick={() => {
-                if (productImages.length < 5) productImagesInputRef.current.click();
+                if (productImages.length < 5)
+                  productImagesInputRef.current.click();
               }}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -1432,8 +1453,12 @@ const ProductEntry = () => {
                 >
                   {productImages.map((file, idx) => {
                     // file can be a string (URL) or a File object
+
                     const isUrl = typeof file === "string";
-                    const url = isUrl ? file : URL.createObjectURL(file);
+                    const url = isUrl
+                      ? sanitizeUrl(file)
+                      : URL.createObjectURL(file);
+                    console.log(url);
                     const isPdf =
                       url.toLowerCase().endsWith(".pdf") ||
                       (file.type && file.type === "application/pdf");
