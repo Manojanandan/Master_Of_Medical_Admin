@@ -37,7 +37,7 @@ import { getVendor } from "../vendor/VendorReducer";
 const ProductEntry = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const [removedImages, setRemovedImages] = React.useState([]);
+  const [removedImages, setRemovedImages] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
   const [productImages, setProductImages] = useState([]);
   const fileInputRef = useRef();
@@ -180,8 +180,8 @@ const ProductEntry = () => {
   }, [sessionStorage.getItem("productId")]);
 
   useEffect(() => {
-    if (success) {
-      setOpenSnackbar(true);
+    setOpenSnackbar(true);
+    if (successMsg) {
       setAllData({
         ...allData,
         category: "",
@@ -229,6 +229,7 @@ const ProductEntry = () => {
       setProductImages([]);
       sessionStorage.removeItem("productId");
       sessionStorage.removeItem("Mode");
+      navigate("/productmanagement");
     }
   }, [success]);
 
@@ -261,7 +262,7 @@ const ProductEntry = () => {
   };
 
   const handleRemoveProductImage = (index) => {
-    // setRemovedImages((prev) => [...prev, url]);
+    setRemovedImages(true);
     setProductImages((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -366,7 +367,7 @@ const ProductEntry = () => {
     if (e.target.name === "postedBy") {
       setErrorMsg({ ...errorMsg, postedByError: "" });
     }
-    if (e.target.id === "gst") {
+    if (e.target.name === "gst") {
       setErrorMsg({ ...errorMsg, gstError: "" });
     }
   };
@@ -472,7 +473,7 @@ const ProductEntry = () => {
       formData.append("expiresOn", allData.expireAfter);
       formData.append("gst", allData.gst);
       formData.append("hsnCode", allData.hsnCode);
-      if (productImages?.length > 0) {
+      if (productImages?.length > 0 && removedImages) {
         formData.append("oldGalleryImage", productImages);
       }
       if (mode === "Edit") {
@@ -524,14 +525,14 @@ const ProductEntry = () => {
         <Snackbar
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
           open={openSnackbar}
-          autoHideDuration={500}
+          autoHideDuration={1000}
           onClose={() => {
-            setOpenSnackbar(!openSnackbar), navigate("/productmanagement");
+            setOpenSnackbar(!openSnackbar);
           }}
         >
           <Alert
             onClose={() => {
-              setOpenSnackbar(!openSnackbar), navigate("/productmanagement");
+              setOpenSnackbar(!openSnackbar);
             }}
             severity={success ? "success" : "error"}
             variant="filled"
@@ -1358,9 +1359,9 @@ const ProductEntry = () => {
                 position: "relative",
                 minHeight: 120,
               }}
-              // onClick={() => {
-              //   if (productImages.length < 5) productImagesInputRef.current.click();
-              // }}
+              onClick={() => {
+                if (productImages.length < 5) productImagesInputRef.current.click();
+              }}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
             >
