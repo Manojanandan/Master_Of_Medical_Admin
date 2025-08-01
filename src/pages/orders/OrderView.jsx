@@ -381,20 +381,38 @@ const OrderView = () => {
                   {getOneOrders?.data?.customerInfo?.address?.city ?? "-"}
                 </Typography>
               </Grid2> */}
-              <Grid2 item size={8}>
+              <Grid2 item size={6}>
                 <Typography
                   variant="p"
                   component="div"
                   sx={{ fontSize: "15px", color: "#22442280" }}
                 >
-                  Delivery Address
+                  Billing Address
                 </Typography>
                 <Typography
                   variant="p"
                   component="div"
                   sx={{ fontSize: "18px" }}
                 >
-                  {getOneOrders?.data?.customerInfo?.address?.address + "," + getOneOrders?.data?.customerInfo?.address?.city + "," + getOneOrders?.data?.customerInfo?.address?.state + "," + getOneOrders?.data?.customerInfo?.address?.postalCode + "." ?? "-"}
+                  {getOneOrders?.data?.customerInfo?.billingAddress?.address ??
+                    "-"}
+                </Typography>
+              </Grid2>
+              <Grid2 item size={6}>
+                <Typography
+                  variant="p"
+                  component="div"
+                  sx={{ fontSize: "15px", color: "#22442280" }}
+                >
+                  Shipping Address
+                </Typography>
+                <Typography
+                  variant="p"
+                  component="div"
+                  sx={{ fontSize: "18px" }}
+                >
+                  {getOneOrders?.data?.customerInfo?.shippingAddress?.address ??
+                    "-"}
                 </Typography>
               </Grid2>
               <Grid2 item size={4}>
@@ -412,12 +430,13 @@ const OrderView = () => {
                     sx={{
                       fontSize: "18px",
                       textTransform: "capitalize",
-                      color: `${getOneOrders?.data?.status == "approved"
-                        ? "green"
-                        : getOneOrders?.data?.status == "rejected"
+                      color: `${
+                        getOneOrders?.data?.status == "approved"
+                          ? "green"
+                          : getOneOrders?.data?.status == "rejected"
                           ? "red"
                           : "orange"
-                        }`,
+                      }`,
                       fontWeight: "bold",
                     }}
                   >
@@ -597,19 +616,33 @@ const OrderView = () => {
       </Paper>
       <Dialog
         open={dialogOpen}
-      // onClose={() => setDialogOpen(!dialogOpen)}
+        // onClose={() => setDialogOpen(!dialogOpen)}
       >
         <DialogTitle
           sx={{
             fontWeight: "bold",
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             gap: 1,
             color: "gray",
           }}
         >
+          <Typography
+            sx={{ color: "black", fontSize: "18px" }}
+            variant="p"
+            component="div"
+          >
+            Contact Your Vendor
+          </Typography>
           <CancelIcon
-            sx={{ fontSize: "1.8rem", cursor: "pointer" }}
+            sx={{
+              fontSize: "1.8rem",
+              cursor: "pointer",
+              color: "inherit", // optional, to inherit default color
+              "&:hover": {
+                color: "red",
+              },
+            }}
             onClick={() => {
               setDialogOpen(!dialogOpen);
               sessionStorage.removeItem("tempRow");
@@ -618,14 +651,7 @@ const OrderView = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            <Typography
-              sx={{ color: "black", fontSize: "18px" }}
-              variant="p"
-              component="div"
-            >
-              Kindly Contact the Respective Vendor
-            </Typography>
-            <Grid container rowSpacing={1} sx={{ marginTop: "1px" }}>
+            <Grid container rowSpacing={1}>
               <Grid item xs={12}>
                 {/* <Typography sx={{ color: "gray", fontSize: "15px" }}>Name</Typography> */}
                 <Typography
